@@ -1,26 +1,188 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================
+   KARBAN — کاربان — Design Tokens
+   ============================================ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  /* Brand — Golden Yellow */
+  --color-brand-50: #fefce8;
+  --color-brand-100: #fdf3c4;
+  --color-brand-200: #fce588;
+  --color-brand-300: #f9d24b;
+  --color-brand-400: #f2c94c;
+  --color-brand-500: #f5b800;
+  --color-brand-600: #d99e00;
+  --color-brand-700: #b37f02;
+  --color-brand-800: #92640a;
+  --color-brand-900: #78520f;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Structure — Deep Slate */
+  --color-ink-950: #0b1120;
+  --color-ink-900: #0f172a;
+  --color-ink-800: #1e293b;
+  --color-ink-700: #334155;
+  --color-ink-600: #475569;
+  --color-charcoal: #1e1e1e;
+
+  /* Semantic */
+  --color-success: #10b981;
+  --color-alert: #ef4444;
+  --color-warn: #f59e0b;
+
+  --font-yekan: var(--font-yekan-face), "Vazirmatn", "Segoe UI", Tahoma,
+    sans-serif;
+
+  --radius-4xl: 2rem;
+
+  --animate-pulse-ring: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 rgb(245 184 0 / 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 14px rgb(245 184 0 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgb(245 184 0 / 0);
+    }
   }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
+
+:root {
+  --background: #0b1120;
+  --foreground: #f8fafc;
+  --header-h: 4.25rem;
+  --bottom-nav-h: 4.5rem;
+}
+
+/* Lenis smooth-scroll cooperation */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-yekan);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(245 184 0 / 0.85);
+  color: #0f172a;
+}
+
+/* Scrollbar (desktop pointers only) */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 8px;
+    border: 2px solid #0f172a;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #f5b800;
+  }
+}
+
+/* ---------- Utilities ---------- */
+
+/* Glass surfaces */
+.glass {
+  background: rgb(15 23 42 / 0.66);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgb(148 163 184 / 0.12);
+}
+
+.glass-light {
+  background: rgb(255 255 255 / 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #283548 50%, #1e293b 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Gold text gradient */
+.text-gold {
+  background: linear-gradient(120deg, #f5b800, #fce588 55%, #f2c94c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hide scrollbar for snap carousels */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* GPU hint for animated layers */
+.gpu {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+/* Interactive base — fluid feedback on every element */
+button,
+a,
+[role="button"] {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s ease;
+}
+
+:focus-visible {
+  outline: 2px solid #f5b800;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

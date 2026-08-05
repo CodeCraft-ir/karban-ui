@@ -1,0 +1,138 @@
+"use client";
+
+import { useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import {
+  Home,
+  LayoutDashboard,
+  PlusCircle,
+  Search,
+  Wallet,
+} from "lucide-react";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { cn } from "@/lib/utils";
+
+const TABS = [
+  { href: "/", label: "خانه", icon: Home },
+  { href: "/search", label: "جستجو", icon: Search },
+  { href: "/dashboard", label: "پروژه جدید", icon: PlusCircle, fab: true },
+  { href: "/pro", label: "فرصت‌ها", icon: Wallet },
+  { href: "/dashboard", label: "داشبورد", icon: LayoutDashboard, key: "dash" },
+] as const;
+
+/**
+ * Bottom navigation with a liquid active indicator:
+ * a golden blob that stretches horizontally mid-flight (like liquid
+ * pulling) then snaps back to a pill under the active tab.
+ */
+export function BottomNav() {
+  const ref = useRef<HTMLElement>(null);
+  const blobRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const { contextSafe } = useGSAP({ scope: ref });
+
+  const activeIndex = TABS.findIndex(
+    (t, i) => !("fab" in t && t.fab) && t.href === pathname && !(i === 4 && pathname === "/"),
+  );
+
+  const moveBlob = contextSafe((target: HTMLElement) => {
+    const blob = blobRef.current;
+    const nav = ref.current;
+    if (!blob || !nav) return;
+    const navRect = nav.getBoundingClientRect();
+    const rect = target.getBoundingClientRect();
+    const x = rect.left - navRect.left + rect.width / 2;
+
+    gsap
+      .timeline()
+      .to(blob, {
+        left: x,
+        scaleX: 1.9,
+        scaleY: 0.65,
+        duration: 0.32,
+        ease: "power2.in",
+      })
+      .to(blob, {
+        scaleX: 1,
+        scaleY: 1,
+        duration: 0.55,
+        ease: "elastic.out(1.1, 0.5)",
+      });
+  });
+
+  // position blob under active tab on mount / route change
+  useGSAP(
+    () => {
+      const nav = ref.current;
+      const blob = blobRef.current;
+      if (!nav || !blob) return;
+      const links = nav.querySelectorAll<HTMLElement>("[data-tab]");
+      const active = links[activeIndex >= 0 ? activeIndex : 0];
+      if (!active) return;
+      const navRect = nav.getBoundingClientRect();
+      const rect = active.getBoundingClientRect();
+      gsap.set(blob, {
+        left: rect.left - navRect.left + rect.width / 2,
+        opacity: activeIndex >= 0 ? 1 : 0,
+      });
+    },
+    { dependencies: [pathname], scope: ref },
+  );
+
+  return (
+    <nav
+      ref={ref}
+      aria-label="ناوبری اصلی"
+      className="glass fixed inset-x-3 bottom-3 z-50 mx-auto flex h-(--bottom-nav-h) max-w-md items-center justify-around rounded-3xl px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_18px_50px_-12px_rgb(0_0_0/0.65)] md:hidden"
+    >
+      {/* liquid indicator blob */}
+      <div
+        ref={blobRef}
+        aria-hidden
+        className="gpu absolute top-1.5 h-1.5 w-9 -translate-x-1/2 rounded-full bg-brand-500 opacity-0 shadow-[0_0_14px_2px_rgb(245_184_0/0.5)]"
+        style={{ left: "50%" }}
+      />
+
+      {TABS.map((tab, i) => {
+        const Icon = tab.icon;
+        const isFab = "fab" in tab && tab.fab;
+        const active = i === activeIndex;
+
+        if (isFab) {
+          return (
+            <Magnetic key={`fab-${i}`} strength={0.4}>
+              <Link
+                href={tab.href}
+                aria-label={tab.label}
+                className="pulse-cta -mt-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500 text-ink-900 shadow-[0_10px_28px_-6px_rgb(245_184_0/0.65)]"
+                style={{ animation: "pulse-ring 2.5s cubic-bezier(0.4,0,0.6,1) infinite" }}
+              >
+                <PlusCircle className="h-7 w-7" />
+              </Link>
+            </Magnetic>
+          );
+        }
+
+        return (
+          <Link
+            key={`${tab.href}-${i}`}
+            href={tab.href}
+            data-tab
+            aria-current={active ? "page" : undefined}
+            onClick={(e) => moveBlob(e.currentTarget)}
+            className={cn(
+              "flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 text-[10px]",
+              active ? "text-brand-400" : "text-slate-400 hover:text-slate-200",
+            )}
+          >
+            <Icon className={cn("h-5.5 w-5.5 transition-transform duration-300", active && "-translate-y-0.5")} />
+            <span className="font-medium">{tab.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
