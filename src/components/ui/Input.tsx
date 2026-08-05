@@ -25,7 +25,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       )}
       <div className="group relative">
         {icon && (
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted transition-colors group-focus-within:text-primary">
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted transition-colors group-focus-within:text-accent">
             {icon}
           </span>
         )}
@@ -35,7 +35,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           className={cn(
             "h-12 w-full rounded-2xl border border-line bg-elev px-4 text-[15px] text-fg",
             "placeholder:text-faint transition-all duration-300",
-            "focus:border-primary/70 focus:bg-elev-2 focus:shadow-[0_0_0_4px_var(--glow-soft)] focus:outline-none",
+            "focus:border-accent/70 focus:bg-elev-2 focus:shadow-[0_0_0_4px_var(--accent-glow)] focus:outline-none",
             icon && "pr-11",
             error && "border-alert/70",
             className,

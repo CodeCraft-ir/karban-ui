@@ -17,32 +17,36 @@ export default function HomePage() {
       {/* Why Karban */}
       <section className="px-4 py-10 sm:px-6" aria-labelledby="why-title">
         <div className="mx-auto max-w-5xl">
-          <h2 id="why-title" className="mb-7 text-xl font-bold sm:text-2xl">
-            چرا کاربان؟
+          <h2 id="why-title" className="mb-2 text-xl font-bold sm:text-2xl">
+            چرا کارفرماها به کاربان اعتماد می‌کنند؟
           </h2>
+          <p className="mb-7 max-w-xl text-sm leading-relaxed text-muted">
+            پیدا کردن استادکار خوب نباید شانسی باشد. کاربان هر سه دغدغه اصلی را
+            یک‌جا حل می‌کند:
+          </p>
           <Reveal stagger={0.12} className="grid gap-4 sm:grid-cols-3">
             {[
               {
                 icon: ShieldCheck,
-                title: "هویت تایید شده",
-                text: "همه متخصصان با مدارک هویتی و سابقه کاری احراز می‌شوند.",
+                title: "هویت و مهارت، تایید شده",
+                text: "هر متخصص قبل از ورود با مدارک هویتی و سابقه واقعی کار احراز می‌شود — نه فقط یک شماره تلفن.",
               },
               {
                 icon: Zap,
-                title: "پاسخ سریع",
-                text: "میانگین زمان پاسخ متخصصان کمتر از یک ساعت است.",
+                title: "پاسخ در کمتر از یک ساعت",
+                text: "درخواستت مستقیم به استادکاران فعال محله می‌رسد؛ میانگین اولین پاسخ، زیر ۶۰ دقیقه.",
               },
               {
                 icon: Wallet2,
-                title: "پرداخت امن",
-                text: "مبلغ پروژه تا تایید نهایی کارفرما نزد کاربان امانت می‌ماند.",
+                title: "پولت پیش خودت می‌ماند",
+                text: "مبلغ پروژه تا وقتی خودت تایید نکنی نزد کاربان امانت است. کار بد؟ پرداختی در کار نیست.",
               },
             ].map(({ icon: Icon, title, text }) => (
               <div
                 key={title}
                 className="rounded-3xl border border-line bg-card p-6"
               >
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
                   <Icon className="h-6 w-6" />
                 </span>
                 <h3 className="mb-2 font-bold text-fg">{title}</h3>
@@ -61,18 +65,19 @@ export default function HomePage() {
             <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-bold sm:text-2xl">
-                  استادکار هستی؟ <span className="text-gold">به کاربان بپیوند</span>
+                  استادکار هستی؟ <span className="text-gold">وقتشه دیده بشی</span>
                 </h2>
                 <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
-                  پروژه‌های محله‌ات را ببین، مستقیم با کارفرما در تماس باش و
-                  درآمدت را چند برابر کن.
+                  پروژه‌های واقعی محله‌ات، بدون واسطه و بدون درصد از دستمزد.
+                  پروفایل بساز، نمونه‌کارت را نشان بده و بگذار کار خودش سراغت
+                  بیاید.
                 </p>
               </div>
               <Link
                 href="/auth/select-role"
                 className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-7 font-medium text-primary-fg shadow-[0_10px_28px_-8px_var(--glow)] hover:bg-primary-hover active:scale-95"
               >
-                شروع کن
+                رایگان شروع کن
                 <ArrowLeft className="h-4.5 w-4.5" />
               </Link>
             </div>

@@ -5,7 +5,12 @@ import { Badge } from "@/components/ui/Badge";
 import { SPECIALISTS, CATEGORIES } from "@/lib/data";
 import { faNum } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "جستجوی متخصص" };
+export const metadata: Metadata = {
+  title: "جستجوی استادکار و متخصص ساختمان",
+  description:
+    "استادکاران تایید‌شده را بر اساس تخصص، محله و امتیاز واقعی کارفرمایان فیلتر و مقایسه کن — برق‌کاری، لوله‌کشی، نقاشی، کاشی‌کاری و بازسازی.",
+  alternates: { canonical: "/search" },
+};
 
 export default function SearchPage() {
   return (

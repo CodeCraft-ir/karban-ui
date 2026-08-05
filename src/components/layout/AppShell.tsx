@@ -6,6 +6,7 @@ import { Splash } from "./Splash";
 import { Header } from "./Header";
 import { MobileMenu } from "./MobileMenu";
 import { BottomNav } from "./BottomNav";
+import { InstallBanner } from "@/components/blocks/InstallApp";
 
 /** Client shell: smooth scroll + splash + chrome around every page. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -18,6 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </main>
       <BottomNav />
+      <InstallBanner />
     </SmoothScroll>
   );
 }

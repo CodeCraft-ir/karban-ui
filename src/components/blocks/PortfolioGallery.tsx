@@ -26,10 +26,15 @@ function ArtTile({
         className,
       )}
       style={{
-        background: `
-          radial-gradient(120% 90% at 15% 10%, hsl(${item.hue} 70% 52% / 0.85), transparent 55%),
-          radial-gradient(110% 100% at 85% 90%, hsl(${(item.hue + 60) % 360} 60% 30% / 0.9), transparent 60%),
-          linear-gradient(160deg, hsl(${item.hue} 45% 20%), hsl(${(item.hue + 30) % 360} 50% 12%))`,
+        // brand duotone art — alternates yellow-lead / blue-lead per item
+        background:
+          item.hue % 2 === 0
+            ? `radial-gradient(120% 90% at 15% 10%, rgb(242 203 31 / 0.8), transparent 55%),
+               radial-gradient(110% 100% at 85% 90%, rgb(0 114 182 / 0.85), transparent 60%),
+               linear-gradient(160deg, #0b4265, #050b10)`
+            : `radial-gradient(120% 90% at 15% 10%, rgb(46 149 230 / 0.85), transparent 55%),
+               radial-gradient(110% 100% at 85% 90%, rgb(212 174 11 / 0.8), transparent 60%),
+               linear-gradient(160deg, #102431, #050b10)`,
       }}
     >
       {/* texture grid */}

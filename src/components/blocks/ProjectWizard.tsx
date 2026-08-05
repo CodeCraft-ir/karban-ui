@@ -218,7 +218,7 @@ export function ProjectWizard({
                     className="relative h-56 cursor-crosshair overflow-hidden rounded-3xl border border-line"
                     style={{
                       background:
-                        "radial-gradient(80% 80% at 30% 20%, #1c2a44, #0f172a)",
+                        "radial-gradient(80% 80% at 30% 20%, #0d2436, #050b10)",
                     }}
                     onClick={(e) => {
                       const r = e.currentTarget.getBoundingClientRect();
@@ -234,7 +234,7 @@ export function ProjectWizard({
                       className="absolute inset-0 opacity-15"
                       style={{
                         backgroundImage:
-                          "linear-gradient(0deg, #64748b 1.5px, transparent 1.5px), linear-gradient(90deg, #64748b 1.5px, transparent 1.5px), linear-gradient(45deg, transparent 48%, #64748b 49%, #64748b 51%, transparent 52%)",
+                          "linear-gradient(0deg, #2a5570 1.5px, transparent 1.5px), linear-gradient(90deg, #2a5570 1.5px, transparent 1.5px), linear-gradient(45deg, transparent 48%, #2a5570 49%, #2a5570 51%, transparent 52%)",
                         backgroundSize: "56px 56px, 72px 72px, 120px 120px",
                       }}
                     />

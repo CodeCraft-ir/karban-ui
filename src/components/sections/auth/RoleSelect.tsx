@@ -14,7 +14,7 @@ const ROLES = [
     title: "کارفرما هستم",
     text: "پروژه دارم و دنبال استادکار مطمئن می‌گردم",
     href: "/dashboard",
-    accent: "from-sky-500/25",
+    accent: "from-azure-500/25",
     glow: "56, 150, 255",
   },
   {

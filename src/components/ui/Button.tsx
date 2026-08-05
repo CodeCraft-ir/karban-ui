@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary" | "ghost" | "outline" | "danger";
+type Variant = "primary" | "secondary" | "accent" | "ghost" | "outline" | "danger";
 type Size = "sm" | "md" | "lg" | "icon";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,9 +18,13 @@ const variants: Record<Variant, string> = {
     "bg-primary text-primary-fg font-medium hover:bg-primary-hover shadow-[0_8px_24px_-8px_var(--glow)] hover:shadow-[0_12px_32px_-8px_var(--glow)]",
   secondary:
     "bg-elev-2 text-fg hover:bg-elev-3 border border-line",
+  /* Brand blue — secondary CTAs, informational actions */
+  accent:
+    "bg-accent text-accent-fg font-medium hover:bg-accent-strong",
   ghost: "bg-transparent text-fg-soft hover:bg-wash",
+  /* Blue outline — yellow text on white fails contrast, blue passes AA */
   outline:
-    "bg-transparent border border-primary/60 text-primary hover:bg-primary/10",
+    "bg-transparent border border-accent/60 text-accent hover:bg-accent/10",
   danger: "bg-alert/90 text-white hover:bg-alert",
 };
 

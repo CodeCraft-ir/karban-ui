@@ -12,7 +12,7 @@ const tones: Record<Tone, string> = {
   alert: "bg-alert/15 text-red-700 dark:text-red-400 border-alert/25",
   warn: "bg-warn/15 text-amber-700 dark:text-amber-400 border-warn/25",
   neutral: "bg-wash text-fg-soft border-line",
-  info: "bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/25",
+  info: "bg-azure-500/15 text-azure-700 dark:text-azure-400 border-azure-500/25",
 };
 
 export function Badge({
@@ -48,17 +48,17 @@ export function StatusBadge({ status }: { status: ProjectStatus }) {
   return <Badge tone={statusTone[status]}>{status}</Badge>;
 }
 
-/** Golden verified checkmark — the trust anchor of Karban. */
+/** Brand-blue verified checkmark — the trust anchor of Karban. */
 export function VerifiedBadge({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-primary",
+        "inline-flex items-center gap-1 text-accent",
         className,
       )}
       title="هویت تایید شده"
     >
-      <BadgeCheck className="h-4.5 w-4.5 fill-primary/20" />
+      <BadgeCheck className="h-4.5 w-4.5 fill-accent/20" />
       <span className="sr-only">هویت تایید شده</span>
     </span>
   );

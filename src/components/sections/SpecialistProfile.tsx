@@ -69,7 +69,7 @@ export function SpecialistProfile({ specialist }: { specialist: Specialist }) {
             background: `
               radial-gradient(100% 120% at 80% 0%, hsl(${s.hue} 70% 45% / 0.5), transparent 55%),
               radial-gradient(90% 100% at 10% 100%, rgb(245 184 0 / 0.25), transparent 50%),
-              linear-gradient(150deg, #1e293b, #0f172a)`,
+              linear-gradient(150deg, #102431, #050b10)`,
           }}
         />
         {/* blueprint grid texture */}

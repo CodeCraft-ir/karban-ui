@@ -72,24 +72,24 @@ export function Hero() {
     >
       {/* ambient glow */}
       <div className="hero-orb pointer-events-none absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/12 blur-[110px]" />
-      <div className="pointer-events-none absolute -bottom-32 -right-24 h-72 w-72 rounded-full bg-sky-500/8 blur-[90px]" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 h-72 w-72 rounded-full bg-azure-600/10 blur-[90px]" />
 
       <div className="relative mx-auto max-w-3xl text-center">
-        <div className="hero-line mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5 text-xs text-primary opacity-0">
+        <div className="hero-line mb-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-xs font-medium text-accent opacity-0">
           <Sparkles className="h-3.5 w-3.5" />
-          بیش از {faNum(2400)} استادکار تایید شده
+          بیش از {faNum(2400)} استادکار با هویت تایید شده
         </div>
 
         <h1 className="text-[clamp(1.9rem,6vw,3.4rem)] font-bold leading-[1.35]">
-          <span className="hero-line block opacity-0">استادکار مورد اعتمادت را</span>
+          <span className="hero-line block opacity-0">خیالت راحت؛ استادکارِ کارْبلد</span>
           <span className="hero-line block opacity-0">
-            در <span className="text-gold">چند دقیقه</span> پیدا کن
+            در <span className="text-gold">چند دقیقه</span> کنارته
           </span>
         </h1>
 
         <p className="hero-line mx-auto mt-5 max-w-md text-[clamp(0.9rem,2.5vw,1.05rem)] leading-relaxed text-muted opacity-0">
-          از برق‌کاری تا بازسازی کامل؛ متخصصان تایید شده محله‌ات با نظرات واقعی
-          کارفرمایان قبلی.
+          از تعویض یک پریز تا بازسازی کامل خانه — متخصصان محله‌ات را با نظرات
+          واقعی کارفرمایان مقایسه کن و بدون واسطه شروع کن.
         </p>
 
         {/* Search card */}
@@ -136,7 +136,7 @@ export function Hero() {
             ["۴.۸ از ۵", "رضایت کارفرما"],
           ].map(([num, label]) => (
             <div key={label} className="hero-stat opacity-0">
-              <span className="block text-lg font-bold text-primary sm:text-xl">
+              <span className="block text-lg font-bold text-accent sm:text-xl">
                 {num}
               </span>
               {label}

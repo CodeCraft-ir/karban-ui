@@ -9,6 +9,7 @@ import { ChevronDown, MapPin, User } from "lucide-react";
 import { Logo, LogoMark } from "@/components/brand/Logo";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { InstallButton } from "@/components/blocks/InstallApp";
 import { useUIStore } from "@/store/ui";
 import { CITIES } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -108,6 +109,9 @@ export function Header() {
               </ul>
             )}
           </div>
+
+          {/* Install app — utility slot, next to theme toggle */}
+          <InstallButton className="hidden sm:flex" />
 
           {/* Theme switcher */}
           <Magnetic strength={0.3}>

@@ -19,7 +19,7 @@ import { faNum, faPrice } from "@/lib/utils";
 
 const STATS = [
   { icon: FolderKanban, label: "پروژه فعال", value: faNum(2), tone: "text-primary bg-primary/12" },
-  { icon: MessagesSquare, label: "پیشنهاد جدید", value: faNum(8), tone: "text-sky-700 dark:text-sky-400 bg-sky-500/12" },
+  { icon: MessagesSquare, label: "پیشنهاد جدید", value: faNum(8), tone: "text-azure-700 dark:text-azure-400 bg-azure-500/12" },
   { icon: CheckCircle2, label: "تکمیل شده", value: faNum(5), tone: "text-emerald-700 dark:text-emerald-400 bg-success/12" },
   { icon: Star, label: "نظر ثبت شده", value: faNum(4), tone: "text-amber-700 dark:text-amber-400 bg-warn/12" },
 ];
