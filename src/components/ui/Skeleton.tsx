@@ -7,7 +7,7 @@ export function Skeleton({ className }: { className?: string }) {
 /** Full specialist-card shaped skeleton for initial loading states. */
 export function SpecialistCardSkeleton() {
   return (
-    <div className="rounded-3xl border border-ink-700/40 bg-ink-900/70 p-4">
+    <div className="rounded-3xl border border-line bg-card p-4">
       <div className="flex items-start gap-3.5">
         <Skeleton className="h-16 w-16 shrink-0 rounded-2xl" />
         <div className="flex-1 space-y-2.5 pt-1">

@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronDown, MapPin, User } from "lucide-react";
 import { Logo, LogoMark } from "@/components/brand/Logo";
 import { Magnetic } from "@/components/motion/Magnetic";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useUIStore } from "@/store/ui";
 import { CITIES } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,7 @@ export function Header() {
       ref={ref}
       className={cn(
         "group/header fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        "[&.is-shrunk]:shadow-[0_10px_40px_-12px_rgb(0_0_0/0.55)]",
+        "[&.is-shrunk]:shadow-[0_10px_40px_-12px_var(--shade)]",
       )}
     >
       <div
@@ -68,13 +69,13 @@ export function Header() {
               onClick={() => setCityOpen((o) => !o)}
               aria-expanded={cityOpen}
               aria-haspopup="listbox"
-              className="flex h-10 items-center gap-1.5 rounded-2xl bg-white/5 px-3 text-sm text-slate-200 hover:bg-white/10"
+              className="flex h-10 items-center gap-1.5 rounded-2xl bg-wash px-3 text-sm text-fg-soft hover:bg-wash-2"
             >
-              <MapPin className="h-4 w-4 text-brand-400" />
+              <MapPin className="h-4 w-4 text-primary" />
               <span>{city}</span>
               <ChevronDown
                 className={cn(
-                  "h-3.5 w-3.5 text-slate-400 transition-transform duration-300",
+                  "h-3.5 w-3.5 text-muted transition-transform duration-300",
                   cityOpen && "rotate-180",
                 )}
               />
@@ -94,10 +95,10 @@ export function Header() {
                         setCityOpen(false);
                       }}
                       className={cn(
-                        "w-full rounded-xl px-3 py-2 text-right text-sm hover:bg-white/8",
+                        "w-full rounded-xl px-3 py-2 text-right text-sm hover:bg-wash-2",
                         c === city
-                          ? "bg-brand-500/15 text-brand-400"
-                          : "text-slate-300",
+                          ? "bg-primary/15 text-primary"
+                          : "text-fg-soft",
                       )}
                     >
                       {c}
@@ -108,12 +109,17 @@ export function Header() {
             )}
           </div>
 
+          {/* Theme switcher */}
+          <Magnetic strength={0.3}>
+            <ThemeToggle />
+          </Magnetic>
+
           {/* Auth avatar */}
           <Magnetic strength={0.3}>
             <Link
               href="/auth/login"
               aria-label="ورود یا ثبت‌نام"
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-brand-500/30 bg-brand-500/10 text-brand-400 hover:bg-brand-500/20"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
             >
               <User className="h-4.5 w-4.5" />
             </Link>
@@ -125,7 +131,7 @@ export function Header() {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "بستن منو" : "باز کردن منو"}
               aria-expanded={menuOpen}
-              className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 text-ink-900 shadow-[0_6px_20px_-6px_rgb(245_184_0/0.6)]"
+              className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-fg shadow-[0_6px_20px_-6px_var(--glow)]"
             >
               <LogoMark
                 className={cn(
@@ -139,8 +145,8 @@ export function Header() {
                   menuOpen ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0",
                 )}
               >
-                <span className="absolute h-0.5 w-5 rotate-45 rounded bg-ink-900" />
-                <span className="absolute h-0.5 w-5 -rotate-45 rounded bg-ink-900" />
+                <span className="absolute h-0.5 w-5 rotate-45 rounded bg-card" />
+                <span className="absolute h-0.5 w-5 -rotate-45 rounded bg-card" />
               </span>
             </button>
           </Magnetic>

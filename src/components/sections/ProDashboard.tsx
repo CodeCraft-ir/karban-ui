@@ -32,18 +32,18 @@ function LeadCard({ lead, onUnlock }: { lead: Lead; onUnlock: (l: Lead) => void 
     <TapCard>
       <article
         ref={cardRef}
-        className="rounded-3xl border border-ink-700/40 bg-ink-900/70 p-5 transition-colors hover:border-brand-500/30"
+        className="rounded-3xl border border-line bg-card p-5 transition-colors hover:border-primary/30"
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-bold text-slate-50">{lead.projectTitle}</h3>
-            <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+            <h3 className="font-bold text-fg">{lead.projectTitle}</h3>
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
               <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-brand-500/70" />
+                <MapPin className="h-3.5 w-3.5 text-primary/70" />
                 {lead.neighborhood} · {faNum(lead.distanceKm)} کیلومتر
               </span>
               <span className="inline-flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5 text-brand-500/70" />
+                <Clock className="h-3.5 w-3.5 text-primary/70" />
                 {lead.postedAgo}
               </span>
             </p>
@@ -55,12 +55,12 @@ function LeadCard({ lead, onUnlock }: { lead: Lead; onUnlock: (l: Lead) => void 
 
         <div className="mb-4 text-sm">
           بودجه کارفرما:{" "}
-          <span className="font-bold text-brand-400">{faPrice(lead.budget)}</span>{" "}
-          <span className="text-xs text-slate-500">تومان</span>
+          <span className="font-bold text-primary">{faPrice(lead.budget)}</span>{" "}
+          <span className="text-xs text-faint">تومان</span>
         </div>
 
         {/* Contact — blurred glass until unlocked */}
-        <div className="relative overflow-hidden rounded-2xl border border-ink-700/50 bg-ink-800/60 p-4">
+        <div className="relative overflow-hidden rounded-2xl border border-line bg-elev p-4">
           <div
             className={cn(
               "flex items-center justify-between transition-all duration-700",
@@ -69,25 +69,25 @@ function LeadCard({ lead, onUnlock }: { lead: Lead; onUnlock: (l: Lead) => void 
             aria-hidden={!unlocked}
           >
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-700 text-slate-300">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-elev-3 text-fg-soft">
                 <User className="h-5 w-5" />
               </span>
               <div>
-                <div className="text-sm font-bold text-slate-100">{lead.clientName}</div>
-                <div className="text-xs text-slate-400" dir="ltr">
+                <div className="text-sm font-bold text-fg">{lead.clientName}</div>
+                <div className="text-xs text-muted" dir="ltr">
                   {unlocked ? lead.clientPhone : "۰۹•• ••• ••••"}
                 </div>
               </div>
             </div>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-emerald-400">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-emerald-700 dark:text-emerald-400">
               <Phone className="h-4.5 w-4.5" />
             </span>
           </div>
 
           {!unlocked && (
-            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-ink-900/20 backdrop-blur-[2px]">
-              <Lock className="h-4 w-4 text-brand-400" />
-              <span className="text-sm font-medium text-slate-200">
+            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-card/20 backdrop-blur-[2px]">
+              <Lock className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-fg-soft">
                 اطلاعات تماس قفل است
               </span>
             </div>
@@ -142,9 +142,9 @@ export function ProDashboard() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">داشبورد متخصص</h1>
-            <BadgeCheck className="h-5.5 w-5.5 fill-brand-500/20 text-brand-400" />
+            <BadgeCheck className="h-5.5 w-5.5 fill-primary/20 text-primary" />
           </div>
-          <p className="mt-1.5 text-sm text-slate-400">
+          <p className="mt-1.5 text-sm text-muted">
             {faNum(PRO_LEADS.length)} پروژه منطبق با تخصص تو در نزدیکی‌ات
           </p>
         </div>
@@ -152,16 +152,16 @@ export function ProDashboard() {
 
       {/* Wallet */}
       <Reveal>
-        <div className="mb-7 flex items-center justify-between rounded-3xl border border-brand-500/25 bg-gradient-to-l from-brand-500/12 to-ink-900 p-5">
+        <div className="mb-7 flex items-center justify-between rounded-3xl border border-primary/25 bg-gradient-to-l from-primary/12 to-card p-5">
           <div className="flex items-center gap-3.5">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 text-ink-900">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-fg">
               <Wallet className="h-5.5 w-5.5" />
             </span>
             <div>
-              <div className="text-xs text-slate-400">اعتبار خرید لید</div>
-              <div className="text-lg font-bold text-slate-50">
+              <div className="text-xs text-muted">اعتبار خرید لید</div>
+              <div className="text-lg font-bold text-fg">
                 {faPrice(walletBalance)}{" "}
-                <span className="text-xs font-normal text-slate-400">تومان</span>
+                <span className="text-xs font-normal text-muted">تومان</span>
               </div>
             </div>
           </div>
@@ -187,29 +187,29 @@ export function ProDashboard() {
         <div ref={sheetBodyRef}>
           {selected && (
             <>
-              <div className="mb-4 rounded-2xl border border-ink-700/50 bg-ink-800/60 p-4">
-                <div className="text-sm font-bold text-slate-100">
+              <div className="mb-4 rounded-2xl border border-line bg-elev p-4">
+                <div className="text-sm font-bold text-fg">
                   {selected.projectTitle}
                 </div>
-                <div className="mt-1 text-xs text-slate-400">
+                <div className="mt-1 text-xs text-muted">
                   {selected.neighborhood} · بودجه {faPrice(selected.budget)} تومان
                 </div>
               </div>
 
               <div className="space-y-2.5 text-sm">
-                <div className="flex items-center justify-between text-slate-300">
+                <div className="flex items-center justify-between text-fg-soft">
                   <span>هزینه باز کردن لید</span>
-                  <span className="font-bold text-brand-400">
+                  <span className="font-bold text-primary">
                     {faPrice(selected.price)} تومان
                   </span>
                 </div>
-                <div className="sheet-balance flex items-center justify-between text-slate-300">
+                <div className="sheet-balance flex items-center justify-between text-fg-soft">
                   <span>موجودی فعلی</span>
                   <span className="font-bold">{faPrice(walletBalance)} تومان</span>
                 </div>
-                <div className="flex items-center justify-between border-t border-ink-800 pt-2.5 text-slate-300">
+                <div className="flex items-center justify-between border-t border-line pt-2.5 text-fg-soft">
                   <span>موجودی پس از خرید</span>
-                  <span className="font-bold text-emerald-400">
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400">
                     {faPrice(walletBalance - selected.price)} تومان
                   </span>
                 </div>
@@ -223,7 +223,7 @@ export function ProDashboard() {
                 >
                   {confirming ? (
                     <>
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink-900/40 border-t-ink-900" />
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-fg/40 border-t-primary-fg" />
                       در حال باز کردن...
                     </>
                   ) : (

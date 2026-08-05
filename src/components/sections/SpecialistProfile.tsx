@@ -92,20 +92,20 @@ export function SpecialistProfile({ specialist }: { specialist: Specialist }) {
 
       {/* Head */}
       <div className="relative px-5 sm:px-8">
-        <div className="profile-avatar -mt-12 inline-block rounded-[1.4rem] border-4 border-ink-950 sm:-mt-14">
+        <div className="profile-avatar -mt-12 inline-block rounded-[1.4rem] border-4 border-surface sm:-mt-14">
           <Avatar name={s.name} hue={s.hue} className="h-24 w-24 rounded-[1.1rem] text-3xl sm:h-28 sm:w-28" />
         </div>
 
         <div className="profile-head mt-3">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold text-slate-50">{s.name}</h1>
+            <h1 className="text-2xl font-bold text-fg">{s.name}</h1>
             {s.verified && <VerifiedBadge className="[&_svg]:h-6 [&_svg]:w-6" />}
           </div>
-          <p className="mt-1 text-slate-400">{s.title}</p>
+          <p className="mt-1 text-muted">{s.title}</p>
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
             <Rating value={s.rating} count={s.reviewsCount} />
-            <span className="inline-flex items-center gap-1 text-slate-400">
-              <MapPin className="h-4 w-4 text-brand-500/80" />
+            <span className="inline-flex items-center gap-1 text-muted">
+              <MapPin className="h-4 w-4 text-primary/80" />
               {s.city}، {s.neighborhood} · {faNum(s.distanceKm)} کیلومتر
             </span>
           </div>
@@ -120,11 +120,11 @@ export function SpecialistProfile({ specialist }: { specialist: Specialist }) {
           ].map(({ icon: Icon, value, label }) => (
             <div
               key={label}
-              className="profile-stat rounded-3xl border border-ink-700/40 bg-ink-900/70 p-3.5 text-center"
+              className="profile-stat rounded-3xl border border-line bg-card p-3.5 text-center"
             >
-              <Icon className="mx-auto mb-1.5 h-5 w-5 text-brand-400" />
-              <div className="text-sm font-bold text-slate-100">{value}</div>
-              <div className="mt-0.5 text-[11px] text-slate-500">{label}</div>
+              <Icon className="mx-auto mb-1.5 h-5 w-5 text-primary" />
+              <div className="text-sm font-bold text-fg">{value}</div>
+              <div className="mt-0.5 text-[11px] text-faint">{label}</div>
             </div>
           ))}
         </div>
@@ -135,9 +135,9 @@ export function SpecialistProfile({ specialist }: { specialist: Specialist }) {
         <div ref={panelRef} className="min-h-64 py-6 pb-24 md:pb-8">
           {tab === "about" && (
             <div className="space-y-6">
-              <p className="leading-8 text-slate-300">{s.about}</p>
+              <p className="leading-8 text-fg-soft">{s.about}</p>
               <div>
-                <h2 className="mb-3 font-bold text-slate-100">مهارت‌ها</h2>
+                <h2 className="mb-3 font-bold text-fg">مهارت‌ها</h2>
                 <div className="flex flex-wrap gap-2">
                   {s.skills.map((skill) => (
                     <Badge key={skill} tone="brand" className="px-3.5 py-1.5 text-[13px]">
@@ -156,24 +156,24 @@ export function SpecialistProfile({ specialist }: { specialist: Specialist }) {
               {s.reviews.map((r) => (
                 <article
                   key={r.id}
-                  className="rounded-3xl border border-ink-700/40 bg-ink-900/70 p-5"
+                  className="rounded-3xl border border-line bg-card p-5"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar name={r.author} hue={(r.author.length * 47) % 360} className="h-10 w-10 rounded-xl text-sm" />
                       <div>
-                        <div className="text-sm font-bold text-slate-100">{r.author}</div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-sm font-bold text-fg">{r.author}</div>
+                        <div className="text-[11px] text-faint">
                           {r.date} · {r.project}
                         </div>
                       </div>
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-xl bg-brand-500/12 px-2.5 py-1 text-sm font-bold text-brand-400">
-                      <Star className="h-3.5 w-3.5 fill-brand-500 text-brand-500" />
+                    <span className="inline-flex items-center gap-1 rounded-xl bg-primary/12 px-2.5 py-1 text-sm font-bold text-primary">
+                      <Star className="h-3.5 w-3.5 fill-primary text-primary" />
                       {faNum(r.rating)}
                     </span>
                   </div>
-                  <p className="text-sm leading-7 text-slate-300">{r.text}</p>
+                  <p className="text-sm leading-7 text-fg-soft">{r.text}</p>
                 </article>
               ))}
             </div>

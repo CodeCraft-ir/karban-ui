@@ -65,7 +65,7 @@ export function Tabs({
       ref={listRef}
       role="tablist"
       className={cn(
-        "relative flex items-center gap-1 border-b border-ink-700/50",
+        "relative flex items-center gap-1 border-b border-line",
         className,
       )}
     >
@@ -81,7 +81,7 @@ export function Tabs({
           }}
           className={cn(
             "relative px-4 py-3 text-sm font-medium transition-colors duration-300",
-            active === tab.id ? "text-brand-400" : "text-slate-400 hover:text-slate-200",
+            active === tab.id ? "text-primary" : "text-muted hover:text-fg",
           )}
         >
           {tab.label}
@@ -90,7 +90,7 @@ export function Tabs({
       <span
         ref={underlineRef}
         aria-hidden
-        className="absolute bottom-0 h-0.5 rounded-full bg-brand-500 shadow-[0_0_10px_1px_rgb(245_184_0/0.5)]"
+        className="absolute bottom-0 h-0.5 rounded-full bg-primary shadow-[0_0_10px_1px_var(--glow)]"
       />
     </div>
   );

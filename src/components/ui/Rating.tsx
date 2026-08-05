@@ -12,12 +12,12 @@ export function Rating({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>
-      <Star className="h-4 w-4 fill-brand-500 text-brand-500" />
-      <span className="text-sm font-medium text-slate-100">
+      <Star className="h-4 w-4 fill-primary text-primary" />
+      <span className="text-sm font-medium text-fg">
         {faNum(value.toFixed(1))}
       </span>
       {count !== undefined && (
-        <span className="text-xs text-slate-400">({faNum(count)} نظر)</span>
+        <span className="text-xs text-muted">({faNum(count)} نظر)</span>
       )}
     </span>
   );

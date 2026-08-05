@@ -43,14 +43,14 @@ function ArtTile({
         }}
       />
       <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-950/90 to-transparent p-3.5 pt-10">
-        <span className="mb-1 inline-block rounded-full bg-brand-500/90 px-2 py-0.5 text-[10px] font-medium text-ink-900">
+        <span className="mb-1 inline-block rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-medium text-primary-fg">
           {item.tag}
         </span>
         <span className="block text-sm font-bold text-white drop-shadow">
           {item.title}
         </span>
       </span>
-      <span className="absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/5" />
+      <span className="absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-wash" />
     </button>
   );
 }
@@ -132,12 +132,12 @@ export function PortfolioGallery({ items }: { items: PortfolioItem[] }) {
           role="dialog"
           aria-modal="true"
           aria-label={items[lightbox].title}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-ink-950/85 p-5 backdrop-blur-lg"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-(--backdrop) p-5 backdrop-blur-lg"
           onClick={() => setLightbox(null)}
         >
           <button
             aria-label="بستن گالری"
-            className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/8 text-slate-200 hover:bg-white/15"
+            className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-wash-2 text-fg-soft hover:bg-wash-2"
             onClick={() => setLightbox(null)}
           >
             <X className="h-5 w-5" />
@@ -149,7 +149,7 @@ export function PortfolioGallery({ items }: { items: PortfolioItem[] }) {
               e.stopPropagation();
               navigate(-1);
             }}
-            className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/8 text-slate-200 hover:bg-brand-500 hover:text-ink-900"
+            className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-2xl bg-wash-2 text-fg-soft hover:bg-primary hover:text-primary-fg"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -159,7 +159,7 @@ export function PortfolioGallery({ items }: { items: PortfolioItem[] }) {
               e.stopPropagation();
               navigate(1);
             }}
-            className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/8 text-slate-200 hover:bg-brand-500 hover:text-ink-900"
+            className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-2xl bg-wash-2 text-fg-soft hover:bg-primary hover:text-primary-fg"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>

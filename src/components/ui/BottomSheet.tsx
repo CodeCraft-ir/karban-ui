@@ -86,23 +86,23 @@ export function BottomSheet({
       <div
         ref={backdropRef}
         onClick={onClose}
-        className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-(--backdrop) backdrop-blur-sm"
       />
       <div
         ref={panelRef}
         className={cn(
-          "gpu absolute inset-x-0 bottom-0 mx-auto max-w-lg rounded-t-4xl border border-b-0 border-ink-700/50 bg-ink-900 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-24px_60px_-16px_rgb(0_0_0/0.6)]",
+          "gpu absolute inset-x-0 bottom-0 mx-auto max-w-lg rounded-t-4xl border border-b-0 border-line bg-card px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-24px_60px_-16px_var(--shade-strong)]",
           className,
         )}
       >
         {/* grabber */}
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink-700" />
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-elev-3" />
         <div className="mb-4 flex items-center justify-between">
-          {title && <h3 className="text-lg font-bold text-slate-50">{title}</h3>}
+          {title && <h3 className="text-lg font-bold text-fg">{title}</h3>}
           <button
             onClick={onClose}
             aria-label="بستن"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-800 text-slate-400 hover:bg-ink-700 hover:text-slate-200"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-elev-2 text-muted hover:bg-elev-3 hover:text-fg"
           >
             <X className="h-4.5 w-4.5" />
           </button>

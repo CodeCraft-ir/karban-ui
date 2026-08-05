@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Providers } from "@/components/layout/Providers";
 import { AppShell } from "@/components/layout/AppShell";
 
 const yekan = localFont({
@@ -25,7 +26,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1120",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0b1120" },
+    { media: "(prefers-color-scheme: light)", color: "#faf9f6" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -34,9 +38,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fa" dir="rtl" className={`${yekan.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-ink-950 text-slate-50">
-        <AppShell>{children}</AppShell>
+    // suppressHydrationWarning: next-themes mutates the class on <html>
+    // before hydration to prevent theme flicker.
+    <html
+      lang="fa"
+      dir="rtl"
+      suppressHydrationWarning
+      className={`${yekan.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-surface text-fg">
+        <Providers>
+          <AppShell>{children}</AppShell>
+        </Providers>
       </body>
     </html>
   );

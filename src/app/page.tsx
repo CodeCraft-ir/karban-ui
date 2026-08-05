@@ -40,13 +40,13 @@ export default function HomePage() {
             ].map(({ icon: Icon, title, text }) => (
               <div
                 key={title}
-                className="rounded-3xl border border-ink-700/40 bg-ink-900/60 p-6"
+                className="rounded-3xl border border-line bg-card p-6"
               >
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/12 text-brand-400">
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
                   <Icon className="h-6 w-6" />
                 </span>
-                <h3 className="mb-2 font-bold text-slate-50">{title}</h3>
-                <p className="text-sm leading-relaxed text-slate-400">{text}</p>
+                <h3 className="mb-2 font-bold text-fg">{title}</h3>
+                <p className="text-sm leading-relaxed text-muted">{text}</p>
               </div>
             ))}
           </Reveal>
@@ -56,21 +56,21 @@ export default function HomePage() {
       {/* Pro CTA band */}
       <section className="px-4 py-10 sm:px-6">
         <Reveal className="mx-auto max-w-5xl">
-          <div className="relative overflow-hidden rounded-4xl border border-brand-500/25 bg-gradient-to-l from-brand-500/15 via-ink-900 to-ink-900 p-7 sm:p-10">
-            <LogoMark className="pointer-events-none absolute -left-10 -top-10 h-48 w-48 text-brand-500/8" />
+          <div className="relative overflow-hidden rounded-4xl border border-primary/25 bg-gradient-to-l from-primary/15 via-card to-card p-7 sm:p-10">
+            <LogoMark className="pointer-events-none absolute -left-10 -top-10 h-48 w-48 text-primary/8" />
             <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-bold sm:text-2xl">
                   استادکار هستی؟ <span className="text-gold">به کاربان بپیوند</span>
                 </h2>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-400">
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
                   پروژه‌های محله‌ات را ببین، مستقیم با کارفرما در تماس باش و
                   درآمدت را چند برابر کن.
                 </p>
               </div>
               <Link
                 href="/auth/select-role"
-                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-brand-500 px-7 font-medium text-ink-900 shadow-[0_10px_28px_-8px_rgb(245_184_0/0.6)] hover:bg-brand-400 active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-7 font-medium text-primary-fg shadow-[0_10px_28px_-8px_var(--glow)] hover:bg-primary-hover active:scale-95"
               >
                 شروع کن
                 <ArrowLeft className="h-4.5 w-4.5" />

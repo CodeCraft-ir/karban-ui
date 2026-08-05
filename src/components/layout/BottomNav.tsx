@@ -86,13 +86,13 @@ export function BottomNav() {
     <nav
       ref={ref}
       aria-label="ناوبری اصلی"
-      className="glass fixed inset-x-3 bottom-3 z-50 mx-auto flex h-(--bottom-nav-h) max-w-md items-center justify-around rounded-3xl px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_18px_50px_-12px_rgb(0_0_0/0.65)] md:hidden"
+      className="glass fixed inset-x-3 bottom-3 z-50 mx-auto flex h-(--bottom-nav-h) max-w-md items-center justify-around rounded-3xl px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_18px_50px_-12px_var(--shade-strong)] md:hidden"
     >
       {/* liquid indicator blob */}
       <div
         ref={blobRef}
         aria-hidden
-        className="gpu absolute top-1.5 h-1.5 w-9 -translate-x-1/2 rounded-full bg-brand-500 opacity-0 shadow-[0_0_14px_2px_rgb(245_184_0/0.5)]"
+        className="gpu absolute top-1.5 h-1.5 w-9 -translate-x-1/2 rounded-full bg-primary opacity-0 shadow-[0_0_14px_2px_var(--glow)]"
         style={{ left: "50%" }}
       />
 
@@ -107,7 +107,7 @@ export function BottomNav() {
               <Link
                 href={tab.href}
                 aria-label={tab.label}
-                className="pulse-cta -mt-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500 text-ink-900 shadow-[0_10px_28px_-6px_rgb(245_184_0/0.65)]"
+                className="pulse-cta -mt-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-fg shadow-[0_10px_28px_-6px_var(--glow)]"
                 style={{ animation: "pulse-ring 2.5s cubic-bezier(0.4,0,0.6,1) infinite" }}
               >
                 <PlusCircle className="h-7 w-7" />
@@ -125,7 +125,7 @@ export function BottomNav() {
             onClick={(e) => moveBlob(e.currentTarget)}
             className={cn(
               "flex flex-col items-center gap-1 rounded-2xl px-3 py-1.5 text-[10px]",
-              active ? "text-brand-400" : "text-slate-400 hover:text-slate-200",
+              active ? "text-primary" : "text-muted hover:text-fg",
             )}
           >
             <Icon className={cn("h-5.5 w-5.5 transition-transform duration-300", active && "-translate-y-0.5")} />

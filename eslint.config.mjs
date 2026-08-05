@@ -11,6 +11,11 @@ const eslintConfig = defineConfig([
       // created during render but only read refs at event time (documented
       // GSAP pattern: https://gsap.com/resources/React).
       "react-hooks/refs": "off",
+      // The mounted-guard pattern (`useEffect(() => setMounted(true), [])`)
+      // is intentional in portaled components and the theme toggle: they must
+      // render nothing / a neutral shape on the server and only mount client
+      // UI after hydration (documented next-themes + portal hydration fix).
+      "react-hooks/set-state-in-effect": "off",
     },
   },
   // Override default ignores of eslint-config-next.

@@ -110,12 +110,12 @@ export function MobileMenu() {
     >
       {/* Glass backdrop */}
       <div
-        className="menu-backdrop absolute inset-0 bg-ink-950/80"
+        className="menu-backdrop absolute inset-0 bg-(--backdrop)"
         onClick={() => setMenuOpen(false)}
       />
 
       {/* Giant brand watermark */}
-      <LogoMark className="menu-watermark pointer-events-none absolute -left-24 top-1/2 h-[34rem] w-[34rem] -translate-y-1/2 text-brand-500 opacity-0" />
+      <LogoMark className="menu-watermark pointer-events-none absolute -left-24 top-1/2 h-[34rem] w-[34rem] -translate-y-1/2 text-primary opacity-0" />
 
       {/* Items */}
       <nav className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-2 px-7 pt-16">
@@ -128,8 +128,8 @@ export function MobileMenu() {
               onClick={() => setMenuOpen(false)}
               className={cn(
                 "menu-item group/item flex items-center justify-between rounded-3xl border border-transparent p-4 opacity-0",
-                "hover:border-brand-500/25 hover:bg-white/5",
-                active && "border-brand-500/30 bg-brand-500/8",
+                "hover:border-primary/25 hover:bg-wash",
+                active && "border-primary/30 bg-primary/8",
               )}
             >
               <span className="flex items-center gap-4">
@@ -137,24 +137,24 @@ export function MobileMenu() {
                   className={cn(
                     "flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
                     active
-                      ? "bg-brand-500 text-ink-900"
-                      : "bg-white/6 text-brand-400 group-hover/item:bg-brand-500 group-hover/item:text-ink-900",
+                      ? "bg-primary text-primary-fg"
+                      : "bg-wash text-primary group-hover/item:bg-primary group-hover/item:text-primary-fg",
                   )}
                 >
                   <Icon className="h-5.5 w-5.5" />
                 </span>
                 <span>
-                  <span className="block text-xl font-bold text-slate-50">
+                  <span className="block text-xl font-bold text-fg">
                     {label}
                   </span>
-                  <span className="block text-xs text-slate-400">{sub}</span>
+                  <span className="block text-xs text-muted">{sub}</span>
                 </span>
               </span>
               <span className="flex items-center gap-2">
-                <span className="text-xs text-slate-600 transition-colors group-hover/item:text-brand-500">
+                <span className="text-xs text-faint transition-colors group-hover/item:text-primary">
                   {faNum(`0${i + 1}`)}
                 </span>
-                <ArrowUpLeft className="h-4.5 w-4.5 text-slate-500 transition-all duration-300 group-hover/item:-translate-y-0.5 group-hover/item:translate-x-[-2px] group-hover/item:text-brand-400" />
+                <ArrowUpLeft className="h-4.5 w-4.5 text-faint transition-all duration-300 group-hover/item:-translate-y-0.5 group-hover/item:translate-x-[-2px] group-hover/item:text-primary" />
               </span>
             </Link>
           );
@@ -163,9 +163,9 @@ export function MobileMenu() {
 
       {/* Footer */}
       <div className="menu-footer relative z-10 flex items-center justify-between px-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 opacity-0">
-        <p className="text-xs text-slate-500">کاربان © ۱۴۰۵ — ساخت ایران</p>
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <Search className="h-3.5 w-3.5 text-brand-500" />
+        <p className="text-xs text-faint">کاربان © ۱۴۰۵ — ساخت ایران</p>
+        <div className="flex items-center gap-2 text-xs text-muted">
+          <Search className="h-3.5 w-3.5 text-primary" />
           <span>{faNum(2480)} متخصص فعال</span>
         </div>
       </div>

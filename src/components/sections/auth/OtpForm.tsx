@@ -108,13 +108,13 @@ export function OtpForm() {
       className="mx-auto flex min-h-[70dvh] w-full max-w-sm flex-col justify-center px-6 py-10 text-center"
     >
       <h1 className="otp-el text-2xl font-bold opacity-0">کد تایید را وارد کن</h1>
-      <p className="otp-el mt-2.5 text-sm text-slate-400 opacity-0">
+      <p className="otp-el mt-2.5 text-sm text-muted opacity-0">
         کد {faNum(5)} رقمی به شماره{" "}
-        <span className="font-bold text-slate-200" dir="ltr">
+        <span className="font-bold text-fg-soft" dir="ltr">
           ۰۹۱۲ ۳۴۵ ۶۷۸۹
         </span>{" "}
         پیامک شد
-        <button className="mr-1.5 inline-flex items-center gap-0.5 text-brand-400 hover:text-brand-300">
+        <button className="mr-1.5 inline-flex items-center gap-0.5 text-primary hover:text-accent">
           <PencilLine className="h-3 w-3" />
           ویرایش
         </button>
@@ -136,12 +136,12 @@ export function OtpForm() {
             onKeyDown={(e) => onKeyDown(i, e)}
             aria-label={`رقم ${faNum(i + 1)}`}
             className={cn(
-              "otp-box h-14 w-12 rounded-2xl border bg-ink-800/60 text-center text-xl font-bold text-slate-50 opacity-0 transition-colors duration-300 focus:outline-none",
+              "otp-box h-14 w-12 rounded-2xl border bg-elev text-center text-xl font-bold text-fg opacity-0 transition-colors duration-300 focus:outline-none",
               status === "error"
                 ? "border-alert/80"
                 : status === "success"
                   ? "border-success"
-                  : "border-ink-700/70 focus:border-brand-500/80 focus:shadow-[0_0_0_4px_rgb(245_184_0/0.12)]",
+                  : "border-line focus:border-primary/80 focus:shadow-[0_0_0_4px_var(--glow-soft)]",
             )}
           />
         ))}
@@ -154,13 +154,13 @@ export function OtpForm() {
       <div className="otp-el mt-9 flex flex-col items-center gap-3 opacity-0">
         <div className="relative h-16 w-16">
           <svg viewBox="0 0 64 64" className="h-full w-full -rotate-90">
-            <circle cx="32" cy="32" r={RING_R} fill="none" stroke="#1e293b" strokeWidth="4" />
+            <circle cx="32" cy="32" r={RING_R} fill="none" stroke="var(--elev-3)" strokeWidth="4" />
             <circle
               cx="32"
               cy="32"
               r={RING_R}
               fill="none"
-              stroke={seconds > 10 ? "#f5b800" : "#ef4444"}
+              stroke={seconds > 10 ? "var(--primary)" : "var(--color-alert)"}
               strokeWidth="4"
               strokeLinecap="round"
               strokeDasharray={RING_C}
@@ -168,13 +168,13 @@ export function OtpForm() {
               className="transition-[stroke-dashoffset,stroke] duration-1000 ease-linear"
             />
           </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-slate-200">
+          <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-fg-soft">
             {faNum(seconds)}
           </span>
         </div>
 
         {seconds > 0 ? (
-          <p className="text-xs text-slate-500">تا دریافت مجدد کد</p>
+          <p className="text-xs text-faint">تا دریافت مجدد کد</p>
         ) : (
           <Button variant="outline" size="sm" onClick={() => setSeconds(COUNTDOWN)}>
             ارسال مجدد کد

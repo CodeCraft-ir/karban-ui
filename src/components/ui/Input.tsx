@@ -18,14 +18,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       {label && (
         <label
           htmlFor={id}
-          className="mb-2 block text-sm font-medium text-slate-300"
+          className="mb-2 block text-sm font-medium text-fg-soft"
         >
           {label}
         </label>
       )}
       <div className="group relative">
         {icon && (
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-brand-400">
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted transition-colors group-focus-within:text-primary">
             {icon}
           </span>
         )}
@@ -33,9 +33,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           id={id}
           className={cn(
-            "h-12 w-full rounded-2xl border border-ink-700/70 bg-ink-800/60 px-4 text-[15px] text-slate-100",
-            "placeholder:text-slate-500 transition-all duration-300",
-            "focus:border-brand-500/70 focus:bg-ink-800 focus:shadow-[0_0_0_4px_rgb(245_184_0/0.12)] focus:outline-none",
+            "h-12 w-full rounded-2xl border border-line bg-elev px-4 text-[15px] text-fg",
+            "placeholder:text-faint transition-all duration-300",
+            "focus:border-primary/70 focus:bg-elev-2 focus:shadow-[0_0_0_4px_var(--glow-soft)] focus:outline-none",
             icon && "pr-11",
             error && "border-alert/70",
             className,

@@ -6,12 +6,13 @@ import type { ProjectStatus } from "@/lib/data";
 type Tone = "brand" | "success" | "alert" | "warn" | "neutral" | "info";
 
 const tones: Record<Tone, string> = {
-  brand: "bg-brand-500/15 text-brand-400 border-brand-500/25",
-  success: "bg-success/15 text-emerald-400 border-success/25",
-  alert: "bg-alert/15 text-red-400 border-alert/25",
-  warn: "bg-warn/15 text-amber-400 border-warn/25",
-  neutral: "bg-slate-500/15 text-slate-300 border-slate-500/25",
-  info: "bg-sky-500/15 text-sky-400 border-sky-500/25",
+  brand: "bg-primary/15 text-primary border-primary/25",
+  success:
+    "bg-success/15 text-emerald-700 dark:text-emerald-400 border-success/25",
+  alert: "bg-alert/15 text-red-700 dark:text-red-400 border-alert/25",
+  warn: "bg-warn/15 text-amber-700 dark:text-amber-400 border-warn/25",
+  neutral: "bg-wash text-fg-soft border-line",
+  info: "bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/25",
 };
 
 export function Badge({
@@ -52,12 +53,12 @@ export function VerifiedBadge({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-brand-400",
+        "inline-flex items-center gap-1 text-primary",
         className,
       )}
       title="هویت تایید شده"
     >
-      <BadgeCheck className="h-4.5 w-4.5 fill-brand-500/20" />
+      <BadgeCheck className="h-4.5 w-4.5 fill-primary/20" />
       <span className="sr-only">هویت تایید شده</span>
     </span>
   );

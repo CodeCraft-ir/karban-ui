@@ -46,13 +46,13 @@ export function CategoryGrid() {
             <h2 id="cats-title" className="text-xl font-bold sm:text-2xl">
               دسته‌بندی خدمات
             </h2>
-            <p className="mt-1.5 text-sm text-slate-400">
+            <p className="mt-1.5 text-sm text-muted">
               هر تخصصی که نیاز داری، اینجاست
             </p>
           </div>
           <Link
             href="/search"
-            className="text-sm text-brand-400 hover:text-brand-300"
+            className="text-sm text-primary hover:text-accent"
           >
             مشاهده همه
           </Link>
@@ -68,15 +68,15 @@ export function CategoryGrid() {
               <TapCard key={cat.id}>
                 <Link
                   href="/search"
-                  className="group flex flex-col items-center gap-2.5 rounded-3xl border border-ink-700/40 bg-ink-900/60 px-2 py-5 text-center transition-colors duration-300 hover:border-brand-500/40 hover:bg-ink-800/80"
+                  className="group flex flex-col items-center gap-2.5 rounded-3xl border border-line bg-card px-2 py-5 text-center transition-colors duration-300 hover:border-primary/40 hover:bg-elev-2/80"
                 >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-400 transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-ink-900 group-hover:shadow-[0_8px_20px_-6px_rgb(245_184_0/0.5)]">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-fg group-hover:shadow-[0_8px_20px_-6px_var(--glow)]">
                     <Icon className="h-5.5 w-5.5" />
                   </span>
-                  <span className="text-[13px] font-medium text-slate-200">
+                  <span className="text-[13px] font-medium text-fg-soft">
                     {cat.title}
                   </span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-faint">
                     {faNum(cat.jobs)} متخصص
                   </span>
                 </Link>

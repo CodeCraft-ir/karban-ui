@@ -50,8 +50,8 @@ export function Logo({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <LogoMark className={cn("text-brand-500", markClassName)} />
-      <LogoWordmark className={cn("text-white", wordmarkClassName)} />
+      <LogoMark className={cn("text-primary", markClassName)} />
+      <LogoWordmark className={cn("text-fg", wordmarkClassName)} />
       <span className="sr-only">کاربان</span>
     </span>
   );

@@ -18,10 +18,10 @@ import { CLIENT_PROJECTS } from "@/lib/data";
 import { faNum, faPrice } from "@/lib/utils";
 
 const STATS = [
-  { icon: FolderKanban, label: "پروژه فعال", value: faNum(2), tone: "text-brand-400 bg-brand-500/12" },
-  { icon: MessagesSquare, label: "پیشنهاد جدید", value: faNum(8), tone: "text-sky-400 bg-sky-500/12" },
-  { icon: CheckCircle2, label: "تکمیل شده", value: faNum(5), tone: "text-emerald-400 bg-success/12" },
-  { icon: Star, label: "نظر ثبت شده", value: faNum(4), tone: "text-amber-400 bg-warn/12" },
+  { icon: FolderKanban, label: "پروژه فعال", value: faNum(2), tone: "text-primary bg-primary/12" },
+  { icon: MessagesSquare, label: "پیشنهاد جدید", value: faNum(8), tone: "text-sky-700 dark:text-sky-400 bg-sky-500/12" },
+  { icon: CheckCircle2, label: "تکمیل شده", value: faNum(5), tone: "text-emerald-700 dark:text-emerald-400 bg-success/12" },
+  { icon: Star, label: "نظر ثبت شده", value: faNum(4), tone: "text-amber-700 dark:text-amber-400 bg-warn/12" },
 ];
 
 export function ClientDashboard() {
@@ -32,7 +32,7 @@ export function ClientDashboard() {
       <div className="mb-7 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">سلام، نیما 👋</h1>
-          <p className="mt-1.5 text-sm text-slate-400">
+          <p className="mt-1.5 text-sm text-muted">
             امروز چه کاری برایت انجام دهیم؟
           </p>
         </div>
@@ -46,12 +46,12 @@ export function ClientDashboard() {
       <Reveal stagger={0.08} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {STATS.map(({ icon: Icon, label, value, tone }) => (
           <TapCard key={label}>
-            <div className="rounded-3xl border border-ink-700/40 bg-ink-900/70 p-4">
+            <div className="rounded-3xl border border-line bg-card p-4">
               <span className={`mb-3 flex h-10 w-10 items-center justify-center rounded-2xl ${tone}`}>
                 <Icon className="h-5 w-5" />
               </span>
-              <div className="text-2xl font-bold text-slate-50">{value}</div>
-              <div className="mt-0.5 text-xs text-slate-400">{label}</div>
+              <div className="text-2xl font-bold text-fg">{value}</div>
+              <div className="mt-0.5 text-xs text-muted">{label}</div>
             </div>
           </TapCard>
         ))}
@@ -59,15 +59,15 @@ export function ClientDashboard() {
 
       {/* Wallet strip */}
       <Reveal className="mt-4">
-        <div className="flex items-center justify-between rounded-3xl border border-brand-500/25 bg-gradient-to-l from-brand-500/12 to-ink-900 p-5">
+        <div className="flex items-center justify-between rounded-3xl border border-primary/25 bg-gradient-to-l from-primary/12 to-card p-5">
           <div className="flex items-center gap-3.5">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 text-ink-900">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-fg">
               <Wallet className="h-5.5 w-5.5" />
             </span>
             <div>
-              <div className="text-xs text-slate-400">موجودی کیف پول</div>
-              <div className="text-lg font-bold text-slate-50">
-                {faPrice(480_000)} <span className="text-xs font-normal text-slate-400">تومان</span>
+              <div className="text-xs text-muted">موجودی کیف پول</div>
+              <div className="text-lg font-bold text-fg">
+                {faPrice(480_000)} <span className="text-xs font-normal text-muted">تومان</span>
               </div>
             </div>
           </div>
@@ -80,28 +80,28 @@ export function ClientDashboard() {
       {/* Projects */}
       <div className="mb-4 mt-9 flex items-center justify-between">
         <h2 className="text-lg font-bold">پروژه‌های من</h2>
-        <span className="text-xs text-slate-500">{faNum(CLIENT_PROJECTS.length)} پروژه</span>
+        <span className="text-xs text-faint">{faNum(CLIENT_PROJECTS.length)} پروژه</span>
       </div>
 
       <Reveal stagger={0.09} className="space-y-3.5">
         {CLIENT_PROJECTS.map((p) => (
           <TapCard key={p.id}>
-            <article className="flex flex-col gap-3 rounded-3xl border border-ink-700/40 bg-ink-900/70 p-5 transition-colors hover:border-brand-500/30 sm:flex-row sm:items-center sm:justify-between">
+            <article className="flex flex-col gap-3 rounded-3xl border border-line bg-card p-5 transition-colors hover:border-primary/30 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h3 className="font-bold text-slate-50">{p.title}</h3>
+                  <h3 className="font-bold text-fg">{p.title}</h3>
                   <StatusBadge status={p.status} />
                 </div>
-                <p className="mt-1.5 text-xs text-slate-400">
+                <p className="mt-1.5 text-xs text-muted">
                   {p.category} · {p.neighborhood} · {p.createdAt}
                 </p>
               </div>
               <div className="flex items-center justify-between gap-6 sm:flex-col sm:items-end sm:gap-1">
-                <div className="text-sm font-bold text-brand-400">
+                <div className="text-sm font-bold text-primary">
                   {faPrice(p.budget)}
-                  <span className="mr-1 text-[10px] font-normal text-slate-500">تومان</span>
+                  <span className="mr-1 text-[10px] font-normal text-faint">تومان</span>
                 </div>
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-muted">
                   {faNum(p.proposals)} پیشنهاد دریافتی
                 </div>
               </div>

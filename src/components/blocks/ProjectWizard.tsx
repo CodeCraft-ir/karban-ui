@@ -104,12 +104,12 @@ export function ProjectWizard({
   return createPortal(
     <div
       ref={rootRef}
-      className="fixed inset-0 z-[70] hidden items-end justify-center bg-ink-950/75 backdrop-blur-md sm:items-center"
+      className="fixed inset-0 z-[70] hidden items-end justify-center bg-(--backdrop) backdrop-blur-md sm:items-center"
       role="dialog"
       aria-modal="true"
       aria-label="ثبت پروژه جدید"
     >
-      <div className="wizard-panel relative flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-4xl border border-ink-700/50 bg-ink-900 sm:rounded-4xl">
+      <div className="wizard-panel relative flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-4xl border border-line bg-card sm:rounded-4xl">
         {/* header */}
         <div className="flex items-center justify-between px-5 pt-5">
           <h2 className="text-lg font-bold">
@@ -118,7 +118,7 @@ export function ProjectWizard({
           <button
             onClick={onClose}
             aria-label="بستن"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-800 text-slate-400 hover:bg-ink-700 hover:text-slate-200"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-elev-2 text-muted hover:bg-elev-3 hover:text-fg"
           >
             <X className="h-4.5 w-4.5" />
           </button>
@@ -130,7 +130,7 @@ export function ProjectWizard({
               <Check className="h-10 w-10" strokeWidth={3} />
             </span>
             <h3 className="text-xl font-bold">پروژه‌ات ثبت شد</h3>
-            <p className="mt-2.5 max-w-xs text-sm leading-relaxed text-slate-400">
+            <p className="mt-2.5 max-w-xs text-sm leading-relaxed text-muted">
               به‌زودی متخصصان واجد شرایط محله‌ات پیشنهادشان را برایت ارسال می‌کنند.
             </p>
             <Button className="mt-7 px-10" onClick={onClose}>
@@ -150,10 +150,10 @@ export function ProjectWizard({
                     className={cn(
                       "flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-all duration-400",
                       i === step
-                        ? "bg-brand-500 text-ink-900 shadow-[0_6px_16px_-4px_rgb(245_184_0/0.55)]"
+                        ? "bg-primary text-primary-fg shadow-[0_6px_16px_-4px_var(--glow)]"
                         : i < step
-                          ? "bg-success/15 text-emerald-400"
-                          : "bg-ink-800 text-slate-500",
+                          ? "bg-success/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-elev-2 text-faint",
                     )}
                   >
                     {i < step ? <Check className="h-3.5 w-3.5" /> : <s.icon className="h-3.5 w-3.5" />}
@@ -163,7 +163,7 @@ export function ProjectWizard({
                     <span
                       className={cn(
                         "h-0.5 w-4 rounded-full transition-colors duration-400",
-                        i < step ? "bg-success/50" : "bg-ink-700",
+                        i < step ? "bg-success/50" : "bg-elev-3",
                       )}
                     />
                   )}
@@ -183,7 +183,7 @@ export function ProjectWizard({
                     icon={<PenLine className="h-4 w-4" />}
                   />
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-fg-soft">
                       دسته‌بندی
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -193,8 +193,8 @@ export function ProjectWizard({
                           className={cn(
                             "rounded-full border px-3.5 py-1.5 text-[13px] transition-all",
                             i === 0
-                              ? "border-brand-500/60 bg-brand-500/12 text-brand-400"
-                              : "border-ink-700/60 bg-ink-800/50 text-slate-400 hover:border-brand-500/40",
+                              ? "border-primary/60 bg-primary/12 text-primary"
+                              : "border-line bg-elev text-muted hover:border-primary/40",
                           )}
                         >
                           {c.title}
@@ -205,17 +205,17 @@ export function ProjectWizard({
                   <textarea
                     rows={3}
                     placeholder="توضیحات بیشتر پروژه (اختیاری)..."
-                    className="w-full rounded-2xl border border-ink-700/70 bg-ink-800/60 p-4 text-[15px] text-slate-100 placeholder:text-slate-500 focus:border-brand-500/70 focus:outline-none"
+                    className="w-full rounded-2xl border border-line bg-elev p-4 text-[15px] text-fg placeholder:text-faint focus:border-primary/70 focus:outline-none"
                   />
                 </div>
 
                 {/* Step 2 — Location pinning */}
                 <div className="w-full shrink-0 px-6 py-7">
-                  <p className="mb-3 text-sm text-slate-400">
+                  <p className="mb-3 text-sm text-muted">
                     روی نقشه ضربه بزن تا محل پروژه مشخص شود
                   </p>
                   <div
-                    className="relative h-56 cursor-crosshair overflow-hidden rounded-3xl border border-ink-700/50"
+                    className="relative h-56 cursor-crosshair overflow-hidden rounded-3xl border border-line"
                     style={{
                       background:
                         "radial-gradient(80% 80% at 30% 20%, #1c2a44, #0f172a)",
@@ -243,10 +243,10 @@ export function ProjectWizard({
                       className="absolute z-10 -translate-x-1/2 -translate-y-full transition-all duration-300 ease-out"
                       style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
                     >
-                      <MapPin className="h-9 w-9 fill-brand-500/25 text-brand-500 drop-shadow-[0_4px_8px_rgb(245_184_0/0.4)]" />
+                      <MapPin className="h-9 w-9 fill-primary/25 text-primary drop-shadow-[0_4px_8px_var(--glow)]" />
                       <span className="absolute -bottom-0.5 left-1/2 h-1.5 w-4 -translate-x-1/2 rounded-[100%] bg-ink-950/60 blur-[2px]" />
                     </span>
-                    <span className="absolute bottom-3 right-3 rounded-xl bg-ink-950/70 px-3 py-1.5 text-xs text-slate-300 backdrop-blur">
+                    <span className="absolute bottom-3 right-3 rounded-xl bg-(--backdrop) px-3 py-1.5 text-xs text-fg-soft backdrop-blur">
                       تهران، سعادت‌آباد
                     </span>
                   </div>
@@ -254,10 +254,10 @@ export function ProjectWizard({
 
                 {/* Step 3 — Budget */}
                 <div className="w-full shrink-0 px-6 py-7">
-                  <p className="mb-5 text-sm text-slate-400">بودجه حدودی پروژه‌ات چقدر است؟</p>
+                  <p className="mb-5 text-sm text-muted">بودجه حدودی پروژه‌ات چقدر است؟</p>
                   <div className="mb-6 text-center">
                     <span className="text-3xl font-bold text-gold">{faPrice(budget)}</span>
-                    <span className="mr-2 text-sm text-slate-400">تومان</span>
+                    <span className="mr-2 text-sm text-muted">تومان</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                     {BUDGET_PRESETS.map((b) => (
@@ -267,14 +267,14 @@ export function ProjectWizard({
                         className={cn(
                           "rounded-2xl border px-3 py-3 text-sm transition-all",
                           budget === b
-                            ? "border-brand-500/60 bg-brand-500/12 font-bold text-brand-400"
-                            : "border-ink-700/60 bg-ink-800/50 text-slate-400 hover:border-brand-500/30",
+                            ? "border-primary/60 bg-primary/12 font-bold text-primary"
+                            : "border-line bg-elev text-muted hover:border-primary/30",
                         )}
                       >
                         {faPrice(b)}
                       </button>
                     ))}
-                    <button className="rounded-2xl border border-dashed border-ink-600 px-3 py-3 text-sm text-slate-500 hover:border-brand-500/40 hover:text-brand-400">
+                    <button className="rounded-2xl border border-dashed border-line px-3 py-3 text-sm text-faint hover:border-primary/40 hover:text-primary">
                       مبلغ دلخواه
                     </button>
                   </div>
@@ -282,25 +282,25 @@ export function ProjectWizard({
 
                 {/* Step 4 — Photos */}
                 <div className="w-full shrink-0 px-6 py-7">
-                  <p className="mb-4 text-sm text-slate-400">
+                  <p className="mb-4 text-sm text-muted">
                     عکس از محل کار به متخصص کمک می‌کند قیمت دقیق‌تری بدهد
                   </p>
                   <div className="grid grid-cols-3 gap-2.5">
-                    <button className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-brand-500/40 bg-brand-500/5 text-brand-400 hover:bg-brand-500/10">
+                    <button className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 text-primary hover:bg-primary/10">
                       <Camera className="h-6 w-6" />
                       <span className="text-xs">افزودن عکس</span>
                     </button>
                     {[38, 220].map((h) => (
                       <div
                         key={h}
-                        className="aspect-square rounded-2xl border border-ink-700/40"
+                        className="aspect-square rounded-2xl border border-line"
                         style={{
                           background: `linear-gradient(140deg, hsl(${h} 35% 26%), hsl(${h + 40} 40% 15%))`,
                         }}
                       />
                     ))}
                   </div>
-                  <p className="mt-4 text-xs text-slate-500">
+                  <p className="mt-4 text-xs text-faint">
                     حداکثر {faNum(6)} تصویر — فرمت JPG یا PNG
                   </p>
                 </div>
@@ -308,7 +308,7 @@ export function ProjectWizard({
             </div>
 
             {/* footer nav */}
-            <div className="flex gap-2.5 border-t border-ink-800 px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="flex gap-2.5 border-t border-line px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               {step > 0 && (
                 <Button variant="secondary" onClick={() => goTo(step - 1)} className="gap-1 px-5">
                   <ChevronRight className="h-4 w-4" />

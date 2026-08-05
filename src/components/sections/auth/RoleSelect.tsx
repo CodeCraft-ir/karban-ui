@@ -23,7 +23,7 @@ const ROLES = [
     title: "متخصص ساختمانی هستم",
     text: "مهارت دارم و دنبال پروژه و مشتری جدیدم",
     href: "/pro",
-    accent: "from-brand-500/30",
+    accent: "from-primary/30",
     glow: "245, 184, 0",
   },
 ] as const;
@@ -98,7 +98,7 @@ export function RoleSelect() {
         <h1 className="text-2xl font-bold sm:text-3xl">
           خوش آمدی! <span className="text-gold">نقش تو</span> در کاربان چیست؟
         </h1>
-        <p className="mt-3 text-sm text-slate-400">
+        <p className="mt-3 text-sm text-muted">
           بعداً می‌توانی از تنظیمات، نقش دیگری هم اضافه کنی
         </p>
       </div>
@@ -111,8 +111,8 @@ export function RoleSelect() {
             onPointerLeave={untilt}
             onPointerUp={(e) => choose(e, href)}
             className={cn(
-              "role-card gpu group relative overflow-hidden rounded-4xl border border-ink-700/50 p-7 text-right opacity-0 will-change-transform",
-              "bg-gradient-to-b to-ink-900",
+              "role-card gpu group relative overflow-hidden rounded-4xl border border-line p-7 text-right opacity-0 will-change-transform",
+              "bg-gradient-to-b to-card",
               accent,
               "hover:border-transparent",
             )}
@@ -144,18 +144,18 @@ export function RoleSelect() {
               }}
             />
 
-            <span className="relative z-10 mb-14 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/6 text-brand-400 transition-all duration-500 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-ink-900 group-hover:shadow-[0_14px_34px_-8px_rgb(245_184_0/0.55)] sm:mb-20">
+            <span className="relative z-10 mb-14 flex h-16 w-16 items-center justify-center rounded-3xl bg-wash text-primary transition-all duration-500 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-fg group-hover:shadow-[0_14px_34px_-8px_var(--glow)] sm:mb-20">
               <Icon className="h-8 w-8" />
             </span>
 
-            <span className="relative z-10 block text-xl font-bold text-slate-50">
+            <span className="relative z-10 block text-xl font-bold text-fg">
               {title}
             </span>
-            <span className="relative z-10 mt-2 block text-sm leading-relaxed text-slate-400">
+            <span className="relative z-10 mt-2 block text-sm leading-relaxed text-muted">
               {text}
             </span>
 
-            <span className="relative z-10 mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-brand-400">
+            <span className="relative z-10 mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
               ادامه
               <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
             </span>

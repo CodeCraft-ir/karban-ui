@@ -17,7 +17,7 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
   const s = specialist;
   return (
     <TapCard>
-      <article className="group rounded-3xl border border-ink-700/40 bg-ink-900/70 p-4 transition-colors duration-300 hover:border-brand-500/35">
+      <article className="group rounded-3xl border border-line bg-card p-4 transition-colors duration-300 hover:border-primary/35">
         <div className="flex items-start gap-3.5">
           <div className="relative">
             <Avatar name={s.name} hue={s.hue} className="h-16 w-16 rounded-2xl text-xl" />
@@ -31,14 +31,14 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <h3 className="truncate font-bold text-slate-50">{s.name}</h3>
+              <h3 className="truncate font-bold text-fg">{s.name}</h3>
               {s.verified && <VerifiedBadge />}
             </div>
-            <p className="mt-0.5 truncate text-sm text-slate-400">{s.title}</p>
+            <p className="mt-0.5 truncate text-sm text-muted">{s.title}</p>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
               <Rating value={s.rating} count={s.reviewsCount} />
-              <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-                <MapPin className="h-3.5 w-3.5 text-brand-500/70" />
+              <span className="inline-flex items-center gap-1 text-xs text-muted">
+                <MapPin className="h-3.5 w-3.5 text-primary/70" />
                 {s.neighborhood} · {faNum(s.distanceKm)} کیلومتر
               </span>
             </div>
@@ -58,7 +58,7 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
         <div className="mt-4 flex gap-2.5">
           <Link
             href={`/specialists/${s.slug}`}
-            className="flex h-9 flex-1 items-center justify-center rounded-xl border border-ink-700/60 bg-ink-800 text-sm text-slate-100 hover:bg-ink-700 active:scale-95"
+            className="flex h-9 flex-1 items-center justify-center rounded-xl border border-line bg-elev-2 text-sm text-fg hover:bg-elev-3 active:scale-95"
           >
             مشاهده پروفایل
           </Link>
@@ -92,11 +92,11 @@ export function SpecialistList({ specialists }: { specialists: Specialist[] }) {
             <h2 id="specs-title" className="text-xl font-bold sm:text-2xl">
               متخصصان برتر اطراف تو
             </h2>
-            <p className="mt-1.5 text-sm text-slate-400">
+            <p className="mt-1.5 text-sm text-muted">
               بر اساس امتیاز و فاصله مرتب شده
             </p>
           </div>
-          <Link href="/search" className="text-sm text-brand-400 hover:text-brand-300">
+          <Link href="/search" className="text-sm text-primary hover:text-accent">
             مشاهده همه
           </Link>
         </div>
