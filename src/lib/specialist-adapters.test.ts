@@ -109,3 +109,12 @@ test("represents unsupported gallery and unavailable reviews without fake record
   assert.equal(detail.experienceYears, null);
   assert.equal(detail.coordinates, null);
 });
+
+test("does not expose out-of-range coordinates as a real location", () => {
+  const detail = parseSpecialistDetail({
+    id: 3, slug: "coords", title: "Coords", is_verified: false,
+    rating_avg: 0, rating_count: 0, avatar_url: null, availability: "away",
+    categories: [], cities: [], lat: 91, lng: 181, gallery: [],
+  });
+  assert.equal(detail.coordinates, null);
+});
