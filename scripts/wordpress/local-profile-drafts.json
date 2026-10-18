@@ -1,0 +1,49 @@
+{
+  "scope": "localhost-only",
+  "status": "draft-not-imported",
+  "source": "1_29326589229 (1).doc",
+  "notice": "The source has no real people, contact details or cities. These are explicitly labeled local demo accounts, not extracted identities. No admin, shared password, email or phone is supplied.",
+  "users": [
+    {
+      "key": "karban-local-demo-client",
+      "display_name": "کارفرمای آزمایشی کاربان",
+      "role": "nahan_client"
+    },
+    {
+      "key": "karban-local-demo-architect",
+      "display_name": "متخصص آزمایشی معماری",
+      "role": "nahan_specialist",
+      "profile": {
+        "slug": "karban-local-demo-architecture",
+        "title": "پروفایل آزمایشی — معماری",
+        "category_slug": "architecture",
+        "bio": "این پروفایل فقط برای آزمون محیط محلی کاربان است و نمایندهٔ شخص یا کسب‌وکار واقعی نیست.",
+        "is_verified": false
+      }
+    },
+    {
+      "key": "karban-local-demo-mechanical",
+      "display_name": "متخصص آزمایشی تأسیسات مکانیکی",
+      "role": "nahan_specialist",
+      "profile": {
+        "slug": "karban-local-demo-mechanical",
+        "title": "پروفایل آزمایشی — تأسیسات مکانیکی",
+        "category_slug": "mechanical-installations",
+        "bio": "این پروفایل فقط برای آزمون محیط محلی کاربان است و نمایندهٔ شخص یا کسب‌وکار واقعی نیست.",
+        "is_verified": false
+      }
+    },
+    {
+      "key": "karban-local-demo-electrical",
+      "display_name": "متخصص آزمایشی تأسیسات برقی",
+      "role": "nahan_specialist",
+      "profile": {
+        "slug": "karban-local-demo-electrical",
+        "title": "پروفایل آزمایشی — تأسیسات برقی",
+        "category_slug": "electrical-installations",
+        "bio": "این پروفایل فقط برای آزمون محیط محلی کاربان است و نمایندهٔ شخص یا کسب‌وکار واقعی نیست.",
+        "is_verified": false
+      }
+    }
+  ]
+}

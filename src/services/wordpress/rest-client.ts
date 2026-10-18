@@ -1,6 +1,9 @@
 import {
   assertWordPressServerOnly,
+  getWordPressOrigin,
+  getWordPressPermalinkMode,
   getWordPressRestBaseUrl,
+  WORDPRESS_REST_NAMESPACE,
 } from "./config.ts";
 import {
   isWordPressFailureEnvelope,
@@ -157,14 +160,16 @@ export function buildWordPressRestUrl(path: string, configuredUrl?: string): str
     );
   }
 
-  const baseUrl = getWordPressRestBaseUrl(configuredUrl);
-  const base = new URL(baseUrl);
+  const origin = getWordPressOrigin(configuredUrl);
+  const prettyBase = new URL(
+    `${origin}/wp-json/${WORDPRESS_REST_NAMESPACE}/`,
+  );
   const relativePath = trimmedPath.replace(/^\/+/, "");
-  const resolved = new URL(relativePath, base);
+  const resolved = new URL(relativePath, prettyBase);
 
   if (
-    resolved.origin !== base.origin ||
-    !resolved.pathname.startsWith(base.pathname) ||
+    resolved.origin !== prettyBase.origin ||
+    !resolved.pathname.startsWith(prettyBase.pathname) ||
     hasReservedRestQuery(resolved.searchParams)
   ) {
     throw invalidRequestError(
@@ -173,7 +178,20 @@ export function buildWordPressRestUrl(path: string, configuredUrl?: string): str
     );
   }
 
-  return resolved.toString();
+  if (getWordPressPermalinkMode() === "pretty") {
+    return resolved.toString();
+  }
+
+  const routePath = resolved.pathname.slice(prettyBase.pathname.length);
+  const endpoint = new URL(`${origin}/index.php`);
+  endpoint.searchParams.set(
+    "rest_route",
+    `/${WORDPRESS_REST_NAMESPACE}/${routePath}`,
+  );
+  for (const [key, value] of resolved.searchParams) {
+    endpoint.searchParams.append(key, value);
+  }
+  return endpoint.toString();
 }
 
 async function readJson(response: WordPressResponseLike): Promise<unknown> {

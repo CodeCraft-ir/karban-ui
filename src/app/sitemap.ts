@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
+import { loadBoundedCatalogPages } from "@/lib/public-specialist-pagination";
 import { collectSpecialistSitemapSlugs } from "@/lib/specialist-sitemap";
 import { loadPublicSpecialists } from "@/services/wordpress/public-specialists";
 
@@ -8,15 +9,10 @@ export const revalidate = 0;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const first = await loadPublicSpecialists({ page: "1", per_page: "30" });
-  const remainingPages = await Promise.all(
-    Array.from({ length: Math.max(0, first.pages - 1) }, (_, index) =>
-      loadPublicSpecialists({ page: String(index + 2), per_page: "30" }),
-    ),
+  const catalogs = await loadBoundedCatalogPages(first, (page) =>
+    loadPublicSpecialists({ page: String(page), per_page: "30" }),
   );
-  const slugs = collectSpecialistSitemapSlugs([
-    first.items,
-    ...remainingPages.map((catalog) => catalog.items),
-  ]);
+  const slugs = collectSpecialistSitemapSlugs(catalogs.map((catalog) => catalog.items));
 
   return [
     { url: SITE_URL, changeFrequency: "weekly", priority: 1 },

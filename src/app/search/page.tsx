@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { PublicDataError } from "@/components/sections/PublicDataState";
 import { SpecialistList } from "@/components/sections/SpecialistList";
 import type { PublicSpecialistCatalog, PublicSpecialistSearchInput, PublicTerm } from "@/lib/contracts/specialists";
+import { buildCatalogPaginationWindow } from "@/lib/public-specialist-pagination";
 import { buildSpecialistPaginationQuery, parseSpecialistSearchParams } from "@/lib/specialist-search";
 import { faNum } from "@/lib/utils";
 import { loadPublicSpecialists } from "@/services/wordpress/public-specialists";
@@ -41,7 +42,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (!data) return <PublicDataError title="نتیجه‌های جستجو بارگذاری نشد" description="اطلاعات عمومی متخصصان در دسترس نیست. دوباره تلاش کنید." />;
 
   const { catalog, categories, cities } = data;
-  const pages = Array.from({ length: catalog.pages }, (_, index) => index + 1);
+  const pagination = buildCatalogPaginationWindow(catalog.page, catalog.pages);
+  const previousPage = catalog.page > 1 ? catalog.page - 1 : null;
+  const nextPage = catalog.page < catalog.pages ? catalog.page + 1 : null;
   return (
     <div className="mx-auto max-w-5xl">
       <div className="px-4 pt-6 sm:px-6">
@@ -57,7 +60,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </form>
       </div>
       <SpecialistList specialists={catalog.items} title="نتیجه‌های جستجو" description={catalog.total === 0 ? "" : `صفحهٔ ${faNum(catalog.page)} از ${faNum(catalog.pages)}`} />
-      {pages.length > 1 && <nav className="mb-10 flex flex-wrap justify-center gap-2 px-4" aria-label="صفحه‌بندی نتایج">{pages.map((page) => <Link key={page} href={`/search?${buildSpecialistPaginationQuery(params, page)}`} aria-current={page === catalog.page ? "page" : undefined} className={`flex h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${page === catalog.page ? "border-primary bg-primary text-primary-fg" : "border-line bg-card text-fg hover:border-primary/50"}`}>{faNum(page)}</Link>)}</nav>}
+      {pagination.length > 1 && <nav className="mb-10 flex flex-wrap justify-center gap-2 px-4" aria-label="صفحه‌بندی نتایج">
+        {previousPage === null ? <span aria-hidden className="flex h-10 min-w-10 items-center justify-center rounded-xl border border-line text-faint"><ChevronRight className="h-4 w-4" /></span> : <Link aria-label="صفحهٔ قبل" href={`/search?${buildSpecialistPaginationQuery(params, previousPage)}`} className="flex h-10 min-w-10 items-center justify-center rounded-xl border border-line bg-card text-fg transition-colors duration-200 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><ChevronRight className="h-4 w-4" /></Link>}
+        {pagination.map((token, index) => token === "ellipsis" ? <span key={`ellipsis-${index}`} aria-hidden className="flex h-10 min-w-8 items-center justify-center text-muted">…</span> : <Link key={token} href={`/search?${buildSpecialistPaginationQuery(params, token)}`} aria-current={token === catalog.page ? "page" : undefined} className={`flex h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${token === catalog.page ? "border-primary bg-primary text-primary-fg" : "border-line bg-card text-fg hover:border-primary/50"}`}>{faNum(token)}</Link>)}
+        {nextPage === null ? <span aria-hidden className="flex h-10 min-w-10 items-center justify-center rounded-xl border border-line text-faint"><ChevronLeft className="h-4 w-4" /></span> : <Link aria-label="صفحهٔ بعد" href={`/search?${buildSpecialistPaginationQuery(params, nextPage)}`} className="flex h-10 min-w-10 items-center justify-center rounded-xl border border-line bg-card text-fg transition-colors duration-200 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><ChevronLeft className="h-4 w-4" /></Link>}
+      </nav>}
     </div>
   );
 }

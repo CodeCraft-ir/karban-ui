@@ -1,0 +1,23 @@
+{
+  "job_category": [
+    { "name": "اخذ پروانه ساخت", "slug": "building-permits" },
+    { "name": "طراحی و نظارت", "slug": "design-supervision" },
+    { "name": "معماری", "slug": "architecture" },
+    { "name": "سازه", "slug": "structural-engineering" },
+    { "name": "نقشه‌برداری", "slug": "surveying" },
+    { "name": "مشاوره", "slug": "construction-consulting" },
+    { "name": "اسکلت سازه و سقف", "slug": "structural-frame-roof" },
+    { "name": "تأسیسات مکانیکی", "slug": "mechanical-installations" },
+    { "name": "تأسیسات برقی", "slug": "electrical-installations" },
+    { "name": "گازکشی", "slug": "gas-installations" },
+    { "name": "آب و فاضلاب", "slug": "water-sewage" },
+    { "name": "نازک‌کاری", "slug": "finishing" },
+    { "name": "بازسازی و مقاوم‌سازی ساختمان", "slug": "renovation-retrofitting" },
+    { "name": "ایزوگام و عایق‌کاری", "slug": "waterproofing" },
+    { "name": "مصالح ساختمانی", "slug": "building-materials" },
+    { "name": "تجهیزات ساختمان", "slug": "building-equipment" },
+    { "name": "آزمایش خاک، جوش و بتن", "slug": "construction-testing" },
+    { "name": "درب و پنجره", "slug": "doors-windows" }
+  ],
+  "city": []
+}

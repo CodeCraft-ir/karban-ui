@@ -25,7 +25,7 @@
 
 در پیشخوان WordPress → تنظیمات → پیوندهای یکتا، ساختار مناسب غیرساده (مثل «نام نوشته») را ذخیره کنید و دوباره `/karban/wp-json/` را بررسی کنید. اگر 404 باقی ماند، rewrite Apache، `mod_rewrite` و مجازبودن `.htaccess` برای پوشهٔ سایت باید توسط مدیریت XAMPP بررسی شود. این بررسی هیچ تنظیم Apache/WordPress یا فایل `.htaccess` را تغییر نداده است.
 
-فرانت فعلی مسیرهای استاندارد `/wp-json/nahan/v1/` و `/graphql` را می‌سازد؛ تا اصلاح rewrite، صرف تنظیم `WORDPRESS_URL=http://localhost/karban/` کافی نیست. HTTP فقط برای توسعه مجاز است؛ production باید HTTPS باشد. پشتیبانی صریح از plain permalinks، اگر لازم شود، باید با builder ثابت و تست انجام شود، نه بازکردن proxy آزاد `rest_route` ورودی کاربر.
+فرانت در حالت پیش‌فرض `WORDPRESS_PERMALINK_MODE=pretty` مسیرهای استاندارد `/wp-json/nahan/v1/` و `/graphql` را می‌سازد. برای همین نصب محلی بدون rewrite، فقط در preview سرور مقدار صریح `WORDPRESS_PERMALINK_MODE=plain` تنظیم کنید: REST پلاگین به `/index.php?rest_route=/nahan/v1/...` و WPGraphQL به `/index.php?graphql` می‌روند. fallback یا probing خودکار وجود ندارد. HTTP فقط برای توسعه مجاز است؛ production باید HTTPS باشد. builder فقط route داخلی ثابت را می‌سازد و `rest_route` ورودی کاربر را پیش از dispatch رد می‌کند.
 
 ## مرزهای محیط
 

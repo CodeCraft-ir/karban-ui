@@ -1,5 +1,8 @@
 export const WORDPRESS_URL_ENV = "WORDPRESS_URL" as const;
+export const WORDPRESS_PERMALINK_MODE_ENV = "WORDPRESS_PERMALINK_MODE" as const;
 export const WORDPRESS_REST_NAMESPACE = "nahan/v1" as const;
+
+export type WordPressPermalinkMode = "pretty" | "plain";
 
 export interface WordPressConfig {
   origin: string;
@@ -16,6 +19,28 @@ function readWordPressUrl(): string {
   }
 
   return configuredUrl;
+}
+
+/**
+ * The absence of the server-only setting retains the established pretty URL
+ * behavior. Any present value must be an exact supported mode; probing and
+ * fallback would make the selected deployment behavior ambiguous.
+ */
+export function getWordPressPermalinkMode(): WordPressPermalinkMode {
+  const configuredMode =
+    typeof process !== "undefined"
+      ? process.env[WORDPRESS_PERMALINK_MODE_ENV]
+      : undefined;
+
+  if (configuredMode === undefined) {
+    return "pretty";
+  }
+
+  if (configuredMode === "pretty" || configuredMode === "plain") {
+    return configuredMode;
+  }
+
+  throw new Error("WORDPRESS_PERMALINK_MODE must be either pretty or plain.");
 }
 
 function isProduction(): boolean {
@@ -68,11 +93,21 @@ export function getWordPressOrigin(configuredUrl?: string): string {
 }
 
 export function getWordPressRestBaseUrl(configuredUrl?: string): string {
-  return `${getWordPressOrigin(configuredUrl)}/wp-json/${WORDPRESS_REST_NAMESPACE}/`;
+  const origin = getWordPressOrigin(configuredUrl);
+  if (getWordPressPermalinkMode() === "pretty") {
+    return `${origin}/wp-json/${WORDPRESS_REST_NAMESPACE}/`;
+  }
+
+  const endpoint = new URL(`${origin}/index.php`);
+  endpoint.searchParams.set("rest_route", `/${WORDPRESS_REST_NAMESPACE}/`);
+  return endpoint.toString();
 }
 
 export function getWordPressGraphqlEndpoint(configuredUrl?: string): string {
-  return `${getWordPressOrigin(configuredUrl)}/graphql`;
+  const origin = getWordPressOrigin(configuredUrl);
+  return getWordPressPermalinkMode() === "pretty"
+    ? `${origin}/graphql`
+    : `${origin}/index.php?graphql`;
 }
 
 export function getWordPressConfig(configuredUrl?: string): WordPressConfig {

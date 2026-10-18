@@ -220,6 +220,50 @@ test("aborts and maps a timed-out REST request", async () => {
   assert.equal(observedAbort, true);
 });
 
+test("uses the fixed plain REST and GraphQL endpoints while preserving route-override rejection", async () => {
+  const previousMode = environment.WORDPRESS_PERMALINK_MODE;
+  environment.WORDPRESS_PERMALINK_MODE = "plain";
+  try {
+    let restUrl: RequestInfo | URL | undefined;
+    await wordpressRest("specialists?per_page=1", {
+      fetch: async (input) => {
+        restUrl = input;
+        return jsonResponse({ success: true, data: [] });
+      },
+    });
+    assert.equal(
+      restUrl,
+      "https://codecraft.ir/kar/index.php?rest_route=%2Fnahan%2Fv1%2Fspecialists&per_page=1",
+    );
+
+    let graphqlUrl: RequestInfo | URL | undefined;
+    await wordpressGraphql("query Type { __typename }", {}, {
+      fetch: async (input, init) => {
+        graphqlUrl = input;
+        assert.equal(init?.method, "POST");
+        assert.equal(init?.body, JSON.stringify({ query: "query Type { __typename }", variables: {} }));
+        return jsonResponse({ data: { __typename: "RootQuery" } });
+      },
+    });
+    assert.equal(graphqlUrl, "https://codecraft.ir/kar/index.php?graphql");
+
+    let fetchCalls = 0;
+    await assert.rejects(
+      () => wordpressRest("specialists?rest_route=%2Fwp%2Fv2%2Fusers", {
+        fetch: async () => {
+          fetchCalls += 1;
+          return jsonResponse({ success: true, data: [] });
+        },
+      }),
+      (error: unknown) => error instanceof WordPressApiError && error.code === "invalid_path",
+    );
+    assert.equal(fetchCalls, 0);
+  } finally {
+    if (previousMode === undefined) delete environment.WORDPRESS_PERMALINK_MODE;
+    else environment.WORDPRESS_PERMALINK_MODE = previousMode;
+  }
+});
+
 test("maps GraphQL errors and extracts successful data", async () => {
   const token = "graphql-secret-token";
   let requestedUrl: RequestInfo | URL | undefined;

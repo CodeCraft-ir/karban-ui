@@ -8,14 +8,18 @@
 
 ```dotenv
 WORDPRESS_URL=https://codecraft.ir/kar/
+# Optional; exact values are pretty (default) or plain
+WORDPRESS_PERMALINK_MODE=pretty
 ```
 
 مقدار نمونه در [`.env.example`](../../.env.example) موجود است. تنظیم واقعی را در محیط اجرای سرور انجام دهید؛ فایل حاوی راز یا اطلاعات ورود را commit نکنید. نبود تنظیم معتبر خطا است و به آدرس یا دادهٔ ساختگی تبدیل نمی‌شود.
 
 زیردایرکتوری `/kar/` عمداً حفظ می‌شود:
 
-- REST پلاگین: `https://codecraft.ir/kar/wp-json/nahan/v1/`
-- WPGraphQL: `https://codecraft.ir/kar/graphql`
+- `pretty` (پیش‌فرض): REST پلاگین `https://codecraft.ir/kar/wp-json/nahan/v1/` و WPGraphQL `https://codecraft.ir/kar/graphql`
+- `plain`: REST پلاگین `https://codecraft.ir/kar/index.php?rest_route=/nahan/v1/...` و WPGraphQL `https://codecraft.ir/kar/index.php?graphql`
+
+حالت باید صریحاً `pretty` یا `plain` باشد؛ مقدار نامعتبر خطا می‌دهد و هیچ fallback/probing خودکار انجام نمی‌شود.
 
 هیچ access token، refresh token، کلید SMS/درگاه یا application password نباید در متغیر `NEXT_PUBLIC_*`، localStorage، Zustand، HTML یا پاسخ عمومی API قرار بگیرد.
 
@@ -37,7 +41,7 @@ WORDPRESS_URL=https://codecraft.ir/kar/
 آزمون‌های ارتباط فعلی:
 
 ```bash
-node --experimental-strip-types --test src/services/wordpress/url.test.ts src/services/wordpress/client.test.ts
+node --experimental-strip-types --test src/services/wordpress/url.test.ts src/services/wordpress/client.test.ts src/services/wordpress/taxonomies.test.ts
 ```
 
 بررسی TypeScript با ابزار نصب‌شده، بدون دریافت پکیج:

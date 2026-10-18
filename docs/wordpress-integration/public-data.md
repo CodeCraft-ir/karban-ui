@@ -6,7 +6,7 @@
 
 - `loadPublicSpecialists(search, { request? })` از مسیر ثابت `nahan/v1/specialists` با `q`، `category`، `city`، `verified=1`، `page` و `per_page` استفاده می‌کند.
 - `loadPublicSpecialistDetail(slug, { request? })` فقط یک slug امن می‌پذیرد و آن را به یک component مسیر `specialists/{slug}` تبدیل می‌کند. خطای واقعی `WordPressApiError` با `status: 404` و `code: "not_found"` بدون تبدیل به نتیجهٔ خالی عبور می‌کند؛ `isPublicSpecialistNotFound` فقط همین مورد را تشخیص می‌دهد.
-- `loadPublicTerms("job_category" | "city" | "neighborhood", { fetch? })` فقط سه مسیر core REST allowlisted زیر را بدون credential می‌خواند: `/wp-json/wp/v2/job_category`، `/city` و `/neighborhood`. همهٔ صفحه‌ها تا سقف ۱۰۰ خوانده و بر اساس ID deduplicate می‌شوند.
+- `loadPublicTerms("job_category" | "city" | "neighborhood", { fetch? })` فقط سه مسیر core REST allowlisted زیر را بدون credential می‌خواند: `/wp-json/wp/v2/job_category`، `/city` و `/neighborhood`. در `WORDPRESS_PERMALINK_MODE=plain` همان routeهای ثابت به `/index.php?rest_route=/wp/v2/...` تبدیل می‌شوند؛ route از ورودی فراخواننده پذیرفته نمی‌شود. همهٔ صفحه‌ها تا سقف ۱۰۰ خوانده و بر اساس ID deduplicate می‌شوند؛ پاسخ خالی واقعی فقط با هر دو header `X-WP-Total=0` و `X-WP-TotalPages=0` در page اول معتبر است.
 - انواع serializable در `src/lib/contracts/specialists.ts` هستند. کارت تنها identity، وضعیت تأیید، rating معتبر، avatar امن، availability و نام‌های category/city را ارائه می‌کند. detail فقط متن‌های واقعی، سال/پاسخ مثبت، آدرس، قیمت، `phoneDisplay`، مختصات غیرصفر و وضعیت صریح gallery/reviews را اضافه می‌کند.
 
 ## محدودیت‌ها و ایمنی

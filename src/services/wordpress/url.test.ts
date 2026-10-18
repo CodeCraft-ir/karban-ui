@@ -4,12 +4,14 @@ import {
   getWordPressConfig,
   getWordPressGraphqlEndpoint,
   getWordPressOrigin,
+  getWordPressPermalinkMode,
   getWordPressRestBaseUrl,
   normalizeWordPressOrigin,
 } from "./config.ts";
 
 const environment = process.env as Record<string, string | undefined>;
 const originalWordPressUrl = environment.WORDPRESS_URL;
+const originalPermalinkMode = environment.WORDPRESS_PERMALINK_MODE;
 const originalNodeEnv = environment.NODE_ENV;
 
 before(() => {
@@ -21,6 +23,12 @@ after(() => {
     delete process.env.WORDPRESS_URL;
   } else {
     process.env.WORDPRESS_URL = originalWordPressUrl;
+  }
+
+  if (originalPermalinkMode === undefined) {
+    delete environment.WORDPRESS_PERMALINK_MODE;
+  } else {
+    environment.WORDPRESS_PERMALINK_MODE = originalPermalinkMode;
   }
 
   if (originalNodeEnv === undefined) {
@@ -50,6 +58,29 @@ test("normalizes /kar/ and builds the exact WordPress endpoints", () => {
     restBaseUrl: "https://codecraft.ir/kar/wp-json/nahan/v1/",
     graphqlEndpoint: "https://codecraft.ir/kar/graphql",
   });
+});
+
+test("uses pretty permalinks by default and only accepts exact configured modes", () => {
+  delete environment.WORDPRESS_PERMALINK_MODE;
+  assert.equal(getWordPressPermalinkMode(), "pretty");
+
+  environment.WORDPRESS_PERMALINK_MODE = "plain";
+  assert.equal(getWordPressPermalinkMode(), "plain");
+  assert.equal(
+    getWordPressRestBaseUrl("https://codecraft.ir/kar/"),
+    "https://codecraft.ir/kar/index.php?rest_route=%2Fnahan%2Fv1%2F",
+  );
+  assert.equal(
+    getWordPressGraphqlEndpoint("https://codecraft.ir/kar/"),
+    "https://codecraft.ir/kar/index.php?graphql",
+  );
+
+  for (const unsupportedMode of ["", "pretty ", "PRETTY", "rewrite"]) {
+    environment.WORDPRESS_PERMALINK_MODE = unsupportedMode;
+    assert.throws(() => getWordPressPermalinkMode(), /WORDPRESS_PERMALINK_MODE/);
+  }
+
+  delete environment.WORDPRESS_PERMALINK_MODE;
 });
 
 test("reads the server-only WORDPRESS_URL without a live fallback", () => {

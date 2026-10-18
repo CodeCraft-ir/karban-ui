@@ -1,5 +1,9 @@
 import type { PublicTaxonomy, PublicTerm } from "../../lib/contracts/specialists.ts";
-import { assertWordPressServerOnly, getWordPressOrigin } from "./config.ts";
+import {
+  assertWordPressServerOnly,
+  getWordPressOrigin,
+  getWordPressPermalinkMode,
+} from "./config.ts";
 import { WordPressApiError } from "./errors.ts";
 import type { WordPressFetch } from "./rest-client.ts";
 
@@ -33,15 +37,52 @@ function fetchImplementation(options: PublicTermsOptions): WordPressFetch {
 function termUrl(taxonomy: PublicTaxonomy, page: number): string {
   const origin = getWordPressOrigin();
   const query = new URLSearchParams({ per_page: "100", page: String(page), _fields: "id,name,slug,count,parent" });
-  return `${origin}/wp-json/wp/v2/${TERM_PATHS[taxonomy]}?${query.toString()}`;
+  const path = TERM_PATHS[taxonomy];
+
+  if (getWordPressPermalinkMode() === "pretty") {
+    return `${origin}/wp-json/wp/v2/${path}?${query.toString()}`;
+  }
+
+  const endpoint = new URL(`${origin}/index.php`);
+  endpoint.searchParams.set("rest_route", `/wp/v2/${path}`);
+  for (const [key, value] of query) {
+    endpoint.searchParams.append(key, value);
+  }
+  return endpoint.toString();
 }
 
-function pageTotal(response: Response): number {
-  const header = response.headers.get("x-wp-totalpages");
-  if (!header || !/^\d+$/.test(header)) throw contractError("صفحه‌بندی دسته‌بندی معتبر نیست.");
-  const pages = Number(header);
-  if (!Number.isSafeInteger(pages) || pages < 1 || pages > MAX_TERM_PAGES) throw contractError("صفحه‌بندی دسته‌بندی معتبر نیست.");
-  return pages;
+interface TermPagination {
+  pages: number;
+  total: number;
+}
+
+function parsePagination(response: Response, payload: unknown[], page: number): TermPagination {
+  const pagesHeader = response.headers.get("x-wp-totalpages");
+  const totalHeader = response.headers.get("x-wp-total");
+  if (
+    !pagesHeader ||
+    !totalHeader ||
+    !/^\d+$/.test(pagesHeader) ||
+    !/^\d+$/.test(totalHeader)
+  ) {
+    throw contractError("صفحه‌بندی دسته‌بندی معتبر نیست.");
+  }
+
+  const pages = Number(pagesHeader);
+  const total = Number(totalHeader);
+  if (
+    !Number.isSafeInteger(pages) ||
+    !Number.isSafeInteger(total) ||
+    pages < 0 ||
+    total < 0 ||
+    pages > MAX_TERM_PAGES ||
+    pages !== Math.ceil(total / 100) ||
+    (pages === 0 && (page !== 1 || payload.length !== 0))
+  ) {
+    throw contractError("صفحه‌بندی دسته‌بندی معتبر نیست.");
+  }
+
+  return { pages, total };
 }
 
 function parseTerm(value: unknown, taxonomy: PublicTaxonomy): PublicTerm {
@@ -55,7 +96,7 @@ function parseTerm(value: unknown, taxonomy: PublicTaxonomy): PublicTerm {
   return { id: term.id as number, name: term.name.trim(), slug: term.slug.trim(), count: term.count as number };
 }
 
-async function fetchPage(taxonomy: PublicTaxonomy, page: number, fetcher: WordPressFetch, timeoutMs: number): Promise<{ terms: PublicTerm[]; pages: number }> {
+async function fetchPage(taxonomy: PublicTaxonomy, page: number, fetcher: WordPressFetch, timeoutMs: number): Promise<{ terms: PublicTerm[]; pages: number; total: number }> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -66,7 +107,6 @@ async function fetchPage(taxonomy: PublicTaxonomy, page: number, fetcher: WordPr
       throw new WordPressApiError({ status: controller.signal.aborted ? 408 : 0, code: controller.signal.aborted ? "timeout" : "network_error", message: controller.signal.aborted ? "مهلت درخواست وردپرس به پایان رسید." : "ارتباط با وردپرس برقرار نشد." });
     }
     if (!response.ok) throw new WordPressApiError({ status: response.status, code: "http_error", message: "درخواست وردپرس با خطا روبه‌رو شد." });
-    const pages = pageTotal(response);
     let payload: unknown;
     try {
       payload = await response.json();
@@ -77,7 +117,8 @@ async function fetchPage(taxonomy: PublicTaxonomy, page: number, fetcher: WordPr
       throw new WordPressApiError({ status: response.status, code: "invalid_json", message: "پاسخ وردپرس JSON معتبر نیست." });
     }
     if (!Array.isArray(payload)) throw contractError();
-    return { terms: payload.map((item) => parseTerm(item, taxonomy)), pages };
+    const { pages, total } = parsePagination(response, payload, page);
+    return { terms: payload.map((item) => parseTerm(item, taxonomy)), pages, total };
   } finally { clearTimeout(timeout); }
 }
 
@@ -88,10 +129,20 @@ export async function loadPublicTerms(taxonomy: PublicTaxonomy, options: PublicT
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new WordPressApiError({ status: 400, code: "invalid_timeout", message: "مهلت درخواست باید یک عدد مثبت باشد." });
   const fetcher = fetchImplementation(options);
   const first = await fetchPage(taxonomy, 1, fetcher, timeoutMs);
+  if (first.pages === 0) {
+    return [];
+  }
+
   const remaining = Array.from({ length: first.pages - 1 }, (_, index) => index + 2);
   const later: PublicTerm[][] = [];
   for (let index = 0; index < remaining.length; index += 4) {
-    const batch = await Promise.all(remaining.slice(index, index + 4).map(async (page) => (await fetchPage(taxonomy, page, fetcher, timeoutMs)).terms));
+    const batch = await Promise.all(remaining.slice(index, index + 4).map(async (page) => {
+      const result = await fetchPage(taxonomy, page, fetcher, timeoutMs);
+      if (result.pages !== first.pages || result.total !== first.total) {
+        throw contractError("صفحه‌بندی دسته‌بندی معتبر نیست.");
+      }
+      return result.terms;
+    }));
     later.push(...batch);
   }
   const deduplicated = new Map<number, PublicTerm>();
