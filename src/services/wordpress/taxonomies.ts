@@ -1,5 +1,5 @@
 import type { PublicTaxonomy, PublicTerm } from "../../lib/contracts/specialists.ts";
-import { getWordPressOrigin } from "./config.ts";
+import { assertWordPressServerOnly, getWordPressOrigin } from "./config.ts";
 import { WordPressApiError } from "./errors.ts";
 import type { WordPressFetch } from "./rest-client.ts";
 
@@ -61,7 +61,7 @@ async function fetchPage(taxonomy: PublicTaxonomy, page: number, fetcher: WordPr
   try {
     let response: Response;
     try {
-      response = await fetcher(termUrl(taxonomy, page), { method: "GET", headers: { Accept: "application/json" }, cache: "no-store", signal: controller.signal });
+      response = await fetcher(termUrl(taxonomy, page), { method: "GET", headers: { Accept: "application/json" }, cache: "no-store", credentials: "omit", signal: controller.signal });
     } catch {
       throw new WordPressApiError({ status: controller.signal.aborted ? 408 : 0, code: controller.signal.aborted ? "timeout" : "network_error", message: controller.signal.aborted ? "مهلت درخواست وردپرس به پایان رسید." : "ارتباط با وردپرس برقرار نشد." });
     }
@@ -82,6 +82,7 @@ async function fetchPage(taxonomy: PublicTaxonomy, page: number, fetcher: WordPr
 }
 
 export async function loadPublicTerms(taxonomy: PublicTaxonomy, options: PublicTermsOptions = {}): Promise<PublicTerm[]> {
+  assertWordPressServerOnly();
   if (!isTaxonomy(taxonomy)) throw new WordPressApiError({ status: 400, code: "invalid_taxonomy", message: "دسته‌بندی عمومی معتبر نیست." });
   const timeoutMs = options.timeoutMs ?? CORE_TERMS_TIMEOUT_MS;
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new WordPressApiError({ status: 400, code: "invalid_timeout", message: "مهلت درخواست باید یک عدد مثبت باشد." });

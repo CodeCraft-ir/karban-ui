@@ -1,0 +1,26 @@
+diff --git a/rest-api/profile-routes.php b/rest-api/profile-routes.php
+index 18dc12fea478a38bea13364162f9b2c617152e06..afe8a4ca18ca3d5aff9afc35d23f9ca3d50b8c3b 100644
+--- a/rest-api/profile-routes.php
++++ b/rest-api/profile-routes.php
+@@ -223,6 +223,7 @@
+ 		$args = [
+ 			'post_type'      => 'nahan_specialist',
+ 			'post_status'    => 'publish',
++			'has_password'   => false,
+ 			'posts_per_page' => min( 30, max( 1, (int) ( $req->get_param( 'per_page' ) ?: 20 ) ) ),
+ 			'paged'          => max( 1, (int) ( $req->get_param( 'page' ) ?: 1 ) ),
+ 			's'              => (string) ( $req->get_param( 'q' ) ?: '' ),
+@@ -259,7 +260,12 @@
+ 	'permission_callback' => '__return_true',
+ 	'callback' => static function ( $req ) {
+ 		$post = get_page_by_path( (string) $req['slug'], OBJECT, 'nahan_specialist' );
+-		if ( ! $post ) {
++		if (
++			! $post ||
++			'nahan_specialist' !== $post->post_type ||
++			'publish' !== $post->post_status ||
++			'' !== (string) $post->post_password
++		) {
+ 			return RestHelper::fail( 'not_found', 'متخصص یافت نشد.', 404 );
+ 		}
+ 		global $wpdb;

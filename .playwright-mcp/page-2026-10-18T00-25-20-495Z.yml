@@ -1,0 +1,68 @@
+- generic [active] [ref=f1e1]:
+  - link "Skip to content" [ref=f1e2] [cursor=pointer]:
+    - /url: "#wp--skip-link--target"
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e7]:
+        - paragraph [ref=f1e8]:
+          - link "کاربان" [ref=f1e9] [cursor=pointer]:
+            - /url: http://localhost/karban
+        - navigation [ref=f1e11]:
+          - list [ref=f1e16]:
+            - list [ref=f1e17]:
+              - listitem [ref=f1e18]:
+                - link "Sample Page" [ref=f1e19] [cursor=pointer]:
+                  - /url: http://localhost/karban/index.php/sample-page/
+    - main [ref=f1e20]:
+      - heading "Blog" [level=1] [ref=f1e21]
+      - list [ref=f1e23]:
+        - listitem [ref=f1e24]:
+          - generic [ref=f1e25]:
+            - heading [level=2] [ref=f1e26]:
+              - link "Hello world!" [ref=f1e27] [cursor=pointer]:
+                - /url: http://localhost/karban/index.php/2026/10/16/hello-world/
+            - paragraph [ref=f1e29]: Welcome to WordPress. This is your first post. Edit or delete it, then start writing!
+            - link [ref=f1e31] [cursor=pointer]:
+              - /url: http://localhost/karban/index.php/2026/10/16/hello-world/
+              - time [ref=f1e32]: October 16, 2026
+    - contentinfo [ref=f1e34]:
+      - generic [ref=f1e36]:
+        - generic [ref=f1e37]:
+          - heading [level=2] [ref=f1e40]:
+            - link "کاربان" [ref=f1e41] [cursor=pointer]:
+              - /url: http://localhost/karban
+          - generic [ref=f1e42]:
+            - navigation "2" [ref=f1e43]:
+              - list [ref=f1e44]:
+                - listitem [ref=f1e45]:
+                  - link "Blog" [ref=f1e46] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=f1e47]:
+                  - link "About" [ref=f1e48] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=f1e49]:
+                  - link "FAQs" [ref=f1e50] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=f1e51]:
+                  - link "Authors" [ref=f1e52] [cursor=pointer]:
+                    - /url: "#"
+            - navigation "3" [ref=f1e53]:
+              - list [ref=f1e54]:
+                - listitem [ref=f1e55]:
+                  - link "Events" [ref=f1e56] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=f1e57]:
+                  - link "Shop" [ref=f1e58] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=f1e59]:
+                  - link "Patterns" [ref=f1e60] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=f1e61]:
+                  - link "Themes" [ref=f1e62] [cursor=pointer]:
+                    - /url: "#"
+        - generic [ref=f1e64]:
+          - paragraph [ref=f1e65]: Twenty Twenty-Five
+          - paragraph [ref=f1e66]:
+            - text: Designed with
+            - link "WordPress" [ref=f1e67] [cursor=pointer]:
+              - /url: https://wordpress.org

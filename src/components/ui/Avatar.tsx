@@ -1,36 +1,34 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Deterministic brand-duotone avatar — dummy-data friendly, no external
- * images. `hue` picks one of the brand recipes (yellow / blue mixes) so
- * avatars vary while staying strictly within the brand palette.
- */
 const BRAND_GRADIENTS = [
-  "linear-gradient(135deg, #0072b6, #064e7a)", // blue
-  "linear-gradient(135deg, #f2cb1f, #a9880c)", // yellow
-  "linear-gradient(135deg, #2e95e6, #0b4265)", // sky blue
-  "linear-gradient(135deg, #d4ae0b, #775c14)", // deep yellow
-  "linear-gradient(135deg, #005c94, #050b10)", // blue → black
-  "linear-gradient(135deg, #f7db44, #8c6f11)", // bright yellow
+  "linear-gradient(135deg, #0072b6, #064e7a)",
+  "linear-gradient(135deg, #f2cb1f, #a9880c)",
+  "linear-gradient(135deg, #2e95e6, #0b4265)",
+  "linear-gradient(135deg, #d4ae0b, #775c14)",
+  "linear-gradient(135deg, #005c94, #050b10)",
+  "linear-gradient(135deg, #f7db44, #8c6f11)",
 ];
 
+/** Public avatars use the safe normalized URL when available, with initials as fallback. */
 export function Avatar({
   name,
+  src,
   hue = 45,
   className,
 }: {
   name: string;
+  src?: string | null;
   hue?: number;
   className?: string;
 }) {
   const initials = name
     .split(" ")
+    .filter(Boolean)
     .slice(0, 2)
-    .map((p) => p[0])
+    .map((part) => part[0])
     .join("‌");
-
-  const idx = Math.abs(hue) % BRAND_GRADIENTS.length;
-  const onYellow = idx % 2 === 1; // yellow recipes need black text
+  const index = Math.abs(hue) % BRAND_GRADIENTS.length;
+  const onYellow = index % 2 === 1;
 
   return (
     <div
@@ -39,11 +37,14 @@ export function Avatar({
         onYellow ? "text-black/85" : "text-white/90",
         className,
       )}
-      style={{ background: BRAND_GRADIENTS[idx] }}
+      style={{ background: BRAND_GRADIENTS[index] }}
     >
-      <span aria-hidden>{initials}</span>
+      {src ? (
+        <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <span aria-hidden>{initials}</span>
+      )}
       <span className="sr-only">{name}</span>
-      {/* subtle top-light sheen */}
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/15 to-transparent" />
     </div>
   );

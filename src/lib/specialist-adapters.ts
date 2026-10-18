@@ -36,6 +36,13 @@ function requiredSafeInteger(value: unknown, field: string, minimum = 0): number
   return value as number;
 }
 
+function requiredBoolean(value: unknown, field: string): boolean {
+  if (typeof value !== "boolean") {
+    throw new PublicDataContractError(`فیلد عمومی ${field} معتبر نیست.`);
+  }
+  return value;
+}
+
 function requiredStrings(value: unknown, field: string): string[] {
   if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || CONTROL_CHARACTERS.test(item))) {
     throw new PublicDataContractError(`فهرست عمومی ${field} معتبر نیست.`);
@@ -104,7 +111,7 @@ export function parseSpecialistCard(value: unknown): PublicSpecialistCard {
     id: requiredSafeInteger(value.id, "id", 1),
     slug: requiredString(value.slug, "slug"),
     title: requiredString(value.title, "title"),
-    verified: typeof value.is_verified === "boolean" ? value.is_verified : false,
+    verified: requiredBoolean(value.is_verified, "is_verified"),
     rating: rating(value.rating_avg, value.rating_count),
     avatarUrl: normalizePublicUrl(value.avatar_url),
     availability: availability(value.availability),

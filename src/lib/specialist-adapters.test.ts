@@ -67,6 +67,18 @@ test("rejects malformed required identity and collections", () => {
   }
 });
 
+test("requires a boolean verification flag without changing valid true or false", () => {
+  const identity = { id: 4, slug: "verified", title: "Verified", categories: [], cities: [] };
+  for (const is_verified of [undefined, null, "true", 1]) {
+    const fixture = is_verified === undefined
+      ? { ...identity }
+      : { ...identity, is_verified };
+    assert.throws(() => parseSpecialistCard(fixture), PublicDataContractError);
+  }
+  assert.equal(parseSpecialistCard({ ...identity, is_verified: true }).verified, true);
+  assert.equal(parseSpecialistCard({ ...identity, is_verified: false }).verified, false);
+});
+
 test("normalizes only the named public phone field and safe URLs", () => {
   assert.equal(normalizePublicPhone("۰۹۱۲ ۱۲۳-۴۵۶۷"), "09121234567");
   assert.equal(normalizePublicPhone("+٩٨ (٩١٢) ١٢٣٤٥٦٧"), "+989121234567");

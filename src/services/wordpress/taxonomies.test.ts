@@ -20,11 +20,28 @@ test("loads allowlisted core terms under the configured WordPress subdirectory",
       assert.equal(init?.cache, "no-store");
       assert.equal(new Headers(init?.headers).get("accept"), "application/json");
       assert.equal(new Headers(init?.headers).has("authorization"), false);
+      assert.equal(init?.credentials, "omit");
       return termsResponse([{ id: 4, name: "کاشی", slug: "کاشی", count: 7, parent: 0 }]);
     },
   });
   assert.deepEqual(urls, ["https://codecraft.ir/kar/wp-json/wp/v2/job_category?per_page=100&page=1&_fields=id%2Cname%2Cslug%2Ccount%2Cparent"]);
   assert.deepEqual(terms, [{ id: 4, name: "کاشی", slug: "کاشی", count: 7, parent: 0 }]);
+});
+
+test("refuses browser execution before dispatching an injected terms fetch", async () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  let calls = 0;
+  Object.defineProperty(globalThis, "window", { configurable: true, value: {} });
+  try {
+    await assert.rejects(
+      () => loadPublicTerms("city", { fetch: async () => { calls += 1; return termsResponse([]); } }),
+      /only be called from the server/,
+    );
+    assert.equal(calls, 0);
+  } finally {
+    if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
+    else delete (globalThis as { window?: unknown }).window;
+  }
 });
 
 test("fetches every term page and deduplicates IDs", async () => {

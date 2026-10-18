@@ -1,8 +1,20 @@
-import type { Specialist } from "@/lib/data";
+import type { PublicSpecialistDetail } from "@/lib/contracts/specialists";
 
 /** Canonical origin — override in production via env. */
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://karban.ir";
+
+type JsonLdValue = Record<string, unknown> | readonly unknown[];
+
+/**
+ * Produces script-safe JSON while preserving the original structured data.
+ * React renders this string as script text, so tag delimiters must not survive.
+ */
+export function serializeJsonLd(value: JsonLdValue): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/&/g, "\\u0026");
+}
 
 /* ---------------- JSON-LD builders ---------------- */
 
@@ -15,8 +27,7 @@ export function orgJsonLd() {
     alternateName: "Karban",
     url: SITE_URL,
     logo: `${SITE_URL}/icons/icon-512.svg`,
-    description:
-      "پلتفرم اتصال کارفرمایان به استادکاران و متخصصان تایید‌شده ساختمانی",
+    description: "فهرست عمومی متخصصان و خدمات ساختمانی کاربان",
   };
 }
 
@@ -40,31 +51,43 @@ export function webSiteJsonLd() {
   };
 }
 
-/** LocalBusiness + AggregateRating for a specialist profile. */
-export function specialistJsonLd(s: Specialist) {
-  return {
+/** LocalBusiness data limited to the normalized public specialist detail. */
+export function specialistJsonLd(specialist: PublicSpecialistDetail) {
+  const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `${SITE_URL}/specialists/${s.slug}#business`,
-    name: s.name,
-    description: s.about,
-    url: `${SITE_URL}/specialists/${s.slug}`,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: s.city,
-      addressRegion: s.city,
-      addressCountry: "IR",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: s.rating,
-      reviewCount: s.reviewsCount,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    knowsAbout: s.skills,
+    "@id": `${SITE_URL}/specialists/${encodeURIComponent(specialist.slug)}#business`,
+    name: specialist.title,
+    url: `${SITE_URL}/specialists/${encodeURIComponent(specialist.slug)}`,
     parentOrganization: { "@id": `${SITE_URL}/#org` },
   };
+
+  const description = specialist.description ?? specialist.bio;
+  if (description) schema.description = description;
+  if (specialist.skills) schema.knowsAbout = specialist.skills;
+  if (specialist.priceHint) schema.priceRange = specialist.priceHint;
+
+  const city = specialist.cities[0];
+  if (specialist.address || city) {
+    schema.address = {
+      "@type": "PostalAddress",
+      ...(specialist.address ? { streetAddress: specialist.address } : {}),
+      ...(city ? { addressLocality: city } : {}),
+      addressCountry: "IR",
+    };
+  }
+
+  if (specialist.rating) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: specialist.rating.average,
+      reviewCount: specialist.rating.count,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+
+  return schema;
 }
 
 export function breadcrumbJsonLd(
@@ -73,9 +96,9 @@ export function breadcrumbJsonLd(
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((item, i) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      position: i + 1,
+      position: index + 1,
       name: item.name,
       item: `${SITE_URL}${item.path}`,
     })),

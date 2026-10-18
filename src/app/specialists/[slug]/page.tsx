@@ -1,56 +1,62 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { SpecialistProfile } from "@/components/sections/SpecialistProfile";
-import { SPECIALISTS, getSpecialist } from "@/lib/data";
-import { breadcrumbJsonLd, specialistJsonLd } from "@/lib/seo";
-import { faNum } from "@/lib/utils";
+import { PublicDataError } from "@/components/sections/PublicDataState";
+import type { PublicSpecialistDetail } from "@/lib/contracts/specialists";
+import { loadCachedPublicSpecialistDetail } from "@/lib/public-specialist-detail";
+import { breadcrumbJsonLd, serializeJsonLd, specialistJsonLd } from "@/lib/seo";
+import { isPublicSpecialistNotFound } from "@/services/wordpress/public-specialists";
 
-export function generateStaticParams() {
-  return SPECIALISTS.map((s) => ({ slug: s.slug }));
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+type DetailResult =
+  | { specialist: PublicSpecialistDetail; error: null }
+  | { specialist: null; error: unknown };
+
+async function loadDetail(slug: string): Promise<DetailResult> {
+  try {
+    return { specialist: await loadCachedPublicSpecialistDetail(slug), error: null };
+  } catch (error) {
+    return { specialist: null, error };
+  }
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/specialists/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/specialists/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const s = getSpecialist(slug);
-  if (!s) return { title: "متخصص" };
-  const title = `${s.name} — ${s.title} در ${s.city}`;
-  const description = `${s.name}، ${s.title} با ${faNum(s.experienceYears)} سال سابقه و امتیاز ${faNum(s.rating)} از ${faNum(s.reviewsCount)} نظر در ${s.city}، ${s.neighborhood}. مشاهده نمونه‌کارها و درخواست مستقیم در کاربان.`;
-  return {
-    title,
-    description,
-    alternates: { canonical: `/specialists/${s.slug}` },
-    openGraph: { title, description, type: "profile" },
-  };
+  const result = await loadDetail(slug);
+  if (!result.specialist) {
+    return isPublicSpecialistNotFound(result.error)
+      ? { title: "متخصص پیدا نشد", robots: { index: false, follow: false } }
+      : { title: "پروفایل متخصص" };
+  }
+
+  const { specialist } = result;
+  const location = specialist.cities[0] ? ` در ${specialist.cities[0]}` : "";
+  const description = specialist.description ?? specialist.bio ?? `پروفایل عمومی ${specialist.title}${location} در کاربان.`;
+  const title = `${specialist.title}${location}`;
+  return { title, description, alternates: { canonical: `/specialists/${encodeURIComponent(specialist.slug)}` }, openGraph: { title, description, type: "profile" } };
 }
 
-export default async function SpecialistPage({
-  params,
-}: PageProps<"/specialists/[slug]">) {
+export default async function SpecialistPage({ params }: PageProps<"/specialists/[slug]">) {
   const { slug } = await params;
-  const specialist = getSpecialist(slug);
-  if (!specialist) notFound();
+  const result = await loadDetail(slug);
+  if (!result.specialist) {
+    if (isPublicSpecialistNotFound(result.error)) notFound();
+    return <PublicDataError title="پروفایل متخصص بارگذاری نشد" description="اطلاعات عمومی این پروفایل در دسترس نیست. دوباره تلاش کنید." />;
+  }
 
+  const { specialist } = result;
+  const path = `/specialists/${encodeURIComponent(specialist.slug)}`;
   const breadcrumbs = breadcrumbJsonLd([
     { name: "کاربان", path: "/" },
     { name: "متخصصان", path: "/search" },
-    { name: specialist.name, path: `/specialists/${specialist.slug}` },
+    { name: specialist.title, path },
   ]);
-
   return (
     <>
-      {/* LocalBusiness + AggregateRating + BreadcrumbList */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(specialistJsonLd(specialist)),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
+      <script type="application/ld+json">{serializeJsonLd(specialistJsonLd(specialist))}</script>
+      <script type="application/ld+json">{serializeJsonLd(breadcrumbs)}</script>
       <SpecialistProfile specialist={specialist} />
     </>
   );
