@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* Account actions reuse brand semantic tokens in both themes. */
+.owner-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 0.625rem 1rem;
+  color: var(--accent);
+  background: var(--card);
+  transition: background-color 220ms cubic-bezier(0.2,0,0,1), transform 220ms cubic-bezier(0.2,0,0,1);
+}
+.owner-link:hover { background: var(--wash); }
+.owner-link:active { transform: translateY(1px); }
+.owner-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+
 /* class-based dark variant (next-themes sets .dark / .light on <html>) */
 @custom-variant dark (&:where(.dark, .dark *));
 

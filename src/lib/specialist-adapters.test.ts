@@ -8,6 +8,16 @@ import {
   normalizePublicUrl,
 } from "./specialist-adapters.ts";
 
+test("projects real public image arrays without leaking metadata or inventing content", () => {
+  const base = { id:2,slug:'detail',title:'Detail',is_verified:false,categories:[],cities:[] };
+  const item = { id:19,url:'https://example.test/real.webp',type:'image',caption:'کار واقعی',owner:99 };
+  assert.deepEqual(parseSpecialistDetail({...base,gallery:[item]}).gallery,[{id:19,url:item.url,type:'image',caption:item.caption}]);
+  for(const url of ['javascript:alert(1)','https://u:p@example.test/a','https://example.test/a#private','https://example.test/a b']) {
+    assert.equal(parseSpecialistDetail({...base,gallery:[{...item,url}]}).gallery,'unavailable');
+  }
+  assert.equal(parseSpecialistDetail({...base,gallery:[item,item]}).gallery,'unavailable');
+});
+
 test("parses a truthful public card and drops unknown private fields", () => {
   const card = parseSpecialistCard({
     id: 12,

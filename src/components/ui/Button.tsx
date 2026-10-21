@@ -3,6 +3,7 @@
 import { forwardRef, useRef, type ButtonHTMLAttributes } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import {tapFeedback} from '@/lib/tap-feedback';
 import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "secondary" | "accent" | "ghost" | "outline" | "danger";
@@ -45,14 +46,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const { contextSafe } = useGSAP({ scope: innerRef });
 
     const press = contextSafe(() => {
-      gsap.to(innerRef.current, { scale: 0.95, duration: 0.12, ease: "power2.out" });
+      gsap.to(innerRef.current, tapFeedback(window.matchMedia('(prefers-reduced-motion: reduce)').matches,true));
     });
     const release = contextSafe(() => {
-      gsap.to(innerRef.current, {
-        scale: 1,
-        duration: 0.55,
-        ease: "elastic.out(1.1, 0.45)",
-      });
+      gsap.to(innerRef.current, tapFeedback(window.matchMedia('(prefers-reduced-motion: reduce)').matches,false));
     });
 
     return (

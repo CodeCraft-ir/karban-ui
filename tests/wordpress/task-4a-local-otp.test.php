@@ -20,15 +20,8 @@ namespace {
 	function current_time( string $type, bool $gmt = false ): string { return '2026-10-18 00:00:00'; }
 	function sanitize_text_field( string $value ): string { return $value; }
 	function wp_unslash( string $value ): string { return $value; }
-	function get_option( string $key, mixed $default = false ): mixed {
-		global $test_options;
-		return $test_options[ $key ] ?? $default;
-	}
-	function update_option( string $key, mixed $value ): bool {
-		global $test_options;
-		$test_options[ $key ] = $value;
-		return true;
-	}
+	function get_option( string $key, mixed $default = false ): mixed { global $test_options; return $test_options[ $key ] ?? $default; }
+	function update_option( string $key, mixed $value ): bool { global $test_options; $test_options[ $key ] = $value; return true; }
 	function delete_option( string $key ): bool { global $test_options; unset( $test_options[ $key ] ); return true; }
 	function wp_parse_url( string $url ): array|false { return parse_url( $url ); }
 	function wp_json_encode( mixed $value ): string { return json_encode( $value, JSON_THROW_ON_ERROR ); }
@@ -38,15 +31,25 @@ namespace {
 		public string $prefix = 'wp_';
 		/** @var list<array{table:string,data:array}> */ public array $inserts = [];
 		/** @var list<string> */ public array $queries = [];
+		/** @var list<array{query:string,args:list<mixed>}> */ public array $prepare_calls = [];
 		/** @var list<array{table:string,where:array}> */ public array $deletes = [];
 		/** @var list<string> */ public array $column_names = [ 'id', 'phone', 'code_hash', 'tracking_code', 'attempts', 'ip_address', 'user_agent', 'created_at', 'expires_at', 'consumed_at', 'delivery_mode', 'code_length' ];
 		public ?array $row = null;
+		public int|false $insert_result = 1;
 		public int $consume_result = 1;
 		public int $increment_result = 1;
-		public function prepare( string $query, mixed ...$args ): string { return $query; }
+		public string $last_error = 'synthetic-db-detail-must-not-leak';
+		public function prepare( string $query, mixed ...$args ): string {
+			$this->prepare_calls[] = [ 'query' => $query, 'args' => $args ];
+			return $query;
+		}
 		public function get_row( string $query, mixed $output = null ): ?array { return $this->row; }
-		public function get_col( string $query ): array { return $this->column_names; }
-		public function insert( string $table, array $data, ?array $format = null ): int { $this->inserts[] = compact( 'table', 'data' ); return 1; }
+		public function get_col( string $query, mixed $column = 0 ): array { return $this->column_names; }
+		public function get_charset_collate(): string { return ''; }
+		public function insert( string $table, array $data, ?array $format = null ): int|false {
+			$this->inserts[] = compact( 'table', 'data' );
+			return $this->insert_result;
+		}
 		public function update( string $table, array $data, array $where, ?array $format = null, ?array $where_format = null ): int { throw new \RuntimeException( 'OTP verification must use conditional query(), not update().' ); }
 		public function delete( string $table, array $where, ?array $format = null ): int { $this->deletes[] = compact( 'table', 'where' ); return 1; }
 		public function query( string $query ): int {
@@ -101,8 +104,8 @@ namespace Nahan\Core\Auth {
 			'remote_addr' => '127.0.0.1',
 		], $overrides ) );
 	}
-	function manager( LocalDevelopmentGate $gate, ?OtpSchema $schema = null ): OtpManager {
-		return new OtpManager( new SmsService( new Settings() ), $gate, $schema ?? new OtpSchema() );
+	function manager( LocalDevelopmentGate $gate, ?OtpSchema $schema = null, ?callable $send_otp = null ): OtpManager {
+		return new OtpManager( new SmsService( new Settings() ), $gate, $schema ?? new OtpSchema(), $send_otp );
 	}
 	function row( array $overrides = [] ): array {
 		return array_merge( [
@@ -116,6 +119,12 @@ namespace Nahan\Core\Auth {
 			'delivery_mode' => 'local_simulated',
 			'code_length' => 6,
 		], $overrides );
+	}
+	function last_prepare(): array {
+		global $wpdb;
+		$prepared = end( $wpdb->prepare_calls );
+		assert_true( is_array( $prepared ), 'Expected a prepared database mutation.' );
+		return $prepared;
 	}
 
 	$tests = [];
@@ -132,10 +141,15 @@ namespace Nahan\Core\Auth {
 		assert_true( gate( [ 'remote_addr' => '::1' ] )->is_otp_simulation_enabled(), 'IPv6 loopback must be accepted.' );
 		assert_true( ! gate( [ 'remote_addr' => '198.51.100.9', 'http_host' => 'localhost', 'http_x_forwarded_for' => '127.0.0.1' ] )->is_otp_simulation_enabled(), 'Host and forwarded headers must never enable local OTP.' );
 	};
-	$tests['local challenge persists fixed-code provenance and never invokes SMS'] = static function (): void {
+	$tests['local request persists fixed provenance and invokes no transport'] = static function (): void {
 		$wpdb = \reset_fixture();
-		$result = manager( gate() )->request( '09121234567', '203.0.113.4' );
+		$transport_calls = [];
+		$result = manager( gate(), null, static function ( string $phone, string $code ) use ( &$transport_calls ): bool {
+			$transport_calls[] = [ $phone, $code ];
+			return true;
+		} )->request( '09121234567', '203.0.113.4' );
 		assert_true( ! \is_wp_error( $result ), 'Local challenge must issue when gate and schema pass.' );
+		assert_same( [], $transport_calls, 'Local request must skip all SMS/log transports.' );
 		assert_same( 'local_simulated', $result['delivery_mode'], 'Challenge must expose safe local mode.' );
 		assert_same( 6, $result['code_length'], 'Challenge must expose six digit length.' );
 		$record = $wpdb->inserts[3]['data'] ?? null;
@@ -144,13 +158,43 @@ namespace Nahan\Core\Auth {
 		assert_same( 'local_simulated', $record['delivery_mode'], 'Record must persist local provenance.' );
 		assert_same( 6, $record['code_length'], 'Record must persist six digit provenance.' );
 	};
-	$tests['production remains five digit SMS provenance and missing schema blocks only local issue'] = static function (): void {
+	$tests['production request persists random five digit SMS provenance and invokes transport once'] = static function (): void {
 		$wpdb = \reset_fixture();
-		$wpdb->column_names = [ 'id', 'phone', 'code_hash', 'tracking_code', 'attempts', 'ip_address', 'user_agent', 'created_at', 'expires_at', 'consumed_at' ];
-		$production = manager( gate( [ 'environment_type' => 'production' ] ) )->request( '09121234567', '203.0.113.4' );
-		assert_true( ! \is_wp_error( $production ), 'Legacy schema must preserve ordinary production SMS issuance.' );
-		assert_same( 'sms', $production['delivery_mode'], 'Production response must remain SMS.' );
-		assert_same( 5, $production['code_length'], 'Production response must remain five digits.' );
+		global $test_options;
+		$test_options['nahan_sms_driver'] = 'unknown'; // Current production code must use the injected observer, not a real driver.
+		$transport_calls = [];
+		$result = manager( gate( [ 'environment_type' => 'production' ] ), null, static function ( string $phone, string $code ) use ( &$transport_calls ): bool {
+			$transport_calls[] = [ $phone, $code ];
+			return true;
+		} )->request( '09121234567', '203.0.113.4' );
+		assert_true( ! \is_wp_error( $result ), 'Production request must issue before the transport observer succeeds.' );
+		assert_same( 1, count( $transport_calls ), 'Production request must invoke exactly one transport.' );
+		assert_same( '09121234567', $transport_calls[0][0], 'Production transport phone.' );
+		assert_true( 1 === preg_match( '/^\d{5}$/', $transport_calls[0][1] ), 'Production request must generate exactly five random digits.' );
+		assert_true( '145632' !== $transport_calls[0][1], 'Production request must not use the local fixed code.' );
+		$record = $wpdb->inserts[3]['data'] ?? null;
+		assert_true( is_array( $record ), 'Production request must persist an OTP row.' );
+		assert_same( hash( 'sha256', $transport_calls[0][1] ), $record['code_hash'], 'Production row must hash the transported code.' );
+		assert_same( 'sms', $record['delivery_mode'], 'Production row must persist SMS provenance.' );
+		assert_same( 5, $record['code_length'], 'Production row must persist five digit provenance.' );
+	};
+	$tests['failed OTP insert returns a safe error before any local or production transport'] = static function (): void {
+		foreach ( [ false, 0 ] as $insert_result ) {
+			foreach ( [ 'local' => gate(), 'production' => gate( [ 'environment_type' => 'production' ] ) ] as $mode => $mode_gate ) {
+				$wpdb = \reset_fixture();
+				$wpdb->insert_result = $insert_result;
+				$transport_calls = [];
+				$result = manager( $mode_gate, null, static function ( string $phone, string $code ) use ( &$transport_calls ): bool {
+					$transport_calls[] = [ $phone, $code ];
+					return true;
+				} )->request( '09121234567', '203.0.113.4' );
+				assert_error( $result, 'otp_storage_unavailable', 503, "{$mode} insert failure" );
+				assert_same( [], $transport_calls, "{$mode} insert failure must not invoke transport" );
+				assert_true( ! str_contains( $result->message, $wpdb->last_error ), "{$mode} insert failure must not expose database details" );
+			}
+		}
+	};
+	$tests['missing schema blocks only local issue'] = static function (): void {
 		\reset_fixture();
 		global $wpdb;
 		$wpdb->column_names = [ 'id' ];
@@ -177,10 +221,21 @@ namespace Nahan\Core\Auth {
 		assert_error( manager( gate() )->verify( 'tracking', '145632' ), 'otp_too_many_attempts', 429, 'Attempt limit' );
 		$wpdb->row = row( [ 'code_hash' => hash( 'sha256', '000000' ), 'attempts' => 4 ] );
 		assert_error( manager( gate() )->verify( 'tracking', '145632' ), 'otp_invalid', 422, 'Final failed attempt' );
-		assert_true( str_contains( end( $wpdb->queries ), 'attempts = attempts + 1' ) && str_contains( end( $wpdb->queries ), 'attempts < 5' ), 'Failed attempt must be a conditional atomic increment.' );
-		$wpdb->row = row(); $wpdb->consume_result = 0;
-		assert_error( manager( gate() )->verify( 'tracking', '145632' ), 'otp_consumed', 410, 'Conditional consume loser' );
-		assert_true( str_contains( end( $wpdb->queries ), 'consumed_at IS NULL' ), 'Consume must compare-and-set unconsumed row.' );
+		$increment = last_prepare();
+		assert_true( str_contains( $increment['query'], 'attempts = attempts + 1' ) && str_contains( $increment['query'], 'attempts < %d' ), 'Failed attempt must bind a conditional atomic increment limit.' );
+		assert_same( 5, end( $increment['args'] ), 'Failed attempt must bind the configured limit.' );
+
+		foreach ( [ 'expiry' => 'A stale verifier loses after expiry.', 'attempt-limit' => 'A stale verifier loses after another verifier reaches the attempt limit.' ] as $interleaving => $message ) {
+			$wpdb->row = row( [ 'attempts' => 4 ] );
+			$wpdb->consume_result = 0;
+			$result = manager( gate() )->verify( 'tracking', '145632' );
+			assert_true( \is_wp_error( $result ), $message );
+			$consume = last_prepare();
+			assert_true( str_contains( $consume['query'], 'consumed_at IS NULL' ), "{$interleaving} consume must remain conditional." );
+			assert_true( str_contains( $consume['query'], 'attempts < %d' ), "{$interleaving} consume must recheck attempts." );
+			assert_true( str_contains( $consume['query'], 'expires_at >= UTC_TIMESTAMP()' ), "{$interleaving} consume must recheck expiry." );
+			assert_same( 5, end( $consume['args'] ), "{$interleaving} consume must bind the configured limit." );
+		}
 	};
 	$tests['schema upgrade only records version after dbDelta and column verification'] = static function (): void {
 		$wpdb = \reset_fixture();

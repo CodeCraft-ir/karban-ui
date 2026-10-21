@@ -1,0 +1,28 @@
+<?php
+use Nahan\Core\OwnerProfile;
+use Nahan\Core\ProfileMedia;
+use Nahan\Core\RestApi\RestHelper;
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+register_rest_route( RestHelper::NAMESPACE, '/uploads', [
+	'methods' => 'GET',
+	'permission_callback' => static fn() => OwnerProfile::account_access(),
+	'callback' => static function () {
+		$access = OwnerProfile::account_access();
+		return is_wp_error( $access ) ? RestHelper::from_wp_error( $access ) : RestHelper::ok( ProfileMedia::capabilities() );
+	},
+] );
+register_rest_route( RestHelper::NAMESPACE, '/uploads', [
+	'methods' => 'POST',
+	'permission_callback' => static fn() => OwnerProfile::account_access(),
+	'callback' => static function ( $request ) {
+		try {
+			$result = ProfileMedia::upload( $request->get_params(), $_FILES );
+		} catch ( \Throwable $error ) {
+			// Hooks/storage may have persisted a partial attachment; never leak raw failures.
+			$result = OwnerProfile::error( 'media_storage_incomplete', 500 );
+		}
+		return is_wp_error( $result ) ? RestHelper::from_wp_error( $result ) : RestHelper::ok( $result );
+	},
+] );

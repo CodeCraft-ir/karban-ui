@@ -120,6 +120,20 @@ export function parseSpecialistCard(value: unknown): PublicSpecialistCard {
   };
 }
 
+function publicGallery(value:unknown):PublicSpecialistDetail['gallery'] {
+  if(!Array.isArray(value)||value.length>20) return 'unavailable';
+  if(!value.length) return 'empty';
+  const seen=new Set<number>();
+  const items=[];
+  for(const raw of value){
+    if(!isRecord(raw) || !Number.isSafeInteger(raw.id) || (raw.id as number)<1 || seen.has(raw.id as number) || raw.type!=='image' || typeof raw.url!=='string' || raw.url.length>2048 || /[\s\\\p{Cc}]/u.test(raw.url) || typeof raw.caption!=='string' || [...raw.caption].length>300 || /[<>\p{Cc}\p{Cs}]/u.test(raw.caption)) return 'unavailable';
+    let url:URL;try{url=new URL(raw.url);}catch{return 'unavailable';}
+    if(!['http:','https:'].includes(url.protocol)||!url.hostname||url.username||url.password||url.hash)return 'unavailable';
+    seen.add(raw.id as number);items.push({id:raw.id as number,url:raw.url,type:'image' as const,caption:raw.caption});
+  }
+  return items;
+}
+
 export function parseSpecialistDetail(value: unknown): PublicSpecialistDetail {
   if (!isRecord(value)) throw new PublicDataContractError();
   const card = parseSpecialistCard(value);
@@ -137,7 +151,7 @@ export function parseSpecialistDetail(value: unknown): PublicSpecialistDetail {
     phoneDisplay: normalizePublicPhone(value.phone_display),
     coordinates: lat !== null && lng !== null ? { lat, lng } : null,
     verifiedAt: optionalText(value.verified_at),
-    gallery: Array.isArray(value.gallery) && value.gallery.length === 0 ? "empty" : "unavailable",
+    gallery: publicGallery(value.gallery),
     reviews: "unavailable",
   };
 }

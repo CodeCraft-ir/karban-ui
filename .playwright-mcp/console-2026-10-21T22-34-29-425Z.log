@@ -1,0 +1,1 @@
+[    1503ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost/karban/index.php?rest_route=/nahan/v1/auth/local-status:0

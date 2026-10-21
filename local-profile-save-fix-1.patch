@@ -1,0 +1,66 @@
+--- /Users/binam/project/پرهیزکاری/karban-uiux/web/local-profile-save-fix-1-before.snapshot/plugin/rest-api/class-rest-helper.php.snapshot
++++ /Applications/XAMPP/xamppfiles/htdocs/karban/wp-content/plugins/karban-core/rest-api/class-rest-helper.php
+@@ -79,6 +79,10 @@
+ 		if ( array_diff( array_keys( $req->get_query_params() ), [ 'rest_route' ] ) ) {
+ 			return new WP_Error( 'unknown_field', 'اطلاعات معتبر نیست.', [ 'status' => 422 ] );
+ 		}
++		// Core's associative decode represents both {} and [] as []; retain object shape.
++		if ( ! $multipart && ! is_object( json_decode( $req->get_body() ) ) ) {
++			return new WP_Error( 'unknown_field', 'اطلاعات معتبر نیست.', [ 'status' => 422 ] );
++		}
+ 		$data = $multipart ? $req->get_body_params() : $req->get_json_params();
+ 		if ( ! is_array( $data ) || ( $data && array_is_list( $data ) ) ) {
+ 			return new WP_Error( 'unknown_field', 'اطلاعات معتبر نیست.', [ 'status' => 422 ] );
+--- /Users/binam/project/پرهیزکاری/karban-uiux/web/local-profile-save-fix-1-before.snapshot/web/tests/wordpress/task-7b-owner.test.php.snapshot
++++ /Users/binam/project/پرهیزکاری/karban-uiux/web/tests/wordpress/task-7b-owner.test.php
+@@ -8,7 +8,7 @@
+ $plugin = rtrim($argv[1] ?? '', '/');
+ class WP_Error { public function __construct(private $code, private $message='', private $data=[]) {} public function get_error_code(){return $this->code;} public function get_error_message(){return $this->message;} public function get_error_data(){return $this->data;} }
+ class WP_REST_Response { public function __construct(public $data, public $status=200){} public function get_data(){return $this->data;} public function get_status(){return $this->status;} }
+-class Request { public function __construct(private array $data=[], private array $url=[]){} public function get_query_params(){return [];} public function get_url_params(){return $this->url;} public function get_body_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_params(){return $this->data;} public function get_param($key){return $this->data[$key]??null;} }
++class Request { public function __construct(private array $data=[], private array $url=[]){} public function get_body(){return json_encode((object)$this->data);} public function get_query_params(){return [];} public function get_url_params(){return $this->url;} public function get_body_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_params(){return $this->data;} public function get_param($key){return $this->data[$key]??null;} }
+ class WP_Query {public $posts;public $found_posts;public $max_num_pages=1;public function __construct($args){$GLOBALS['list_args']=$args;$this->posts=$GLOBALS['query_posts']??[];$this->found_posts=count($this->posts);}}
+ function wp_slash($value){return is_string($value)?addslashes($value):(is_array($value)?array_map('wp_slash',$value):$value);}
+ function __return_true(){return true;}
+--- /Users/binam/project/پرهیزکاری/karban-uiux/web/local-profile-save-fix-1-before.snapshot/web/tests/wordpress/task-7c-media.test.php.snapshot
++++ /Users/binam/project/پرهیزکاری/karban-uiux/web/tests/wordpress/task-7c-media.test.php
+@@ -13,7 +13,7 @@
+  class WP_Error {public function __construct(private $code,private $message='',private $data=[]){}public function get_error_code(){return $this->code;}public function get_error_message(){return $this->message;}public function get_error_data(){return $this->data;}}
+  class WP_REST_Response {public function __construct(public $data,public $status=200){}}
+  class Request implements \ArrayAccess {
+-  public function __construct(private array $data=[], private array $url=[]){} public function get_query_params(){return [];} public function get_url_params(){return $this->url;} public function get_body_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_params(){return $this->data;}public function get_param($key){return $this->data[$key]??null;}
++  public function __construct(private array $data=[], private array $url=[]){} public function get_body(){return json_encode((object)$this->data);} public function get_query_params(){return [];} public function get_url_params(){return $this->url;} public function get_body_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_params(){return $this->data;}public function get_param($key){return $this->data[$key]??null;}
+   public function offsetExists(mixed $o):bool{return isset($this->data[$o]);}public function offsetGet(mixed $o):mixed{return $this->data[$o]??null;}public function offsetSet(mixed $o,mixed $v):void{}public function offsetUnset(mixed $o):void{}
+  }
+  function is_wp_error($v){return $v instanceof WP_Error;}
+--- /Users/binam/project/پرهیزکاری/karban-uiux/web/local-profile-save-fix-1-before.snapshot/web/tests/wordpress/local-profile-save.test.php.snapshot
++++ /Users/binam/project/پرهیزکاری/karban-uiux/web/tests/wordpress/local-profile-save.test.php
+@@ -89,6 +89,7 @@
+  if(array_key_exists('rest_route',$query))$query['rest_route']='/nahan/v1'.$path;
+  $request->set_query_params($query);$request->set_url_params($url);return $request;
+ }
++function raw_request_fixture($path,$raw){$request=request_fixture($path,'POST',[]);$request->set_body($raw);return $request;}
+ function invoke_actual($path,$request){$route=$GLOBALS['routes'][$path][$request->get_method()];$permission=$route['permission_callback']($request);return is_wp_error($permission)?$permission:$route['callback']($request);}
+ require $plugin.'/rest-api/upload-routes.php';
+ $failures=[];$cases=0;
+@@ -120,6 +121,20 @@
+  foreach([['media_id'=>31],['owner_id'=>3],['rest_route'=>'/bad']] as $bad){expect_actual(status(invoke_actual($delete,request_fixture('/profile/me/gallery/media/30','DELETE',$bad,$query,['media_id'=>'30'])))===422,'delete rejects body overrides '.$tag);}
+  $response=invoke_actual($delete,request_fixture('/profile/me/gallery/media/30','DELETE',['expected_revision'=>1],$query,['media_id'=>'30']));expect_actual(status($response)===200&&($response->data['data']['gallery']??null)===[],'gallery path ID separate from JSON '.$tag);
+ }}
++// Assoc JSON decoding must not erase the top-level object/list distinction.
++$GLOBALS['permalinks']='/%postname%/';
++foreach(['/account/me','/profile/me','/profile/me/submit','/profile/me/gallery'] as $path){
++ foreach(['[]','[1]','null','true','42','"scalar"'] as $raw){
++  reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['bio']='Complete biography';$GLOBALS['pt'][20]=['job_category'=>[12],'city'=>[10]];
++  $before=serialize([$GLOBALS['users'],$GLOBALS['posts'],$GLOBALS['um'],$GLOBALS['pm'],$GLOBALS['pt']]);
++  $response=invoke_actual($path,raw_request_fixture($path,$raw));
++  expect_actual(status($response)===422&&($response->data['error']['code']??null)==='unknown_field','non-object raw JSON rejected '.$path.' '.$raw);
++  expect_actual($before===serialize([$GLOBALS['users'],$GLOBALS['posts'],$GLOBALS['um'],$GLOBALS['pm'],$GLOBALS['pt']]),'non-object JSON cannot write '.$path.' '.$raw);
++ }
++ reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['bio']='Complete biography';$GLOBALS['pt'][20]=['job_category'=>[12],'city'=>[10]];
++ $response=invoke_actual($path,raw_request_fixture($path,'{}'));
++ expect_actual($path==='/profile/me/gallery' ? status($response)===422&&($response->data['error']['code']??null)==='invalid_gallery' : status($response)===200,'empty object retains business policy '.$path);
++}
+ if($failures){fwrite(STDERR,implode("\n",array_map(fn($m)=>'FAIL '.$m,$failures))."\n");echo count($failures)." failed / $cases checks\n";exit(1);}
+ echo "PASS installed WP_REST_Request + registered owner callbacks $cases checks\n";
+ }

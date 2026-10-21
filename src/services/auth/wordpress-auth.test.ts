@@ -84,6 +84,8 @@ test("requests an OTP with only the canonical phone at the fixed REST boundary",
   assert.deepEqual(await gateway.requestOtp("+98 912 987 6543"), {
     tracking_code: "f64a7a08-a32a-4d61-9be7-c425a8b8ee4c",
     expires_in: 37,
+    delivery_mode: "sms",
+    code_length: 5,
   });
   assert.deepEqual(external.calls, [{
     path: "auth/otp/request",
@@ -363,4 +365,26 @@ test("guards factory and every credential-bearing invocation with window defined
     }
   }
   assert.equal(external.calls.length, 0);
+});
+
+test("sends a server-stored six-digit challenge upstream and never treats 145632 as a local success", async () => {
+  const sentCodes: string[] = [];
+  const gateway = createWordPressAuthGateway(async (_path, options) => {
+    sentCodes.push((options?.body as { code: string }).code);
+    throw new WordPressApiError({
+      status: 422,
+      code: "otp_invalid",
+      message: "synthetic-raw-backend-payload",
+    });
+  });
+
+  await assertSafeFailure(
+    () => gateway.verifyOtp(
+      { ...verificationInput, code: "۱۴۵۶۳۲" },
+      { expectedCodeLength: 6 },
+    ),
+    "otp_invalid",
+    422,
+  );
+  assert.deepEqual(sentCodes, ["145632"]);
 });

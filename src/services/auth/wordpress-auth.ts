@@ -9,11 +9,13 @@ import { WordPressApiError } from "../wordpress/errors.ts";
 import type { WordPressRequestOptions } from "../wordpress/rest-client.ts";
 import {
   AuthResponseError,
+  parseUpstreamLocalStatus,
   parseUpstreamLogoutResult,
   parseUpstreamMeUser,
   parseUpstreamOtpChallenge,
   parseUpstreamRefreshResult,
   parseUpstreamVerifyResult,
+  type UpstreamLocalStatus,
   type UpstreamLogoutResult,
   type UpstreamMeUser,
   type UpstreamOtpChallenge,
@@ -26,16 +28,29 @@ export type WordPressAuthRequest = (
   options?: WordPressRequestOptions,
 ) => Promise<unknown>;
 
+export interface StoredOtpChallengeContext {
+  /**
+   * Derived only from the server-stored requestOtp response. Never accept this
+   * value from browser JSON, form state, or any client-controlled flag.
+   */
+  expectedCodeLength: 5 | 6;
+}
+
 export interface WordPressAuthGateway {
   requestOtp(phone: string): Promise<UpstreamOtpChallenge>;
-  verifyOtp(input: {
-    trackingCode: string;
-    code: string;
-    role: RegistrationRole;
-    deviceId?: string;
-  }): Promise<UpstreamVerifyResult>;
+  verifyOtp(
+    input: {
+      trackingCode: string;
+      code: string;
+      role: RegistrationRole;
+      deviceId?: string;
+    },
+    storedChallenge?: StoredOtpChallengeContext,
+  ): Promise<UpstreamVerifyResult>;
   refresh(refreshToken: string): Promise<UpstreamRefreshResult>;
   me(accessToken: string): Promise<UpstreamMeUser>;
+  localStatus(): Promise<UpstreamLocalStatus>;
+  logoutRefresh(refreshToken: string): Promise<UpstreamLogoutResult>;
   logout(accessToken: string, refreshToken: string): Promise<UpstreamLogoutResult>;
 }
 
@@ -160,12 +175,16 @@ export function createWordPressAuthGateway(
       }));
     }),
 
-    verifyOtp: (input) => run(async () => {
+    verifyOtp: (input, storedChallenge) => run(async () => {
       if (input === null || typeof input !== "object" || Array.isArray(input)) {
         throw new AuthGatewayError("invalid_request");
       }
+      const expectedCodeLength = storedChallenge?.expectedCodeLength ?? 5;
+      if (expectedCodeLength !== 5 && expectedCodeLength !== 6) {
+        throw new AuthGatewayError("invalid_request");
+      }
       requireCredential(input.trackingCode, "invalid_tracking_code");
-      const code = normalizeOtpCode(input.code);
+      const code = normalizeOtpCode(input.code, expectedCodeLength);
       if (input.role !== "client" && input.role !== "specialist") {
         throw new AuthGatewayError("invalid_role");
       }
@@ -201,6 +220,18 @@ export function createWordPressAuthGateway(
       return parseUpstreamMeUser(await request("auth/me", {
         method: "GET",
         token: accessToken,
+      }));
+    }),
+
+    localStatus: () => run(async () => (
+      parseUpstreamLocalStatus(await request("auth/local-status", { method: "GET" }))
+    )),
+
+    logoutRefresh: (refreshToken) => run(async () => {
+      requireCredential(refreshToken);
+      return parseUpstreamLogoutResult(await request("auth/logout/refresh", {
+        method: "POST",
+        body: { refresh_token: refreshToken },
       }));
     }),
 

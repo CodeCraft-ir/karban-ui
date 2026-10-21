@@ -1,0 +1,67 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import * as ui from './owner-ui.ts';
+
+test('account form sends only exact editable fields and explicit null clears', () => {
+  assert.equal(typeof ui.accountInput, 'function');
+  const form = new FormData(); form.set('display_name', 'آزاده'); form.set('account_city_id', ''); form.set('role', 'specialist');
+  assert.deepEqual(ui.accountInput(form), {display_name:'آزاده',account_city_id:null});
+  form.set('account_city_id','1e2'); assert.throws(() => ui.accountInput(form));
+  form.set('account_city_id','2'); form.set('display_name','x'.repeat(101)); assert.throws(() => ui.accountInput(form));
+});
+test('professional inputs preserve taxonomy IDs, optional clears and backend limits', () => {
+  assert.equal(typeof ui.profileInput, 'function');
+  const form = new FormData();
+  for (const [key,value] of Object.entries({title:'نقاش',bio:'',skills:'',city_id:'',availability:'',experience_years:'0',price_hint:'',address:''})) form.set(key,value);
+  form.append('category_ids','17'); form.append('category_ids','29');
+  assert.deepEqual(ui.profileInput(form), {title:'نقاش',bio:'',skills:'',category_ids:[17,29],city_id:null,availability:'',experience_years:0,price_hint:'',address:''});
+  form.set('bio','a\nb'); assert.throws(() => ui.profileInput(form));
+});
+test('recovery targets are bounded; navigation follows authoritative role', () => {
+  assert.equal(typeof ui.recoveryTarget, 'function');
+  for (const target of ['https://bad.test','//bad.test','/pro/profile?next=x','/api/auth/refresh',undefined]) assert.equal(ui.recoveryTarget(target),'/account');
+  assert.equal(ui.recoveryTarget('/pro/profile'),'/pro/profile');
+  assert.deepEqual(ui.accountLinks('client').map(x=>x.href), ['/account','/dashboard']);
+  assert.deepEqual(ui.accountLinks('specialist').map(x=>x.href), ['/account','/pro/profile','/pro']);
+});
+test('page composition reads direct helpers, guards both roles and never reads specialist data for client', async () => {
+  assert.equal(typeof ui.loadOwnerScreen,'function');
+  const calls:string[]=[];
+  const ports = {account:async()=>{calls.push('account');return {role:'client'};},profile:async()=>{calls.push('profile');return {};},capabilities:async()=>{calls.push('capabilities');return {};},cities:async()=>[],categories:async()=>[]};
+  const denied = await ui.loadOwnerScreen('profile',ports as never);
+  assert.deepEqual(denied,{kind:'redirect',location:'/dashboard'}); assert.deepEqual(calls,['account']);
+  const allowed = await ui.loadOwnerScreen('account',ports as never); assert.equal(allowed.kind,'ready');
+  const expired = await ui.loadOwnerScreen('account',{...ports,account:async()=>{throw {code:'refresh_required',status:401};}} as never);
+  assert.deepEqual(expired,{kind:'recovery',target:'/account'});
+  const unavailable = await ui.loadOwnerScreen('account',{...ports,account:async()=>{throw {code:'auth_unavailable',status:503};}} as never);
+  assert.deepEqual(unavailable,{kind:'unavailable'});
+});
+test('dashboard entry distinguishes wrong role, expiry, lost session and provider outage',async()=>{
+ assert.equal(typeof ui.loadAccountEntry,'function');
+ assert.deepEqual(await ui.loadAccountEntry('specialist',async()=>({role:'client'}) as never,'/pro'),{kind:'redirect',location:'/dashboard'});
+ assert.deepEqual(await ui.loadAccountEntry('client',async()=>{throw {code:'refresh_required'};},'/dashboard'),{kind:'recovery',target:'/dashboard'});
+ assert.deepEqual(await ui.loadAccountEntry('client',async()=>{throw {code:'unauthenticated'};},'/dashboard'),{kind:'redirect',location:'/auth/login'});
+ assert.deepEqual(await ui.loadAccountEntry('client',async()=>{throw {code:'auth_unavailable'};},'/dashboard'),{kind:'unavailable'});
+});
+test('known codec rejection allows a different explicit file, while uncertain uploads stay locked',()=>{
+ assert.equal(typeof ui.uploadOutcomeUncertain,'function');
+ assert.equal(ui.uploadOutcomeUncertain({status:415,code:'image_decoder_unavailable_or_invalid',reloadRequired:true}),false);
+ assert.equal(ui.uploadOutcomeUncertain({status:503,code:'operation_uncertain',reloadRequired:true}),true);
+ assert.match(ui.ownerErrorText({status:422,code:'profile_incomplete',reloadRequired:true}),/تکمیل/);
+});
+test('codec, conflicts and uncertain mutations have actionable non-fictional messages',()=>{
+  assert.equal(typeof ui.ownerErrorText,'function');
+  assert.match(ui.ownerErrorText({status:415,code:'image_decoder_unavailable_or_invalid'}),/WebP|پردازش/);
+  assert.match(ui.ownerErrorText({status:409,code:'gallery_revision_conflict'}),/بارگذاری/);
+  assert.match(ui.ownerErrorText({status:503,code:'operation_uncertain'}),/ممکن/);
+});
+test('422 validation copy names only allowlisted fields and never echoes backend details',()=>{
+  const message=(code:string)=>ui.ownerErrorText({status:422,code,message:'PRIVATE backend details'} as ui.OwnerError);
+  assert.match(message('invalid_display_name'),/نام/);
+  assert.match(message('invalid_city'),/شهر/);
+  assert.match(message('unknown_field'),/فیلد|ورودی/);
+  for(const code of ['unknown_field','invalid_display_name','invalid_city','PRIVATE backend details']) {
+    assert.doesNotMatch(message(code),/PRIVATE|چندخطی|دسته/);
+  }
+  assert.equal(message('PRIVATE backend details'),message('unrecognized_code'));
+});

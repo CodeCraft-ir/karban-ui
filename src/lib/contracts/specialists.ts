@@ -21,6 +21,8 @@ export interface PublicSpecialistCard {
   cities: string[];
 }
 
+export interface PublicPortfolioImage { id: number; url: string; type: 'image'; caption: string; }
+
 export interface PublicSpecialistDetail extends PublicSpecialistCard {
   description: string | null;
   bio: string | null;
@@ -32,8 +34,8 @@ export interface PublicSpecialistDetail extends PublicSpecialistCard {
   phoneDisplay: string | null;
   coordinates: { lat: number; lng: number } | null;
   verifiedAt: string | null;
-  /** No media is resolved until a hardened, normalized public endpoint exists. */
-  gallery: "empty" | "unavailable";
+  /** Only normalized public images; unsupported legacy media remains unavailable. */
+  gallery: "empty" | "unavailable" | PublicPortfolioImage[];
   /** The plugin endpoint has no trustworthy public review records. */
   reviews: "unavailable";
 }

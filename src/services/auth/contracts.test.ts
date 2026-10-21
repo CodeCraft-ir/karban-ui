@@ -80,6 +80,8 @@ test("parses a challenge with its actual TTL and discards unknown fields", () =>
   assert.deepEqual(parseUpstreamOtpChallenge(input), {
     tracking_code: "f64a7a08-a32a-4d61-9be7-c425a8b8ee4c",
     expires_in: 37,
+    delivery_mode: "sms",
+    code_length: 5,
   });
 });
 
@@ -270,5 +272,37 @@ test("rejects null, array and primitive payloads for every upstream operation", 
     for (const value of [null, undefined, [], "synthetic-raw-response", 47, true]) {
       assertInvalidResponse(() => parse(value));
     }
+  }
+});
+
+test("parses legacy five-digit and explicit local six-digit OTP challenge provenance", () => {
+  assert.deepEqual(parseUpstreamOtpChallenge(challenge), {
+    tracking_code: "f64a7a08-a32a-4d61-9be7-c425a8b8ee4c",
+    expires_in: 120,
+    delivery_mode: "sms",
+    code_length: 5,
+  });
+  assert.deepEqual(parseUpstreamOtpChallenge({
+    ...challenge,
+    delivery_mode: "local_simulated",
+    code_length: 6,
+  }), {
+    tracking_code: "f64a7a08-a32a-4d61-9be7-c425a8b8ee4c",
+    expires_in: 120,
+    delivery_mode: "local_simulated",
+    code_length: 6,
+  });
+});
+
+test("rejects malformed or inconsistent OTP challenge provenance instead of inferring local mode", () => {
+  for (const value of [
+    { ...challenge, delivery_mode: "local_simulated" },
+    { ...challenge, code_length: 6 },
+    { ...challenge, delivery_mode: "sms", code_length: 6 },
+    { ...challenge, delivery_mode: "local_simulated", code_length: 5 },
+    { ...challenge, delivery_mode: "local_simulated", code_length: 7 },
+    { ...challenge, delivery_mode: "browser-local", code_length: 6 },
+  ]) {
+    assertInvalidResponse(() => parseUpstreamOtpChallenge(value));
   }
 });

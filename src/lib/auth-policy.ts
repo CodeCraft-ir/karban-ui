@@ -36,10 +36,16 @@ export function normalizeIranianPhone(value: string): string {
   throw new AuthValidationError("invalid_phone");
 }
 
-export function normalizeOtpCode(value: string): string {
-  if (typeof value === "string") {
+export type OtpCodeLength = 5 | 6;
+
+function isOtpCodeLength(value: unknown): value is OtpCodeLength {
+  return value === 5 || value === 6;
+}
+
+export function normalizeOtpCode(value: string, expectedLength: OtpCodeLength = 5): string {
+  if (typeof value === "string" && isOtpCodeLength(expectedLength)) {
     const digits = toAsciiDigits(value);
-    if (digits.length === 5 && /^\d{5}$/u.test(digits)) {
+    if (digits.length === expectedLength && /^\d+$/u.test(digits)) {
       return digits;
     }
   }

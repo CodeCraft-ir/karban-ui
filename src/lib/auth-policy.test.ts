@@ -206,3 +206,21 @@ test("rejects invalid clocks, TTLs and overflowing deadlines", () => {
     );
   }
 });
+
+test("normalizes exactly the stored five- or six-digit OTP length", () => {
+  assert.equal(normalizeOtpCode("۰۱۲۳۴", 5), "01234");
+  assert.equal(normalizeOtpCode("١٤٥٦٣٢", 6), "145632");
+
+  for (const [value, expectedLength] of [
+    ["145632", 5],
+    ["01234", 6],
+    ["12345", 7],
+    ["123456", 0],
+  ] as const) {
+    assertSafeValidationFailure(
+      () => normalizeOtpCode(value, expectedLength as 5 | 6),
+      "otp_invalid",
+      value,
+    );
+  }
+});

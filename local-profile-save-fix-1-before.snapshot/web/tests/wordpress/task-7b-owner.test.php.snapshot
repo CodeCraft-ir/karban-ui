@@ -1,0 +1,221 @@
+<?php
+/** Standalone registered-callback contract test; no WordPress bootstrap or DB. */
+declare(strict_types=1);
+namespace GraphQL\Error { class UserError extends \Exception {} }
+namespace WPGraphQL\Model { class Post { public function __construct(public $post) {} } }
+namespace {
+define('ABSPATH', __DIR__ . '/');
+$plugin = rtrim($argv[1] ?? '', '/');
+class WP_Error { public function __construct(private $code, private $message='', private $data=[]) {} public function get_error_code(){return $this->code;} public function get_error_message(){return $this->message;} public function get_error_data(){return $this->data;} }
+class WP_REST_Response { public function __construct(public $data, public $status=200){} public function get_data(){return $this->data;} public function get_status(){return $this->status;} }
+class Request { public function __construct(private array $data=[], private array $url=[]){} public function get_query_params(){return [];} public function get_url_params(){return $this->url;} public function get_body_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_params(){return $this->data;} public function get_param($key){return $this->data[$key]??null;} }
+class WP_Query {public $posts;public $found_posts;public $max_num_pages=1;public function __construct($args){$GLOBALS['list_args']=$args;$this->posts=$GLOBALS['query_posts']??[];$this->found_posts=count($this->posts);}}
+function wp_slash($value){return is_string($value)?addslashes($value):(is_array($value)?array_map('wp_slash',$value):$value);}
+function __return_true(){return true;}
+function is_wp_error($v){return $v instanceof WP_Error;}
+function get_page_by_path($slug,$output,$type){return get_post(20);}
+function current_time($type,$gmt=false){return '2026-10-21 00:00:00';}
+function register_rest_route($ns,$path,$args){$GLOBALS['routes'][$path][$args['methods']]=$args;}
+function register_graphql_mutation($name,$args){$GLOBALS['mutations'][$name]=$args;}
+function register_graphql_field($type,$name,$args){$GLOBALS['graphql'][$type][$name]=$args;}
+function register_graphql_object_type($name,$args){}
+function register_graphql_input_type($name,$args){$GLOBALS['inputs'][$name]=$args;}
+function register_graphql_enum_type($name,$args){}
+function acf_add_local_field_group($args){$GLOBALS['acf'][$args['key']]=$args;}
+function register_post_type($name,$args){$GLOBALS['cpt'][$name]=$args;}
+function get_posts($args){$GLOBALS['query_args']=$args;return $GLOBALS['query_ids']??[];}
+function get_current_user_id(){return $GLOBALS['uid'];}
+function is_user_logged_in(){return get_current_user_id()>0;}
+function wp_get_current_user(){return get_userdata(get_current_user_id());}
+function get_userdata($id){return $GLOBALS['users'][$id]??false;}
+function current_user_can($cap){return in_array($cap,$GLOBALS['caps'][get_current_user_id()]??[],true);}
+function get_user_meta($id,$key,$single=true){return $GLOBALS['um'][$id][$key]??'';}
+function update_user_meta($id,$key,$value){if(($GLOBALS['fail']??'')===$key)return false; if(get_user_meta($id,$key)===$value)return false; $GLOBALS['um'][$id][$key]=is_string($value)?stripslashes($value):$value;return 1;}
+function wp_update_user($data){if(($GLOBALS['fail']??'')==='display_name')return new WP_Error('db');$GLOBALS['users'][$data['ID']]->display_name=stripslashes($data['display_name']);return $data['ID'];}
+function get_post($id){return $GLOBALS['posts'][$id]??null;}
+function get_post_meta($id,$key,$single=true){return $GLOBALS['pm'][$id][$key]??'';}
+function update_post_meta($id,$key,$value){if(($GLOBALS['fail']??'')===$key)return false;if(get_post_meta($id,$key)===$value)return false;$GLOBALS['pm'][$id][$key]=is_string($value)?stripslashes($value):$value;return 1;}
+function add_filter($tag,$callback,$priority=10,$accepted=1){$GLOBALS['filters'][$tag][$priority][spl_object_id($callback)]=[$callback,$accepted];return true;}
+function remove_filter($tag,$callback,$priority=10){unset($GLOBALS['filters'][$tag][$priority][spl_object_id($callback)]);if(empty($GLOBALS['filters'][$tag][$priority]))unset($GLOBALS['filters'][$tag][$priority]);if(empty($GLOBALS['filters'][$tag]))unset($GLOBALS['filters'][$tag]);return true;}
+function apply_filters($tag,$value,...$args){$priorities=$GLOBALS['filters'][$tag]??[];ksort($priorities);foreach($priorities as $callbacks)foreach($callbacks as [$callback,$accepted])$value=$callback(...array_slice([$value,...$args],0,$accepted));return $value;}
+function wp_update_post($data,$error=false){
+ if(($GLOBALS['fail']??'')==='post')return new WP_Error('db');
+ if(($GLOBALS['fail']??'')==='post-zero')return 0;
+ if(($GLOBALS['fail']??'')==='post-throw')throw new RuntimeException('fixture write exception');
+ $id=$data['ID'];$postarr=array_merge(wp_slash((array)get_post($id)),$data);$row=$postarr;unset($row['ID']);
+ // Installed wp_insert_post(): pending updates by users without publish_post clear post_name,
+ // even when wp_update_post merged an existing slug or the caller explicitly passed it.
+ if($row['post_status']==='pending'&&!current_user_can('publish_post',$id))$row['post_name']='';
+ if($row['post_name']===''&&!in_array($row['post_status'],['draft','pending','auto-draft'],true))$row['post_name']=trim(preg_replace('/[^a-z0-9]+/','-',strtolower(stripslashes($row['post_title']))),'-');
+ if(isset($GLOBALS['during_post_write'])){$during=$GLOBALS['during_post_write'];unset($GLOBALS['during_post_write']);$during();}
+ $row=apply_filters('wp_insert_post_data',$row,$postarr,$data,true);
+ foreach($row as $k=>$v)$GLOBALS['posts'][$id]->$k=is_string($v)?stripslashes($v):$v;
+ return $id;
+}
+function get_term($id,$taxonomy){$t=$GLOBALS['terms'][$id]??null;return $t && $t->taxonomy===$taxonomy?$t:null;}
+function get_term_meta($id,$key,$single=true){return $GLOBALS['tm'][$id][$key]??'';}
+function wp_get_post_terms($id,$tax,$args=[]){return array_map(fn($tid)=>get_term($tid,$tax),$GLOBALS['pt'][$id][$tax]??[]);}
+function wp_set_object_terms($id,$terms,$tax){if(($GLOBALS['fail']??'')===$tax)return new WP_Error('db');$GLOBALS['pt'][$id][$tax]=$terms;return $terms;}
+function get_post_mime_type($id){return get_post($id)->post_mime_type??'';}
+function wp_get_attachment_image_url($id,$size){return 'https://fixture.invalid/image-'.$id.'.jpg';}
+if(!function_exists('mb_strlen')){function mb_strlen($s,$enc=null){return preg_match_all('/./us',$s);}}
+function reset_fixture(){
+ $GLOBALS['filters']=[];unset($GLOBALS['during_post_write']);
+ $GLOBALS['uid']=1;$GLOBALS['fail']='';$GLOBALS['um']=[1=>['nahan_phone'=>'09123456789'],2=>['nahan_specialist_post'=>20]];
+ $GLOBALS['users']=[1=>(object)['ID'=>1,'display_name'=>'Client','roles'=>['nahan_client']],2=>(object)['ID'=>2,'display_name'=>'Owner','roles'=>['nahan_specialist']],3=>(object)['ID'=>3,'display_name'=>'Admin','roles'=>['administrator']]];
+ $GLOBALS['caps']=[1=>['nahan_client'],2=>['nahan_specialist','nahan_edit_own_profile'],3=>[]];
+ $GLOBALS['posts']=[20=>(object)['ID'=>20,'post_type'=>'nahan_specialist','post_author'=>2,'post_status'=>'draft','post_name'=>'stable','post_title'=>'Trade','post_password'=>''],30=>(object)['ID'=>30,'post_type'=>'attachment','post_author'=>1,'post_status'=>'inherit','post_mime_type'=>'image/jpeg']];
+ $GLOBALS['pm']=[20=>['user'=>2,'is_verified'=>1],30=>['_nahan_media_owner'=>1,'_nahan_media_purpose'=>'public-avatar']];
+ $GLOBALS['terms']=[10=>(object)['term_id'=>10,'taxonomy'=>'city','name'=>'کاشان','slug'=>'kashan'],11=>(object)['term_id'=>11,'taxonomy'=>'city','name'=>'خارج','slug'=>'outside'],12=>(object)['term_id'=>12,'taxonomy'=>'job_category','name'=>'Trade','slug'=>'trade']];$GLOBALS['tm']=[];$GLOBALS['pt']=[];
+}
+function check($v,$message){if(!$v)throw new \RuntimeException($message);$GLOBALS['assertions']=($GLOBALS['assertions']??0)+1;}
+function call_route($path,$method,$data=[]){check(isset($GLOBALS['routes'][$path][$method]),"Registered $method $path");$r=$GLOBALS['routes'][$path][$method];$url=[];if($method==='DELETE'&&str_contains($path,'gallery/media/')){$url=['media_id'=>$data['media_id']??null];unset($data['media_id']);}$req=new Request($data,$url);$p=$r['permission_callback']($req);if(is_wp_error($p))return $p;return $r['callback']($req);}
+function status($r){return is_wp_error($r)?($r->get_error_data()['status']??400):$r->status;}
+require $plugin.'/includes/class-autoloader.php';define('NAHAN_CORE_DIR',$plugin.'/');\Nahan\Core\Autoloader::register();
+require $plugin.'/rest-api/class-rest-helper.php';
+if(is_file($plugin.'/rest-api/account-routes.php'))require $plugin.'/rest-api/account-routes.php';
+require $plugin.'/rest-api/profile-routes.php';require $plugin.'/graphql/register-mutations.php';
+if(in_array('--fix-slug',$argv,true)){
+ foreach(['submit','published-edit','pending-save','graphql-pending-save'] as $case){
+  reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['bio']='Complete biography';$GLOBALS['pt'][20]=['job_category'=>[12],'city'=>[10]];
+  if($case==='published-edit')get_post(20)->post_status='publish';
+  if(in_array($case,['pending-save','graphql-pending-save'],true))get_post(20)->post_status='pending';
+  check(!current_user_can('publish_post',20),'fixture specialist cannot publish');$before_caps=$GLOBALS['caps'];
+  if($case==='submit'){$result=call_route('/profile/me/submit','POST');check(status($result)===200,'submit succeeds');}
+  elseif($case==='graphql-pending-save'){($GLOBALS['mutations']['updateProfile']['mutateAndGetPayload'])(['input'=>['title'=>'Changed profession']]);}
+  else{$result=call_route('/profile/me','POST',['title'=>'Changed profession']);check(status($result)===200,'save succeeds '.$case);}
+  check(get_post(20)->post_status==='pending','moderation enforced '.$case);
+  check(get_post(20)->post_name==='stable','installed pending capability semantics preserve server slug '.$case);
+  check($GLOBALS['caps']===$before_caps&&!current_user_can('publish_post',20),'no general publish capability granted '.$case);
+  check(empty($GLOBALS['filters']),'filter cleaned after success '.$case);
+  $GLOBALS['uid']=3;$GLOBALS['caps'][3]=['publish_post'];wp_update_post(['ID'=>20,'post_status'=>'publish'],true);
+  check(get_post(20)->post_name==='stable','later administrator publication retains URL '.$case);
+ }
+ reset_fixture();$GLOBALS['uid']=2;get_post(20)->post_status='pending';
+ $GLOBALS['posts'][21]=clone get_post(20);$GLOBALS['posts'][21]->ID=21;$GLOBALS['posts'][21]->post_name='unrelated';
+ $GLOBALS['during_post_write']=static function(){wp_update_post(['ID'=>21,'post_title'=>'Unrelated title'],true);};
+ $result=call_route('/profile/me','POST',['title'=>'Changed profession']);check(status($result)===200,'scoped target succeeds');
+ check(get_post(20)->post_name==='stable'&&get_post(21)->post_name==='','filter does not preserve unrelated pending post slug');check(empty($GLOBALS['filters']),'nested write cleanup');
+ // A later unrelated pending write must still observe WordPress defaults.
+ wp_update_post(['ID'=>21,'post_name'=>'arbitrary'],true);check(get_post(21)->post_name==='','filter cannot escape service lifetime');
+ foreach(['post','post-zero','post-throw'] as $failure){reset_fixture();$GLOBALS['uid']=2;get_post(20)->post_status='pending';$GLOBALS['fail']=$failure;
+  try{$result=call_route('/profile/me','POST',['title'=>'Changed profession']);check($failure!=='post-throw'&&status($result)===500,'write failure surfaced '.$failure);}
+  catch(RuntimeException $e){check($failure==='post-throw'&&$e->getMessage()==='fixture write exception','fixture exception propagated');}
+  check(empty($GLOBALS['filters']),'filter cleaned after failure '.$failure);check(!current_user_can('publish_post',20),'failure does not grant capabilities');
+ }
+ reset_fixture();$GLOBALS['uid']=2;check(status(call_route('/profile/me','POST',['slug'=>'arbitrary','title'=>'Changed']))===422&&get_post(20)->post_name==='stable','arbitrary slug still rejected');
+ echo 'PASS task7B fix1 pending slug '.$GLOBALS['assertions']." assertions\n";exit(0);
+}
+if(in_array('--fix-owner-query',$argv,true)){
+ require $plugin.'/graphql/register-queries.php';$resolve=$GLOBALS['graphql']['RootQuery']['mySpecialistProfile']['resolve'];
+ foreach(['missing-cap','anonymous','malformed-pointer','missing-post','wrong-cpt','foreign-author','reverse-link-conflict','malformed-backlink','missing-pointer','admin-no-cap'] as $case){
+  reset_fixture();$GLOBALS['uid']=2;
+  if($case==='missing-cap')$GLOBALS['caps'][2]=[];
+  if($case==='anonymous')$GLOBALS['uid']=0;
+  if($case==='malformed-pointer')$GLOBALS['um'][2]['nahan_specialist_post']='20tampered';
+  if($case==='missing-post')unset($GLOBALS['posts'][20]);
+  if($case==='wrong-cpt')get_post(20)->post_type='page';
+  if($case==='foreign-author')get_post(20)->post_author=1;
+  if($case==='reverse-link-conflict')$GLOBALS['pm'][20]['user']=1;
+  if($case==='malformed-backlink')$GLOBALS['pm'][20]['user']='2tampered';
+  if($case==='missing-pointer')unset($GLOBALS['um'][2]['nahan_specialist_post']);
+  if($case==='admin-no-cap'){$GLOBALS['uid']=3;$GLOBALS['um'][3]['nahan_specialist_post']=20;}
+  $expected=\Nahan\Core\OwnerProfile::resolve();check(is_wp_error($expected),'shared resolver rejects fixture '.$case);
+  try{$resolve();check(false,'registered owner query must reject '.$case);}
+  catch(\GraphQL\Error\UserError $e){check($e->getMessage()===$expected->get_error_code(),'registered query shares exact safe error '.$case);}
+ }
+ reset_fixture();$GLOBALS['uid']=2;$result=$resolve();check($result instanceof \WPGraphQL\Model\Post&&$result->post->ID===20,'valid registered owner query returns own model');
+ check(empty($GLOBALS['filters']),'owner query performs no scoped writes');
+ echo 'PASS task7B fix1 owner query '.$GLOBALS['assertions']." assertions\n";exit(0);
+}
+if(in_array('--next-public',$argv,true)){
+ define('OBJECT','OBJECT');reset_fixture();$GLOBALS['uid']=0;get_post(20)->post_status='publish';get_post(20)->post_content='Public biography';
+ $GLOBALS['pm'][20]['address']='PRIVATE ADDRESS';$GLOBALS['pm'][20]['location_lat']=33.99;$GLOBALS['pm'][20]['phone_display']='09123456789';
+ $GLOBALS['wpdb']=new class {public $prefix='wp_';public function insert(...$args){return 1;}public function prepare($query,...$args){return $query;}public function get_var($query){return 13;}};
+ $route=$GLOBALS['routes']['/specialists/(?P<slug>[^/]+)']['GET'];
+ $req=new class implements \ArrayAccess {public function offsetExists(mixed $o):bool{return true;}public function offsetGet(mixed $o):mixed{return 'stable';}public function offsetSet(mixed $o,mixed $v):void{}public function offsetUnset(mixed $o):void{}};
+ $r=$route['callback']($req);check(status($r)===200,'public callback succeeds');$json=json_encode($r->data);
+ check(!str_contains($json,'PRIVATE ADDRESS') && !str_contains($json,'09123456789') && !str_contains($json,'33.99'),'NEXT: public REST DTO must not serialize private address/coords or unconsented phone');
+ check($r->data['data']['address']===null && $r->data['data']['lat']===null && $r->data['data']['lng']===null,'private fields null compatibility');
+ $GLOBALS['pm'][20]['gallery']=[['media'=>999,'url'=>'PRIVATE FILE']];$GLOBALS['pm'][20]['avatar']=30;
+ check($route['callback']($req)->data['data']['gallery']===[],'raw gallery withheld');check($route['callback']($req)->data['data']['avatar_url']===null,'foreign avatar hidden');
+ $GLOBALS['posts'][30]->post_author=2;$GLOBALS['pm'][30]['_nahan_media_owner']=2;check($route['callback']($req)->data['data']['avatar_url']!==null,'safe public avatar emitted');
+ foreach(['',0,'true',2] as $flag){$GLOBALS['pm'][20]['public_contact_consent']=$flag;check($route['callback']($req)->data['data']['phone_display']===null,'explicit consent only');}
+ $GLOBALS['pm'][20]['public_contact_consent']=1;check($route['callback']($req)->data['data']['phone_display']==='09123456789','consented public phone');
+ $GLOBALS['pm'][20]['phone_display']='javascript:bad';check($route['callback']($req)->data['data']['phone_display']===null,'invalid public phone withheld');
+ require $plugin.'/graphql/register-types.php';require $plugin.'/graphql/register-queries.php';require $plugin.'/includes/acf-fields.php';
+ $loc=$GLOBALS['graphql']['Specialist']['location']['resolve'];check($loc((object)['ID'=>20])===null,'GraphQL coords withheld');
+ $phone=$GLOBALS['graphql']['Specialist']['phoneDisplay']['resolve']??null;check(is_callable($phone),'GraphQL public phone resolver registered');check($phone((object)['ID'=>20])===null,'GraphQL consent phone policy');
+ $GLOBALS['pm'][20]['phone_display']='09123456789';check($phone((object)['ID'=>20])==='09123456789','GraphQL explicit consent phone');
+ $group=$GLOBALS['acf']['group_nahan_specialist_profile'];check(empty($group['show_in_graphql']) && empty($group['show_in_rest']),'raw specialist ACF group private');
+ $scan=function($fields)use(&$scan){foreach($fields as $f){check(empty($f['show_in_graphql']),'raw specialist ACF field not generated '.$f['name']);if(isset($f['sub_fields']))$scan($f['sub_fields']);}};$scan($group['fields']);
+ $reg=new \Nahan\Core\Cpt\Registrar();$reg->register_post_types();$cpt=$GLOBALS['cpt']['nahan_specialist'];check($cpt['show_in_rest']===false,'generic REST specialist bypass disabled');check($cpt['graphql_exclude_mutations']===['create','update','delete'],'generic GraphQL specialist mutations disabled');
+ check(in_array('author',$cpt['graphql_exclude_fields'],true)&&in_array('featuredImage',$cpt['graphql_exclude_fields'],true),'generic user/media relations excluded');
+ foreach(['draft','pending','private','publish'] as $state){get_post(20)->post_status=$state;get_post(20)->post_password=$state==='publish'?'secret':'';check($phone((object)['ID'=>20])===null,'GraphQL publication boundary '.$state);check(($GLOBALS['graphql']['Specialist']['stats']['resolve'])((object)['ID'=>20])===null,'GraphQL stats publication boundary '.$state);check(\Nahan\Core\PublicProfile::full(20)===[],'formatter boundary '.$state);}
+ get_post(20)->post_status='publish';get_post(20)->post_password='';$GLOBALS['query_ids']=[20];$search=$GLOBALS['graphql']['RootQuery']['searchSpecialists']['resolve'];check(count($search(null,[]))===1,'public GraphQL search');check($GLOBALS['query_args']['has_password']===false,'GraphQL password query bound');
+ get_post(20)->post_password='secret';check($search(null,[])===[],'GraphQL search rechecks publication');
+ get_post(20)->post_password='';$GLOBALS['posts'][21]=clone get_post(20);$GLOBALS['posts'][21]->ID=21;$GLOBALS['posts'][21]->post_status='draft';$GLOBALS['query_posts']=[get_post(20),get_post(21)];
+ $list=call_route('/specialists','GET');check(count($list->data['data']['items'])===1,'public listing rechecks each card status');check($GLOBALS['list_args']['has_password']===false && $GLOBALS['list_args']['post_status']==='publish','public list publication query');check(!str_contains(json_encode($list->data),'09123456789')&&!str_contains(json_encode($list->data),'PRIVATE ADDRESS'),'public cards minimized');
+ check(in_array('NodeWithAuthor',$cpt['graphql_exclude_interfaces'],true)&&in_array('NodeWithFeaturedImage',$cpt['graphql_exclude_interfaces'],true),'generic GraphQL inherited private relations excluded');
+ check(!isset($GLOBALS['inputs']['UpdateProfileInput']['fields']['lat'])&&!isset($GLOBALS['inputs']['UpdateProfileInput']['fields']['lng']),'GraphQL unsupported coordinates not in input schema');
+ if(in_array('--emit-dto',$argv,true)){echo json_encode($r->data['data'],JSON_THROW_ON_ERROR);exit(0);}
+ echo 'PASS task7B public '.$GLOBALS['assertions']." assertions\n";
+ exit(0);
+}
+reset_fixture();
+$r=call_route('/account/me','GET');check(status($r)===200,'client account GET');check($r->data['data']['role']==='client','minimized role');check(!str_contains(json_encode($r->data),'09123456789'),'masked phone');
+check($r->data['data']['login_phone_masked']==='09*****6789','read-only masked phone present');
+foreach([0,3] as $uid){$GLOBALS['uid']=$uid;check(status(call_route('/account/me','GET'))===($uid===0?401:403),'anonymous/admin denied');}
+reset_fixture();
+foreach([['user_id'=>2],['role'=>'administrator'],['display_name'=>''],['display_name'=>'<b>x</b>'],['display_name'=>['x']],['account_city_id'=>'10'],['account_city_id'=>11],['avatar_id'=>20]] as $bad)check(status(call_route('/account/me','POST',$bad))>=400,'account input rejected');
+$r=call_route('/account/me','POST',['display_name'=>'New name','account_city_id'=>10,'avatar_id'=>30]);check(status($r)===200,'account saves');$r=call_route('/account/me','GET');check($r->data['data']['display_name']==='New name' && $r->data['data']['location']['id']===10,'fresh account');
+check(status(call_route('/account/me','POST',['display_name'=>'New name','account_city_id'=>10,'avatar_id'=>30]))===200,'unchanged accepted');
+check(status(call_route('/account/me','POST',['account_city_id'=>null,'avatar_id'=>null]))===200,'optional clear');
+$GLOBALS['fail']='nahan_account_city';check(status(call_route('/account/me','POST',['display_name'=>'Persisted','account_city_id'=>10]))===500,'partial failure not success');check(get_userdata(1)->display_name==='Persisted','partial user retained');
+reset_fixture();$GLOBALS['tm'][10]['_nahan_location_county']='other';check(status(call_route('/account/me','POST',['account_city_id'=>10]))===422,'contradictory county');
+reset_fixture();$GLOBALS['posts'][30]->post_author=2;check(status(call_route('/account/me','POST',['avatar_id'=>30]))===422,'foreign avatar');reset_fixture();$GLOBALS['pm'][30]['_nahan_media_purpose']='identity';check(status(call_route('/account/me','POST',['avatar_id'=>30]))===422,'private avatar');
+reset_fixture();$GLOBALS['uid']=2;
+$r=call_route('/profile/me','GET');check(status($r)===200 && $r->data['data']['slug']==='stable','owner DTO');
+foreach([['verified'=>true],['slug'=>'hijack'],['user_id'=>1],['lat'=>12],['category_ids'=>[11]],['city_id'=>11],['experience_years'=>-1],['availability'=>'unknown']] as $bad)check(status(call_route('/profile/me','POST',$bad))===422,'profile prevalidation');
+$r=call_route('/profile/me','POST',['title'=>'New trade','bio'=>'Biography','category_ids'=>[12],'city_id'=>10,'skills'=>'Skills']);check(status($r)===200,'profile save');check(get_post(20)->post_name==='stable' && get_post(20)->post_status==='draft','stable draft');check(get_post_meta(20,'is_verified')===1,'verified untouched');check(get_userdata(2)->display_name==='Owner','account name distinct');
+check(status(call_route('/profile/me/submit','POST'))===200 && get_post(20)->post_status==='pending','explicit pending');
+get_post(20)->post_status='publish';check(status(call_route('/profile/me','POST',['bio'=>'Edited']))===200 && get_post(20)->post_status==='pending','published edits pending');
+check(status(call_route('/profile/me','POST',['category_ids'=>[],'city_id'=>null,'bio'=>'','experience_years'=>null]))===200,'profile explicit clear');check(status(call_route('/profile/me/submit','POST'))===422,'incomplete submit');
+$GLOBALS['fail']='bio';check(status(call_route('/profile/me','POST',['bio'=>'Fails']))===500,'meta failure surfaced');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['posts'][20]->post_author=1;check(status(call_route('/profile/me','GET'))===409,'wrong author');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['user']=1;check(status(call_route('/profile/me','POST',['title'=>'X']))===409,'contradictory backlink');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['posts'][20]->post_type='page';check(status(call_route('/profile/me','GET'))===409,'wrong CPT');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['caps'][2]=[];check(status(call_route('/profile/me','GET'))===403,'cap required');
+reset_fixture();$GLOBALS['uid']=2;
+$mut=$GLOBALS['mutations']['updateProfile']['mutateAndGetPayload'];
+try{$mut(['input'=>['lat'=>10]]);check(false,'GraphQL rejects lat');}catch(\GraphQL\Error\UserError $e){check(true,'GraphQL forbidden rejected');}
+$mut(['input'=>['title'=>'GraphQL trade','categoryIds'=>[12],'cityId'=>10]]);check(get_post(20)->post_status==='draft' && get_post(20)->post_name==='stable','GraphQL shared save');
+$GLOBALS['pm'][20]['user']=1;try{$mut(['input'=>['title'=>'Foreign']]);check(false,'GraphQL rejects pointer');}catch(\GraphQL\Error\UserError $e){check(true,'GraphQL shared resolver');}
+reset_fixture();$GLOBALS['uid']=2;
+check(status(call_route('/profile/me/gallery','POST',['media_id'=>30]))===422,'Task7C provider still rejects foreign/wrong-purpose media');
+check(status(call_route('/profile/me/gallery/(?P<index>\\d+)','DELETE',['index'=>0]))===410,'Task7C unsafe index delete deprecated');
+$GLOBALS['pm'][20]['user']=1;check(status(call_route('/profile/me/gallery','POST',['media_id'=>30]))===409,'gallery shares owner resolver');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['fail']='city';check(status(call_route('/profile/me','POST',['city_id'=>10]))===500,'term write failure');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['fail']='post';check(status(call_route('/profile/me','POST',['title'=>'Failed']))===500,'post write failure');
+reset_fixture();$GLOBALS['fail']='display_name';check(status(call_route('/account/me','POST',['display_name'=>'Failed']))===500,'user write failure');
+reset_fixture();$GLOBALS['posts'][30]->post_mime_type='application/pdf';check(status(call_route('/account/me','POST',['avatar_id'=>30]))===422,'nonimage rejected');
+reset_fixture();unset($GLOBALS['pm'][30]['_nahan_media_owner']);check(status(call_route('/account/me','POST',['avatar_id'=>30]))===422,'legacy unmarked rejected');
+reset_fixture();$GLOBALS['uid']=2;check(status(call_route('/profile/me/submit','POST',['post_status'=>'publish']))===422,'submit payload rejected');
+reset_fixture();$GLOBALS['uid']=1;check(status(call_route('/profile/me','GET'))===403,'client profile denied');
+reset_fixture();$GLOBALS['uid']=0;check(status(call_route('/profile/me','GET'))===401,'anonymous profile denied');
+reset_fixture();$GLOBALS['uid']=3;check(status(call_route('/profile/me','GET'))===403,'admin without cap denied');
+reset_fixture();check(status(call_route('/account/me','POST',['display_name'=>'Name \\ path']))===200 && get_userdata(1)->display_name==='Name \\ path','account preserves backslash');
+reset_fixture();$GLOBALS['uid']=2;check(status(call_route('/profile/me','POST',['bio'=>'Bio \\ path']))===200 && get_post_meta(20,'bio')==='Bio \\ path','profile preserves backslash');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['um'][2]['nahan_specialist_post']='20tampered';check(status(call_route('/profile/me','GET'))===409,'noncanonical pointer rejected');
+reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['user']='2tampered';check(status(call_route('/profile/me','GET'))===409,'noncanonical backlink rejected');
+reset_fixture();$GLOBALS['uid']=2;$r=call_route('/account/me','GET');check(status($r)===200 && $r->data['data']['specialist']['id']===20,'pro account linkage');
+reset_fixture();$GLOBALS['uid']=2;unset($GLOBALS['um'][2]['nahan_specialist_post']);check(status(call_route('/profile/me','GET'))===404,'no implicit owner adoption');
+reset_fixture();$GLOBALS['uid']=2;check(status(call_route('/profile/me','POST',['bio'=>str_repeat('x',4001)]))===422,'bounded bio');
+reset_fixture();check(status(call_route('/account/me','POST',['display_name'=>"bad\x01name"]))===422,'control chars rejected');
+foreach(['kashan','meshkat','barzok','niasar','qamsar','jowshaqan-qali','kamu-va-chugan'] as $slug){reset_fixture();$GLOBALS['terms'][10]->slug=$slug;$GLOBALS['tm'][10]=['_nahan_location_county'=>'kashan','_nahan_location_kind'=>'city'];check(status(call_route('/account/me','POST',['account_city_id'=>10]))===200,'seven-city metadata accepted '.$slug);}
+reset_fixture();$GLOBALS['terms'][10]->slug='meshkat';check(status(call_route('/account/me','POST',['account_city_id'=>10]))===422,'nonlegacy city needs provenance');
+reset_fixture();$GLOBALS['pm'][30]['_nahan_media_owner']='1tampered';check(status(call_route('/account/me','POST',['avatar_id'=>30]))===422,'noncanonical media owner rejected');
+reset_fixture();check(status(call_route('/account/me','POST',['display_name'=>'Must not persist','account_city_id'=>11]))===422 && get_userdata(1)->display_name==='Client','account full prevalidation');
+reset_fixture();$GLOBALS['uid']=2;check(status(call_route('/profile/me','POST',['title'=>'Must not persist','category_ids'=>[11]]))===422 && get_post(20)->post_title==='Trade','profile full prevalidation');
+echo 'PASS task7B foundation '.$GLOBALS['assertions']." assertions\n";
+}

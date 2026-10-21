@@ -18,6 +18,7 @@
         "title": "پروفایل آزمایشی — معماری",
         "category_slug": "architecture",
         "bio": "این پروفایل فقط برای آزمون محیط محلی کاربان است و نمایندهٔ شخص یا کسب‌وکار واقعی نیست.",
+        "city_slug": "kashan",
         "is_verified": false
       }
     },
@@ -30,6 +31,7 @@
         "title": "پروفایل آزمایشی — تأسیسات مکانیکی",
         "category_slug": "mechanical-installations",
         "bio": "این پروفایل فقط برای آزمون محیط محلی کاربان است و نمایندهٔ شخص یا کسب‌وکار واقعی نیست.",
+        "city_slug": "kashan",
         "is_verified": false
       }
     },
@@ -42,6 +44,7 @@
         "title": "پروفایل آزمایشی — تأسیسات برقی",
         "category_slug": "electrical-installations",
         "bio": "این پروفایل فقط برای آزمون محیط محلی کاربان است و نمایندهٔ شخص یا کسب‌وکار واقعی نیست.",
+        "city_slug": "kashan",
         "is_verified": false
       }
     }

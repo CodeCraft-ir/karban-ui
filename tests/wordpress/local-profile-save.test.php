@@ -1,0 +1,140 @@
+<?php
+/** Standalone registered-callback contract test; no WordPress bootstrap or DB. */
+declare(strict_types=1);
+namespace GraphQL\Error { class UserError extends \Exception {} }
+namespace WPGraphQL\Model { class Post { public function __construct(public $post) {} } }
+namespace {
+define('ABSPATH', __DIR__ . '/');
+$plugin = rtrim($argv[1] ?? '', '/');
+class WP_Error { public function __construct(private $code, private $message='', private $data=[]) {} public function get_error_code(){return $this->code;} public function get_error_message(){return $this->message;} public function get_error_data(){return $this->data;} }
+class WP_REST_Response { public function __construct(public $data, public $status=200){} public function get_data(){return $this->data;} public function get_status(){return $this->status;} }
+class Request { public function __construct(private array $data=[]){} public function get_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_param($key){return $this->data[$key]??null;} }
+class WP_Query {public $posts;public $found_posts;public $max_num_pages=1;public function __construct($args){$GLOBALS['list_args']=$args;$this->posts=$GLOBALS['query_posts']??[];$this->found_posts=count($this->posts);}}
+function wp_slash($value){return is_string($value)?addslashes($value):(is_array($value)?array_map('wp_slash',$value):$value);}
+function __return_true(){return true;}
+function is_wp_error($v){return $v instanceof WP_Error;}
+function get_page_by_path($slug,$output,$type){return get_post(20);}
+function current_time($type,$gmt=false){return '2026-10-21 00:00:00';}
+function register_rest_route($ns,$path,$args){$GLOBALS['routes'][$path][$args['methods']]=$args;}
+function register_graphql_mutation($name,$args){$GLOBALS['mutations'][$name]=$args;}
+function register_graphql_field($type,$name,$args){$GLOBALS['graphql'][$type][$name]=$args;}
+function register_graphql_object_type($name,$args){}
+function register_graphql_input_type($name,$args){$GLOBALS['inputs'][$name]=$args;}
+function register_graphql_enum_type($name,$args){}
+function acf_add_local_field_group($args){$GLOBALS['acf'][$args['key']]=$args;}
+function register_post_type($name,$args){$GLOBALS['cpt'][$name]=$args;}
+function get_posts($args){$GLOBALS['query_args']=$args;return $GLOBALS['query_ids']??[];}
+function get_current_user_id(){return $GLOBALS['uid'];}
+function is_user_logged_in(){return get_current_user_id()>0;}
+function wp_get_current_user(){return get_userdata(get_current_user_id());}
+function get_userdata($id){return $GLOBALS['users'][$id]??false;}
+function current_user_can($cap){return in_array($cap,$GLOBALS['caps'][get_current_user_id()]??[],true);}
+function get_user_meta($id,$key,$single=true){return $GLOBALS['um'][$id][$key]??'';}
+function update_user_meta($id,$key,$value){if(($GLOBALS['fail']??'')===$key)return false; if(get_user_meta($id,$key)===$value)return false; $GLOBALS['um'][$id][$key]=is_string($value)?stripslashes($value):$value;return 1;}
+function wp_update_user($data){if(($GLOBALS['fail']??'')==='display_name')return new WP_Error('db');$GLOBALS['users'][$data['ID']]->display_name=stripslashes($data['display_name']);return $data['ID'];}
+function get_post($id){return $GLOBALS['posts'][$id]??null;}
+function get_post_meta($id,$key,$single=true){return $GLOBALS['pm'][$id][$key]??'';}
+function update_post_meta($id,$key,$value){if(($GLOBALS['fail']??'')===$key)return false;if(get_post_meta($id,$key)===$value)return false;$GLOBALS['pm'][$id][$key]=is_string($value)?stripslashes($value):$value;return 1;}
+function add_filter($tag,$callback,$priority=10,$accepted=1){$GLOBALS['filters'][$tag][$priority][spl_object_id($callback)]=[$callback,$accepted];return true;}
+function remove_filter($tag,$callback,$priority=10){unset($GLOBALS['filters'][$tag][$priority][spl_object_id($callback)]);if(empty($GLOBALS['filters'][$tag][$priority]))unset($GLOBALS['filters'][$tag][$priority]);if(empty($GLOBALS['filters'][$tag]))unset($GLOBALS['filters'][$tag]);return true;}
+function apply_filters($tag,$value,...$args){$priorities=$GLOBALS['filters'][$tag]??[];ksort($priorities);foreach($priorities as $callbacks)foreach($callbacks as [$callback,$accepted])$value=$callback(...array_slice([$value,...$args],0,$accepted));return $value;}
+function wp_update_post($data,$error=false){
+ if(($GLOBALS['fail']??'')==='post')return new WP_Error('db');
+ if(($GLOBALS['fail']??'')==='post-zero')return 0;
+ if(($GLOBALS['fail']??'')==='post-throw')throw new RuntimeException('fixture write exception');
+ $id=$data['ID'];$postarr=array_merge(wp_slash((array)get_post($id)),$data);$row=$postarr;unset($row['ID']);
+ // Installed wp_insert_post(): pending updates by users without publish_post clear post_name,
+ // even when wp_update_post merged an existing slug or the caller explicitly passed it.
+ if($row['post_status']==='pending'&&!current_user_can('publish_post',$id))$row['post_name']='';
+ if($row['post_name']===''&&!in_array($row['post_status'],['draft','pending','auto-draft'],true))$row['post_name']=trim(preg_replace('/[^a-z0-9]+/','-',strtolower(stripslashes($row['post_title']))),'-');
+ if(isset($GLOBALS['during_post_write'])){$during=$GLOBALS['during_post_write'];unset($GLOBALS['during_post_write']);$during();}
+ $row=apply_filters('wp_insert_post_data',$row,$postarr,$data,true);
+ foreach($row as $k=>$v)$GLOBALS['posts'][$id]->$k=is_string($v)?stripslashes($v):$v;
+ return $id;
+}
+function get_term($id,$taxonomy){$t=$GLOBALS['terms'][$id]??null;return $t && $t->taxonomy===$taxonomy?$t:null;}
+function get_term_meta($id,$key,$single=true){return $GLOBALS['tm'][$id][$key]??'';}
+function wp_get_post_terms($id,$tax,$args=[]){return array_map(fn($tid)=>get_term($tid,$tax),$GLOBALS['pt'][$id][$tax]??[]);}
+function wp_set_object_terms($id,$terms,$tax){if(($GLOBALS['fail']??'')===$tax)return new WP_Error('db');$GLOBALS['pt'][$id][$tax]=$terms;return $terms;}
+function get_post_mime_type($id){return get_post($id)->post_mime_type??'';}
+function wp_get_attachment_image_url($id,$size){return 'https://fixture.invalid/image-'.$id.'.jpg';}
+if(!function_exists('mb_strlen')){function mb_strlen($s,$enc=null){return preg_match_all('/./us',$s);}}
+function reset_fixture(){
+ $GLOBALS['filters']=[];unset($GLOBALS['during_post_write']);
+ $GLOBALS['uid']=1;$GLOBALS['fail']='';$GLOBALS['um']=[1=>['nahan_phone'=>'09123456789'],2=>['nahan_specialist_post'=>20]];
+ $GLOBALS['users']=[1=>(object)['ID'=>1,'display_name'=>'Client','roles'=>['nahan_client']],2=>(object)['ID'=>2,'display_name'=>'Owner','roles'=>['nahan_specialist']],3=>(object)['ID'=>3,'display_name'=>'Admin','roles'=>['administrator']]];
+ $GLOBALS['caps']=[1=>['nahan_client'],2=>['nahan_specialist','nahan_edit_own_profile'],3=>[]];
+ $GLOBALS['posts']=[20=>(object)['ID'=>20,'post_type'=>'nahan_specialist','post_author'=>2,'post_status'=>'draft','post_name'=>'stable','post_title'=>'Trade','post_password'=>''],30=>(object)['ID'=>30,'post_type'=>'attachment','post_author'=>1,'post_status'=>'inherit','post_mime_type'=>'image/jpeg']];
+ $GLOBALS['pm']=[20=>['user'=>2,'is_verified'=>1],30=>['_nahan_media_owner'=>1,'_nahan_media_purpose'=>'public-avatar']];
+ $GLOBALS['terms']=[10=>(object)['term_id'=>10,'taxonomy'=>'city','name'=>'کاشان','slug'=>'kashan'],11=>(object)['term_id'=>11,'taxonomy'=>'city','name'=>'خارج','slug'=>'outside'],12=>(object)['term_id'=>12,'taxonomy'=>'job_category','name'=>'Trade','slug'=>'trade']];$GLOBALS['tm']=[];$GLOBALS['pt']=[];
+}
+function check($v,$message){if(!$v)throw new \RuntimeException($message);$GLOBALS['assertions']=($GLOBALS['assertions']??0)+1;}
+function call_route($path,$method,$data=[]){check(isset($GLOBALS['routes'][$path][$method]),"Registered $method $path");$r=$GLOBALS['routes'][$path][$method];$req=new Request($data);$p=$r['permission_callback']($req);if(is_wp_error($p))return $p;return $r['callback']($req);}
+function status($r){return is_wp_error($r)?($r->get_error_data()['status']??400):$r->status;}
+require $plugin.'/includes/class-autoloader.php';define('NAHAN_CORE_DIR',$plugin.'/');\Nahan\Core\Autoloader::register();
+require $plugin.'/rest-api/class-rest-helper.php';
+if(is_file($plugin.'/rest-api/account-routes.php'))require $plugin.'/rest-api/account-routes.php';
+require $plugin.'/rest-api/profile-routes.php';require $plugin.'/graphql/register-mutations.php';
+
+// Standalone installed request class, never wp-load.php. All persistence above is in memory.
+require dirname($plugin, 3).'/wp-includes/rest-api/class-wp-rest-request.php';
+function get_option($key){return $key==='permalink_structure' ? $GLOBALS['permalinks'] : false;}
+function wp_is_json_media_type($type){return (bool)preg_match('~^application/(?:[a-z0-9.+-]+\+)?json$~i',$type);}
+function add_option($key,$value,...$unused){if(isset($GLOBALS['options'][$key]))return false;$GLOBALS['options'][$key]=$value;return true;}
+function delete_option($key){unset($GLOBALS['options'][$key]);return true;}
+function wp_parse_str($text,&$result){parse_str($text,$result);}
+function request_fixture($path,$method,$body,$query=[],$url=[]){
+ $request=new WP_REST_Request($method,'/nahan/v1'.$path);
+ $request->set_header('Content-Type','application/json');$request->set_body(json_encode((object)$body));
+ if(array_key_exists('rest_route',$query))$query['rest_route']='/nahan/v1'.$path;
+ $request->set_query_params($query);$request->set_url_params($url);return $request;
+}
+function raw_request_fixture($path,$raw){$request=request_fixture($path,'POST',[]);$request->set_body($raw);return $request;}
+function invoke_actual($path,$request){$route=$GLOBALS['routes'][$path][$request->get_method()];$permission=$route['permission_callback']($request);return is_wp_error($permission)?$permission:$route['callback']($request);}
+require $plugin.'/rest-api/upload-routes.php';
+$failures=[];$cases=0;
+function expect_actual($condition,$message){$GLOBALS['cases']++;if(!$condition)$GLOBALS['failures'][]=$message;}
+foreach([''=>'off','/%postname%/'=>'on'] as $structure=>$label){foreach(['pretty','plain'] as $mode){
+ $GLOBALS['permalinks']=$structure;$tag="$mode structure=$label";$query=$mode==='plain'?['rest_route'=>'/nahan/v1/account/me']:[];
+ reset_fixture();$request=request_fixture('/account/me','POST',['display_name'=>'Fixture Name','account_city_id'=>10],$query);
+ expect_actual(isset($request->get_params()['rest_route'])===($mode==='plain'&&$label==='on'),'characterize installed merge '.$tag);
+ $response=invoke_actual('/account/me',$request);
+ $reread=invoke_actual('/account/me',request_fixture('/account/me','GET',[],$query));expect_actual(status($reread)===200&&($reread->data['data']['display_name']??null)==='Fixture Name'&&($reread->data['data']['location']['id']??null)===10,'account save then actual callback reread '.$tag);
+ echo $tag.' account status='.status($response).' code='.($response->data['error']['code']??'none')."\n";
+ expect_actual(status($response)===200&&get_userdata(1)->display_name==='Fixture Name'&&get_user_meta(1,'nahan_account_city')===10,'valid account JSON saves '.$tag);
+ reset_fixture();$GLOBALS['um'][1]['nahan_account_city']=10;$GLOBALS['um'][1]['nahan_account_avatar']=30;
+ $response=invoke_actual('/account/me',request_fixture('/account/me','POST',['account_city_id'=>null,'avatar_id'=>null],$query));
+ expect_actual(status($response)===200&&get_user_meta(1,'nahan_account_city')===0&&get_user_meta(1,'nahan_account_avatar')===0,'explicit account clears '.$tag);
+ foreach(['owner_id','id','role','slug','status','rest_route','unrecognized'] as $field){reset_fixture();$response=invoke_actual('/account/me',request_fixture('/account/me','POST',[$field=>99],$query));expect_actual(status($response)===422&&get_userdata(1)->display_name==='Client','unknown JSON rejected '.$field.' '.$tag);}
+ foreach([['display_name'=>"Bad\nName"],['account_city_id'=>11],['account_city_id'=>'10']] as $body){reset_fixture();expect_actual(status(invoke_actual('/account/me',request_fixture('/account/me','POST',$body,$query)))===422,'invalid account body '.$tag);}
+ foreach(['owner_id','id','role','display_name','account_city_id'] as $key){reset_fixture();$response=invoke_actual('/account/me',request_fixture('/account/me','POST',['display_name'=>'Safe Name'],array_merge($query,[$key=>2])));expect_actual(status($response)===422&&get_userdata(1)->display_name==='Client'&&get_userdata(2)->display_name==='Owner','nonrouting query rejected before writes '.$key.' '.$tag);}
+ reset_fixture();$GLOBALS['uid']=2;$response=invoke_actual('/profile/me',request_fixture('/profile/me','POST',['title'=>'Fixture Trade','city_id'=>10],$query));expect_actual(status($response)===200&&get_post(20)->post_title==='Fixture Trade'&&$GLOBALS['pt'][20]['city']===[10],'profile JSON saves '.$tag);
+ reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['bio']='Complete biography';$GLOBALS['pt'][20]=['job_category'=>[12],'city'=>[10]];
+ $response=invoke_actual('/profile/me/submit',request_fixture('/profile/me/submit','POST',[],$query));expect_actual(status($response)===200&&get_post(20)->post_status==='pending'&&get_post(20)->post_name==='stable','empty JSON submit succeeds '.$tag);
+ reset_fixture();$_FILES=[];$upload=new WP_REST_Request('POST','/nahan/v1/uploads');$upload->set_header('Content-Type','multipart/form-data; boundary=fixture');$upload->set_body_params(['purpose'=>'public-avatar']);$upload->set_query_params($query);
+ $response=invoke_actual('/uploads',$upload);expect_actual(status($response)===422&&($response->data['error']['code']??null)==='invalid_upload','multipart purpose reaches file validation without routing leak '.$tag);
+ foreach(['/profile/me','/profile/me/submit','/profile/me/gallery'] as $path){reset_fixture();$GLOBALS['uid']=2;expect_actual(status(invoke_actual($path,request_fixture($path,'POST',['owner_id'=>99],$query)))===422,'profile unknown JSON rejected '.$path.' '.$tag);}
+ reset_fixture();$GLOBALS['uid']=2;$GLOBALS['options']=[];$GLOBALS['posts'][30]->post_author=2;$GLOBALS['pm'][30]=['_nahan_media_owner'=>2,'_nahan_media_purpose'=>'public-portfolio'];
+ $response=invoke_actual('/profile/me/gallery',request_fixture('/profile/me/gallery','POST',['media_id'=>30,'expected_revision'=>0],$query));expect_actual(status($response)===200&&count($response->data['data']['gallery']??[])===1,'gallery add JSON saves '.$tag);
+ $reread=invoke_actual('/profile/me',request_fixture('/profile/me','GET',[],$query));expect_actual(status($reread)===200&&count($reread->data['data']['gallery']??[])===1,'profile gallery reread '.$tag);
+ $delete='/profile/me/gallery/media/(?P<media_id>\\d+)';
+ foreach([['media_id'=>31],['owner_id'=>3],['rest_route'=>'/bad']] as $bad){expect_actual(status(invoke_actual($delete,request_fixture('/profile/me/gallery/media/30','DELETE',$bad,$query,['media_id'=>'30'])))===422,'delete rejects body overrides '.$tag);}
+ $response=invoke_actual($delete,request_fixture('/profile/me/gallery/media/30','DELETE',['expected_revision'=>1],$query,['media_id'=>'30']));expect_actual(status($response)===200&&($response->data['data']['gallery']??null)===[],'gallery path ID separate from JSON '.$tag);
+}}
+// Assoc JSON decoding must not erase the top-level object/list distinction.
+$GLOBALS['permalinks']='/%postname%/';
+foreach(['/account/me','/profile/me','/profile/me/submit','/profile/me/gallery'] as $path){
+ foreach(['[]','[1]','null','true','42','"scalar"'] as $raw){
+  reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['bio']='Complete biography';$GLOBALS['pt'][20]=['job_category'=>[12],'city'=>[10]];
+  $before=serialize([$GLOBALS['users'],$GLOBALS['posts'],$GLOBALS['um'],$GLOBALS['pm'],$GLOBALS['pt']]);
+  $response=invoke_actual($path,raw_request_fixture($path,$raw));
+  expect_actual(status($response)===422&&($response->data['error']['code']??null)==='unknown_field','non-object raw JSON rejected '.$path.' '.$raw);
+  expect_actual($before===serialize([$GLOBALS['users'],$GLOBALS['posts'],$GLOBALS['um'],$GLOBALS['pm'],$GLOBALS['pt']]),'non-object JSON cannot write '.$path.' '.$raw);
+ }
+ reset_fixture();$GLOBALS['uid']=2;$GLOBALS['pm'][20]['bio']='Complete biography';$GLOBALS['pt'][20]=['job_category'=>[12],'city'=>[10]];
+ $response=invoke_actual($path,raw_request_fixture($path,'{}'));
+ expect_actual($path==='/profile/me/gallery' ? status($response)===422&&($response->data['error']['code']??null)==='invalid_gallery' : status($response)===200,'empty object retains business policy '.$path);
+}
+if($failures){fwrite(STDERR,implode("\n",array_map(fn($m)=>'FAIL '.$m,$failures))."\n");echo count($failures)." failed / $cases checks\n";exit(1);}
+echo "PASS installed WP_REST_Request + registered owner callbacks $cases checks\n";
+}

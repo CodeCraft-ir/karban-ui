@@ -1,5 +1,26 @@
 <?php
 /** Only the user-authorized local catalog; no posts, accounts, options or deletes. */
+function karban_local_taxonomy_manifest(): array {
+    $contents = file_get_contents(__DIR__ . '/local-taxonomies.json');
+    if (false === $contents) {
+        throw new RuntimeException('Approved local taxonomy manifest is unavailable.');
+    }
+    try {
+        $manifest = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $error) {
+        throw new RuntimeException('Approved local taxonomy manifest is invalid.', 0, $error);
+    }
+    if (!is_array($manifest)) {
+        throw new RuntimeException('Approved local taxonomy manifest is invalid.');
+    }
+    return $manifest;
+}
+
+function karban_local_kashan_city_baseline(): array {
+    $manifest = karban_local_taxonomy_manifest();
+    return is_array($manifest['city'] ?? null) ? $manifest['city'] : [];
+}
+
 function karban_seed_local_taxonomies(string $site_url, array $manifest, bool $apply): array {
     $url = parse_url($site_url);
     if (!is_array($url)
@@ -11,6 +32,9 @@ function karban_seed_local_taxonomies(string $site_url, array $manifest, bool $a
     }
     if (array_diff(array_keys($manifest), ['job_category', 'city']) || count($manifest) !== 2) {
         throw new InvalidArgumentException('Only job_category and city are allowed.');
+    }
+    if (($manifest['city'] ?? null) !== karban_local_kashan_city_baseline()) {
+        throw new InvalidArgumentException('Only the reviewed seven-city Kashan baseline is allowed.');
     }
     // Validate the entire batch before any insert. Never rename existing terms.
     foreach ($manifest as $taxonomy => $entries) {

@@ -1,0 +1,205 @@
+<?php
+/** Registered source callbacks + real tiny local image bytes. Never bootstraps WP or uploads. */
+declare(strict_types=1);
+namespace GraphQL\Error { class UserError extends \Exception {} }
+namespace WPGraphQL\Model { class Post { public function __construct(public $post) {} } }
+namespace Nahan\Core {
+ // PHP upload provenance is the only native-file boundary replaced, in this test process only.
+ function is_uploaded_file($path) { return ($GLOBALS['uploaded'] ?? false) && $path === ($GLOBALS['fixture_file'] ?? null); }
+}
+namespace {
+ define('ABSPATH', __DIR__.'/'); define('OBJECT','OBJECT');
+ $plugin=rtrim($argv[1]??'','/'); $mode=$argv[2]??'all';
+ class WP_Error {public function __construct(private $code,private $message='',private $data=[]){}public function get_error_code(){return $this->code;}public function get_error_message(){return $this->message;}public function get_error_data(){return $this->data;}}
+ class WP_REST_Response {public function __construct(public $data,public $status=200){}}
+ class Request implements \ArrayAccess {
+  public function __construct(private array $data=[], private array $url=[]){} public function get_query_params(){return [];} public function get_url_params(){return $this->url;} public function get_body_params(){return $this->data;} public function get_json_params(){return $this->data;} public function get_params(){return $this->data;}public function get_param($key){return $this->data[$key]??null;}
+  public function offsetExists(mixed $o):bool{return isset($this->data[$o]);}public function offsetGet(mixed $o):mixed{return $this->data[$o]??null;}public function offsetSet(mixed $o,mixed $v):void{}public function offsetUnset(mixed $o):void{}
+ }
+ function is_wp_error($v){return $v instanceof WP_Error;}
+ function register_rest_route($ns,$path,$args){$GLOBALS['routes'][$path][$args['methods']]=$args;}
+ function register_graphql_field($type,$name,$args){$GLOBALS['graphql'][$type][$name]=$args;}
+ function register_graphql_object_type($name,$args){$GLOBALS['objects'][$name]=$args;}
+ function register_graphql_input_type($name,$args){$GLOBALS['inputs'][$name]=$args;}
+ function register_graphql_enum_type(...$args){}
+ function register_graphql_mutation($name,$args){$GLOBALS['mutations'][$name]=$args;}
+ function get_current_user_id(){return $GLOBALS['uid'];}function is_user_logged_in(){return get_current_user_id()>0;}
+ function wp_get_current_user(){return get_userdata(get_current_user_id());}function get_userdata($id){return $GLOBALS['users'][$id]??(object)['ID'=>0,'roles'=>[]];}
+ function current_user_can($cap){return in_array($cap,$GLOBALS['caps'][get_current_user_id()]??[],true);}
+ function get_user_meta($id,$key,$single=true){return $GLOBALS['um'][$id][$key]??'';}
+ function get_post_meta($id,$key,$single=true){return $GLOBALS['pm'][$id][$key]??'';}
+ function wp_slash($v){return is_array($v)?array_map('wp_slash',$v):(is_string($v)?addslashes($v):$v);}
+ function unslash($v){return is_array($v)?array_map('unslash',$v):(is_string($v)?stripslashes($v):$v);}
+ function update_post_meta($id,$key,$value,$prev=''){
+  $GLOBALS['writes']++;if($GLOBALS['fail']===$key)return false;
+  if($GLOBALS['fail']==='silent-'.$key)return 1;
+  if($prev!==''&&get_post_meta($id,$key)!==$prev)return false;
+  $v=unslash($value);if(get_post_meta($id,$key)===$v)return false;$GLOBALS['pm'][$id][$key]=$v;return 1;
+ }
+ function update_user_meta($id,$key,$value){$GLOBALS['writes']++;if($GLOBALS['fail']===$key)return false;if($GLOBALS['fail']==='silent-'.$key)return 1;$GLOBALS['um'][$id][$key]=unslash($value);return 1;}
+ function add_post_meta($id,$key,$value,$unique=false){if($unique&&isset($GLOBALS['pm'][$id][$key]))return false;return update_post_meta($id,$key,$value);}
+ function add_option($key,$value,$deprecated='',$autoload=null){if($GLOBALS['fail']==='lock-throw')throw new \RuntimeException('PRIVATE /filesystem');if(isset($GLOBALS['options'][$key])||$GLOBALS['fail']==='lock')return false;$GLOBALS['options'][$key]=$value;return true;}
+ function delete_option($key){if($GLOBALS['fail']==='unlock-throw')throw new \RuntimeException('PRIVATE /filesystem');if($GLOBALS['fail']==='unlock')return false;unset($GLOBALS['options'][$key]);return true;}
+ function get_post($id){return $GLOBALS['posts'][$id]??null;}
+ function get_post_mime_type($id){return get_post($id)->post_mime_type??'';}
+ function wp_get_attachment_image_url($id,$size){return $GLOBALS['urls'][$id]??'https://fixture.invalid/media-'.$id.'.png';}
+ function wp_get_attachment_metadata($id){return $GLOBALS['fail']==='source-metadata'?false:['width'=>2,'height'=>2,'file'=>'fixture.png'];}
+ function wp_get_attachment_url($id){return wp_get_attachment_image_url($id,'full');}
+ function add_filter($tag,$callback,$priority=10,$accepted=1){$GLOBALS['filters'][$tag][$priority][spl_object_id($callback)]=[$callback,$accepted];}
+ function remove_filter($tag,$callback,$priority=10){unset($GLOBALS['filters'][$tag][$priority][spl_object_id($callback)]);if(empty($GLOBALS['filters'][$tag][$priority]))unset($GLOBALS['filters'][$tag][$priority]);if(empty($GLOBALS['filters'][$tag]))unset($GLOBALS['filters'][$tag]);}
+ function wp_update_post($data,$error=false){
+  $GLOBALS['writes']++;if($GLOBALS['fail']==='post')return new WP_Error('db','PRIVATE /filesystem');if($GLOBALS['fail']==='post-zero')return 0;
+  $id=$data['ID'];$row=array_merge(wp_slash((array)get_post($id)),$data);
+  if($row['post_status']==='pending'&&!current_user_can('publish_post'))$row['post_name']='';
+  foreach($GLOBALS['filters']['wp_insert_post_data']??[] as $callbacks)foreach($callbacks as [$fn,$accepted])$row=$fn($row,$data,$data,true);
+  foreach($row as $key=>$value)$GLOBALS['posts'][$id]->$key=unslash($value);return $id;
+ }
+ function wp_get_post_terms($id,$tax){return [];}
+ function wp_delete_attachment(...$args){$GLOBALS['deleted']++;throw new \RuntimeException('Must never delete a file');}
+ function do_action(...$args){$GLOBALS['events'][]=$args;}
+ function __return_true(){return true;}
+ function get_page_by_path(...$args){return get_post(20);}
+ function current_time(...$args){return '2026-10-21 00:00:00';}
+ // Core persistence is stubbed, not called. Decode really uses GD, never a permissive fake.
+ function wp_get_image_editor($path){
+  $GLOBALS['decodes']++;if($GLOBALS['fail']==='decoder')return new WP_Error('decode','PRIVATE /filesystem');
+  $image=@imagecreatefromstring(file_get_contents($path));if(!$image)return new WP_Error('decode');
+  $size=['width'=>imagesx($image),'height'=>imagesy($image)];imagedestroy($image);
+  return new class($size){public function __construct(private $size){}public function get_size(){return $this->size;}};
+ }
+ function media_handle_upload($field,$parent,$post_data=[],$overrides=[]){
+  $GLOBALS['persist_calls']++;$GLOBALS['persist_args']=[$field,$parent,$post_data,$overrides];
+  if($GLOBALS['fail']==='storage-throw')throw new \RuntimeException('PRIVATE /filesystem');
+  if($GLOBALS['fail']==='storage')return new WP_Error('upload','PRIVATE /filesystem');if($GLOBALS['fail']==='storage-zero')return 0;
+  $id=90;$GLOBALS['posts'][$id]=(object)['ID'=>$id,'post_type'=>'attachment','post_author'=>$post_data['post_author']??get_current_user_id(),'post_status'=>'inherit','post_mime_type'=>$GLOBALS['detected_mime']??'image/png'];
+  if($GLOBALS['fail']==='storage-foreign')$GLOBALS['posts'][$id]->post_author=1;
+  return $id;
+ }
+ function reset_fixture(){
+  $GLOBALS['uid']=2;$GLOBALS['fail']='';$GLOBALS['uploaded']=true;$GLOBALS['writes']=0;$GLOBALS['persist_calls']=0;$GLOBALS['decodes']=0;$GLOBALS['deleted']=0;$GLOBALS['events']=[];$GLOBALS['options']=[];$GLOBALS['filters']=[];$GLOBALS['urls']=[];$GLOBALS['detected_mime']='image/png';
+  $GLOBALS['caps']=[1=>['nahan_client'],2=>['nahan_specialist','nahan_edit_own_profile'],3=>['nahan_specialist','nahan_edit_own_profile']];
+  $GLOBALS['users']=[1=>(object)['ID'=>1,'roles'=>['nahan_client'],'display_name'=>'Client'],2=>(object)['ID'=>2,'roles'=>['nahan_specialist'],'display_name'=>'Owner'],3=>(object)['ID'=>3,'roles'=>['nahan_specialist'],'display_name'=>'Other']];
+  $GLOBALS['um']=[2=>['nahan_specialist_post'=>20],3=>['nahan_specialist_post'=>21]];
+  $GLOBALS['posts']=[20=>(object)['ID'=>20,'post_author'=>2,'post_type'=>'nahan_specialist','post_name'=>'stable','post_title'=>'Trade','post_status'=>'draft','post_password'=>'','post_content'=>''],21=>(object)['ID'=>21,'post_author'=>3,'post_type'=>'nahan_specialist','post_name'=>'other','post_title'=>'Other','post_status'=>'draft','post_password'=>'']];
+  $GLOBALS['pm']=[20=>['user'=>2,'is_verified'=>1],21=>['user'=>3]];
+  for($id=30;$id<=54;$id++){ $GLOBALS['posts'][$id]=(object)['ID'=>$id,'post_type'=>'attachment','post_author'=>2,'post_status'=>'inherit','post_mime_type'=>'image/png'];$GLOBALS['pm'][$id]=['_nahan_media_owner'=>2,'_nahan_media_purpose'=>'public-portfolio']; }
+  $_FILES=[];
+ }
+ $assertions=0;$failures=[];
+ function check($ok,$message){$GLOBALS['assertions']++;if(!$ok)$GLOBALS['failures'][]=$message;}
+ function route($path,$method,$data=[]){
+  $r=$GLOBALS['routes'][$path][$method]??null;if(!$r){check(false,'Missing registered '.$method.' '.$path);return new WP_Error('missing',[''],['status'=>599]);}
+  $url=[];if($method==='DELETE'&&str_contains($path,'gallery/media/')){$url=['media_id'=>$data['media_id']??null];unset($data['media_id']);}$req=new Request($data,$url);$permission=$r['permission_callback']($req);if(is_wp_error($permission))return $permission;if($permission!==true)return new WP_Error('forbidden','',['status'=>403]);return $r['callback']($req);
+ }
+ function status($r){return is_wp_error($r)?($r->get_error_data()['status']??400):$r->status;}
+ function code($r){return is_wp_error($r)?$r->get_error_code():($r->data['error']['code']??'');}
+ function data($r){return is_wp_error($r)?[]:($r->data['data']??[]);}
+ function file_fixture($bytes,$name='tiny.png',$declared='image/png',$size=null){
+  file_put_contents($GLOBALS['fixture_file'],$bytes);clearstatcache(true,$GLOBALS['fixture_file']);
+  $_FILES=['file'=>['name'=>$name,'type'=>$declared,'tmp_name'=>$GLOBALS['fixture_file'],'error'=>UPLOAD_ERR_OK,'size'=>$size??strlen($bytes)]];
+ }
+ $dir=rtrim(getenv('TMPDIR')?:sys_get_temp_dir(),'/').'/karban-task7c-'.bin2hex(random_bytes(6));mkdir($dir,0700);$GLOBALS['fixture_file']=$dir.'/fixture';
+ register_shutdown_function(static function()use($dir){@unlink($dir.'/fixture');@rmdir($dir);});
+ $img=imagecreatetruecolor(2,2);ob_start();imagepng($img);$png=ob_get_clean();ob_start();imagejpeg($img);$jpeg=ob_get_clean();ob_start();imagegif($img);$gif=ob_get_clean();$webp=null;if(function_exists('imagewebp')){ob_start();imagewebp($img);$webp=ob_get_clean();}imagedestroy($img);
+ require $plugin.'/includes/class-autoloader.php';define('NAHAN_CORE_DIR',$plugin.'/');\Nahan\Core\Autoloader::register();
+ require $plugin.'/rest-api/class-rest-helper.php';require $plugin.'/rest-api/account-routes.php';require $plugin.'/rest-api/profile-routes.php';require $plugin.'/rest-api/upload-routes.php';require $plugin.'/graphql/register-types.php';require $plugin.'/graphql/register-mutations.php';require $plugin.'/graphql/register-queries.php';
+ if($mode==='upload-valid'){
+  reset_fixture();file_fixture($png,'tiny.png','text/plain',1);$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===200,'Actual decoded PNG, not declared MIME/size, determines valid upload');
+ }
+ if($mode==='upload-purpose'){
+  reset_fixture();file_fixture($png,'tiny.png','text/plain');$r=route('/uploads','POST',['purpose'=>'identity']);check(status($r)===422&&code($r)==='invalid_purpose'&&!$GLOBALS['persist_calls'],'Purpose rejected before file/MIME/persistence');
+ }
+ if(in_array($mode,['all','upload'],true)){
+  foreach([1,2] as $actor){reset_fixture();$GLOBALS['uid']=$actor;file_fixture($png,'tiny.png','application/pdf',1);$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===200,'Own valid avatar uses actual MIME and bytes role '.$actor);check((data($r)['id']??0)===90,'Upload returns persisted ID');check(get_post_meta(90,'_nahan_media_owner')===$actor&&get_post_meta(90,'_nahan_media_purpose')==='public-avatar','Fixed owner/purpose persisted');check($GLOBALS['persist_calls']===1,'Uses core media persistence once');}
+  reset_fixture();file_fixture($png);$r=route('/uploads','POST',['purpose'=>'public-portfolio']);check(status($r)===200,'Own portfolio upload');check(get_post_meta(90,'_nahan_media_purpose')==='public-portfolio','Portfolio purpose recorded');check(!isset($GLOBALS['pm'][20]['_nahan_public_gallery']),'Upload never autoattaches/publishes portfolio');
+  foreach([0,1] as $actor){reset_fixture();$GLOBALS['uid']=$actor;file_fixture($png);$r=route('/uploads','POST',['purpose'=>'public-portfolio']);check(status($r)===($actor===0?401:403)&&!$GLOBALS['persist_calls'],'Anonymous/client portfolio denied');}
+  foreach([[],['purpose'=>'identity'],['purpose'=>'general'],['purpose'=>'project'],['purpose'=>'public-avatar','owner'=>1],['purpose'=>'public-avatar','context'=>'general'],['purpose'=>['public-avatar']]] as $bad){reset_fixture();file_fixture($png);$r=route('/uploads','POST',$bad);check(status($r)>=400&&!$GLOBALS['persist_calls'],'Purpose/authority exact fields rejected '.json_encode($bad));}
+  foreach(['no-file','extra-file','array-file','php-error','not-uploaded','zero','oversize','wrong-extension','text','svg','pdf','truncated','dimensions','pixels','decoder'] as $case){
+   reset_fixture();file_fixture($png);
+   if($case==='no-file')$_FILES=[];if($case==='extra-file')$_FILES['extra']=$_FILES['file'];if($case==='array-file')$_FILES['file']['name']=['tiny.png'];
+   if($case==='php-error')$_FILES['file']['error']=UPLOAD_ERR_PARTIAL;if($case==='not-uploaded')$GLOBALS['uploaded']=false;
+   if($case==='zero')file_fixture('');if($case==='oversize'){file_fixture($png);$f=fopen($GLOBALS['fixture_file'],'a');ftruncate($f,20*1024*1024+1);fclose($f);clearstatcache();$_FILES['file']['size']=1;}
+   if($case==='wrong-extension')file_fixture($png,'tiny.jpg');if($case==='text')file_fixture('not image');if($case==='svg')file_fixture('<svg xmlns="http://www.w3.org/2000/svg"/>','tiny.svg');if($case==='pdf')file_fixture('%PDF-1.7','tiny.pdf');if($case==='truncated')file_fixture(substr($png,0,42));
+   if(in_array($case,['dimensions','pixels'],true)){ $bad=$png;$width=$case==='dimensions'?8193:6000;$height=$case==='dimensions'?2:6000;$bad=substr_replace($bad,pack('NN',$width,$height),16,8);$bad=substr_replace($bad,pack('N',crc32(substr($bad,12,17))),29,4);file_fixture($bad); }
+   if($case==='decoder')$GLOBALS['fail']='decoder';
+   $r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)>=400&&!$GLOBALS['persist_calls'],'Reject invalid actual upload '.$case);check(!str_contains(json_encode(is_wp_error($r)?$r->get_error_message():$r->data),$GLOBALS['fixture_file']),'No raw path '.$case);
+  }
+  foreach([['jpg','image/jpeg',$jpeg],['png','image/png',$png],['gif','image/gif',$gif],['webp','image/webp',$webp]] as [$ext,$mime,$bytes]){if($bytes===null)continue;reset_fixture();$GLOBALS['detected_mime']=$mime;file_fixture($bytes,'tiny.'.$ext);$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===200,'Actual decoded '.$mime.' accepted');}
+  reset_fixture();file_fixture("\x00\x00\x00\x18ftypmp42".str_repeat("\x00",32),'clip.mp4','video/mp4');$r=route('/uploads','POST',['purpose'=>'public-portfolio']);check(status($r)===415&&code($r)==='video_unsupported'&&!$GLOBALS['persist_calls'],'Video explicitly disabled');
+  foreach(['storage','storage-zero','storage-foreign','source-metadata','_nahan_media_owner','silent-_nahan_media_owner','_nahan_media_purpose','silent-_nahan_media_purpose'] as $failure){reset_fixture();file_fixture($png);$GLOBALS['fail']=$failure;$r=route('/uploads','POST',['purpose'=>'public-portfolio']);check(status($r)===500,'Honest persistence/marker failure '.$failure);check(!isset(data($r)['url'])&&!str_contains(json_encode(is_wp_error($r)?$r->get_error_message():$r->data),'PRIVATE'),'No usable URL/raw storage error '.$failure);}
+ }
+ if(in_array($mode,['all','gallery'],true)){
+  reset_fixture();$r=route('/profile/me/gallery','POST',['media_id'=>30,'caption'=>'Work \\ caption','expected_revision'=>0]);check(status($r)===200,'Registered owned gallery add');$d=data($r);check(($d['gallery'][0]['id']??0)===30&&($d['gallery_revision']??0)===1,'Normalized ID and revision');check(($d['gallery'][0]['caption']??'')==='Work \\ caption'&&($d['gallery'][0]['type']??'')==='image','Safe caption and detected type');
+  $r=route('/profile/me','GET');check((data($r)['gallery'][0]['id']??0)===30,'Owner GET same normalized gallery');
+  $before=$GLOBALS['pm'];$r=route('/profile/me/gallery','POST',['media_id'=>30]);check(status($r)===409&&$GLOBALS['pm']===$before,'Duplicate rejected without rewrite');
+  $r=route('/profile/me/gallery','POST',['media_id'=>31,'expected_revision'=>0]);check(status($r)===409&&$GLOBALS['pm']===$before,'Stale add rejects');
+  $r=route('/profile/me/gallery','POST',['media_id'=>31,'expected_revision'=>1]);check(status($r)===200,'Second ID add');
+  $r=route('/profile/me/gallery/media/(?P<media_id>\d+)','DELETE',['media_id'=>30,'expected_revision'=>1]);check(status($r)===409,'Stale id removal rejected');
+  $r=route('/profile/me/gallery/media/(?P<media_id>\d+)','DELETE',['media_id'=>30,'expected_revision'=>2]);check(status($r)===200&&(data($r)['gallery'][0]['id']??0)===31,'Removal by identity preserves next item');check($GLOBALS['deleted']===0&&get_post(30)!==null,'Detach never deletes underlying attachment');
+  check(status(route('/profile/me/gallery/(?P<index>\d+)','DELETE',['index'=>0]))===410,'Unsafe positional route explicitly deprecated');
+  foreach([['media_id'=>30,'caption'=>str_repeat('x',301)],['media_id'=>30,'caption'=>'<script>'],['media_id'=>30,'caption'=>"bad\x01"],['media_id'=>'30'],['media_id'=>30,'kind'=>'video'],['media_id'=>30,'owner'=>3],['media_id'=>30,'expected_revision'=>'3']] as $bad){reset_fixture();check(status(route('/profile/me/gallery','POST',$bad))===422,'Gallery exact bounded input '.json_encode($bad));check($GLOBALS['writes']===0,'Gallery fully prevalidates');}
+  foreach(['foreign-author','foreign-marker','malformed-marker','missing-marker','private-purpose','avatar-purpose','general-purpose','mime','missing','wrong-type','bad-url','trash'] as $case){
+   reset_fixture();if($case==='foreign-author')get_post(30)->post_author=3;if($case==='foreign-marker')$GLOBALS['pm'][30]['_nahan_media_owner']=3;if($case==='malformed-marker')$GLOBALS['pm'][30]['_nahan_media_owner']='2bad';if($case==='missing-marker')unset($GLOBALS['pm'][30]['_nahan_media_owner']);
+   if($case==='private-purpose')$GLOBALS['pm'][30]['_nahan_media_purpose']='identity';if($case==='avatar-purpose')$GLOBALS['pm'][30]['_nahan_media_purpose']='public-avatar';if($case==='general-purpose')$GLOBALS['pm'][30]['_nahan_media_purpose']='general';if($case==='mime')get_post(30)->post_mime_type='application/pdf';if($case==='missing')unset($GLOBALS['posts'][30]);if($case==='wrong-type')get_post(30)->post_type='post';if($case==='bad-url')$GLOBALS['urls'][30]='javascript:alert(1)';if($case==='trash')get_post(30)->post_status='trash';
+   check(status(route('/profile/me/gallery','POST',['media_id'=>30]))===422,'Consumer rejects '.$case);check(!$GLOBALS['writes'],'No adoption '.$case);
+  }
+  foreach([0,1,3] as $actor){reset_fixture();$GLOBALS['uid']=$actor;if($actor===3)$GLOBALS['um'][3]['nahan_specialist_post']=20;check(status(route('/profile/me/gallery','POST',['media_id'=>30]))===($actor===0?401:($actor===1?403:409)),'Gallery current owner gate '.$actor);}
+  reset_fixture();for($id=30;$id<50;$id++)check(status(route('/profile/me/gallery','POST',['media_id'=>$id]))===200,'Gallery bounded slot '.($id-29));check(status(route('/profile/me/gallery','POST',['media_id'=>50]))===422,'Maximum 20 gallery entries');
+  foreach(['_nahan_public_gallery','silent-_nahan_public_gallery','post','post-zero','lock','unlock'] as $failure){reset_fixture();get_post(20)->post_status='publish';$GLOBALS['fail']=$failure;$r=route('/profile/me/gallery','POST',['media_id'=>30]);check(status($r)>=400,'Gallery failure honest '.$failure);check(!$GLOBALS['events'],'No success event after gallery failure');if(!in_array($failure,['post','post-zero','lock'],true))check(get_post(20)->post_status==='pending','Demote before possible partial media write '.$failure);}
+  reset_fixture();get_post(20)->post_status='publish';$r=route('/profile/me/gallery','POST',['media_id'=>30]);check(status($r)===200&&get_post(20)->post_status==='pending'&&get_post(20)->post_name==='stable','Gallery moderation uses reviewed slug filter');check(get_post_meta(20,'is_verified')===1&&empty($GLOBALS['filters']),'Gallery does not alter verification/leak filter');
+  reset_fixture();$GLOBALS['pm'][20]['gallery']=[['media'=>30,'caption'=>'Legacy','kind'=>'image']];$before=$GLOBALS['pm'];$r=route('/profile/me','GET');check((data($r)['gallery'][0]['id']??0)===30&&$GLOBALS['pm']===$before,'Explicit REST serialized rows adapter read-only');$r=route('/profile/me/gallery','POST',['media_id'=>31]);check(status($r)===200&&count(data($r)['gallery']??[])===2&&get_post_meta(20,'gallery')===$before[20]['gallery'],'Owner mutation persists canonical envelope without destructive legacy rewrite');
+  foreach([2,'2',[['media'=>999]],array_fill(0,21,['media'=>30]),['not-a-list']] as $legacy){reset_fixture();$GLOBALS['pm'][20]['gallery']=$legacy;$before=$GLOBALS['pm'];$r=route('/profile/me/gallery','POST',['media_id'=>31]);check(status($r)===409&&$GLOBALS['pm']===$before,'Unsupported ACF/broken legacy needs manual repair');}
+ }
+ if(in_array($mode,['all','bindings'],true)){
+  reset_fixture();$GLOBALS['pm'][30]['_nahan_media_purpose']='public-avatar';$r=route('/profile/me','POST',['avatar_id'=>30]);check(status($r)===200&&(data($r)['avatar']['id']??0)===30,'Profile avatar supported through shared policy');
+  get_post(20)->post_status='publish';$r=route('/profile/me','POST',['avatar_id'=>null]);check(status($r)===200&&data($r)['avatar']===null&&get_post(20)->post_status==='pending','Avatar clear demotes published specialist');
+  reset_fixture();$GLOBALS['pm'][30]['_nahan_media_purpose']='public-avatar';$GLOBALS['pm'][31]['_nahan_media_purpose']='identity';check(status(route('/profile/me','POST',['avatar_id'=>31]))===422,'Specialist avatar rejects private attachment');
+  $mut=$GLOBALS['mutations']['updateProfile']['mutateAndGetPayload'];try{$mut(['input'=>['avatarId'=>30]]);check(get_post_meta(20,'avatar')===30,'GraphQL avatar shares actual save');}catch(\GraphQL\Error\UserError $e){check(false,'GraphQL valid avatar supported');}
+  check(isset($GLOBALS['inputs']['UpdateProfileInput']['fields']['avatarId']),'GraphQL avatar input schema');
+  try{$mut(['input'=>['avatarId'=>31]]);check(false,'GraphQL private avatar rejected');}catch(\GraphQL\Error\UserError $e){check(true,'GraphQL private avatar policy');}
+  reset_fixture();get_post(20)->post_status='publish';$GLOBALS['pm'][20]['gallery']=[['media'=>30,'caption'=>'Public','kind'=>'video'],['media'=>31,'caption'=>'Private'],['media'=>32,'caption'=>'Foreign'],['media'=>999,'caption'=>'Broken']];$GLOBALS['pm'][31]['_nahan_media_purpose']='identity';$GLOBALS['pm'][32]['_nahan_media_owner']=3;
+  $before=$GLOBALS['pm'];$writes=$GLOBALS['writes'];$public=\Nahan\Core\PublicProfile::full(20);check(count($public['gallery']??[])===1&&($public['gallery'][0]['id']??0)===30&&($public['gallery'][0]['type']??'')==='image','Public normalized only valid owned public-purpose media, detected kind');
+  $resolver=$GLOBALS['graphql']['Specialist']['gallery']['resolve']??null;check(is_callable($resolver),'Real GraphQL gallery binding registered');if($resolver){$g=$resolver((object)['ID'=>20]);check(count($g)===1&&($g[0]['mediaId']??0)===30,'GraphQL same filtered gallery');}
+  $route=$GLOBALS['routes']['/specialists/(?P<slug>[^/]+)']['GET'];$GLOBALS['wpdb']=new class{public $prefix='wp_';public $views=0;public function insert(...$args){$this->views++;}};
+  $r=$route['callback'](new Request(['slug'=>'stable']));check(count(data($r)['gallery']??[])===1,'Actual public REST gallery binding');check($GLOBALS['wpdb']->views===1,'Only existing detail view event, no extra media views');
+  foreach(['draft','pending','private','password'] as $state){get_post(20)->post_status=$state==='password'?'publish':$state;get_post(20)->post_password=$state==='password'?'secret':'';check(\Nahan\Core\PublicProfile::full(20)===[],'Public media unavailable '.$state);if($resolver)check($resolver((object)['ID'=>20])===[],'GraphQL gallery publication boundary '.$state);}
+  check($GLOBALS['pm']===$before&&$GLOBALS['writes']===$writes,'Public media read does not write metadata/revisions');
+  reset_fixture();$r=route('/uploads','GET');$d=data($r);check(status($r)===200&&($d['video']['enabled']??null)===false,'Explicit video disabled capability');check(($d['max_bytes']??0)===20*1024*1024&&($d['max_gallery_items']??0)===20,'Bounded upload capabilities');
+ }
+ if(in_array($mode,['all','upload'],true)){
+  reset_fixture();$GLOBALS['uid']=1;file_fixture($png);route('/uploads','POST',['purpose'=>'public-avatar']);$r=route('/account/me','POST',['avatar_id'=>90]);check(status($r)===200&&(data($r)['avatar']['id']??0)===90,'Producer to actual client account binding');
+  $GLOBALS['uid']=2;check(status(route('/account/me','POST',['avatar_id'=>90]))===422,'A attachment cannot become B account avatar');
+ }
+ if(in_array($mode,['all','edges'],true)){
+  if($webp===null){reset_fixture();file_fixture(base64_decode('UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA'),'tiny.webp','image/webp');$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===415&&code($r)==='image_decoder_unavailable_or_invalid'&&$GLOBALS['decodes']===1&&!$GLOBALS['persist_calls'],'Header-visible WebP honestly denied when local GD has no codec');}
+  reset_fixture();file_fixture($png);$GLOBALS['urls'][90]='javascript:alert(1)';$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===500&&!isset(data($r)['url']),'Bad persisted attachment URL is never reported usable');
+  foreach([UPLOAD_ERR_INI_SIZE,UPLOAD_ERR_FORM_SIZE,UPLOAD_ERR_PARTIAL,UPLOAD_ERR_NO_FILE,UPLOAD_ERR_NO_TMP_DIR,UPLOAD_ERR_CANT_WRITE,UPLOAD_ERR_EXTENSION] as $error){reset_fixture();file_fixture($png);$_FILES['file']['error']=$error;$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===422&&code($r)==='upload_incomplete'&&!$GLOBALS['persist_calls'],'All PHP upload failures rejected before storage '.$error);}
+  foreach(['name','tmp_name','type','size','error'] as $field){reset_fixture();file_fixture($png);$_FILES['file'][$field]=['nested'];check(status(route('/uploads','POST',['purpose'=>'public-avatar']))===422&&!$GLOBALS['persist_calls'],'Nested upload field type rejected '.$field);}
+  foreach(['tiny.php.png','../tiny.png',"tiny\x00.png"] as $name){reset_fixture();file_fixture($png,$name);$r=route('/uploads','POST',['purpose'=>'public-avatar']);check($name==='tiny.php.png'?status($r)===200:status($r)===422,'Path/control filename rejected; plain image basename delegates to core persistence');}
+  reset_fixture();file_fixture($jpeg,'tiny.png','image/png');check(status(route('/uploads','POST',['purpose'=>'public-avatar']))===415&&!$GLOBALS['persist_calls'],'Real JPEG masquerading as declared PNG rejected');
+  reset_fixture();file_fixture($png);$GLOBALS['uploaded']=false;check(status(route('/uploads','POST',['purpose'=>'public-avatar']))===422,'Local file is not HTTP upload without provenance boundary');
+  foreach(['2tampered',true,[],0] as $marker){reset_fixture();$GLOBALS['pm'][30]['_nahan_media_owner']=$marker;check(status(route('/profile/me/gallery','POST',['media_id'=>30]))===422,'No coercion/adoption of malformed media owner marker');}
+  foreach(['30tampered',[],true] as $pointer){reset_fixture();$GLOBALS['pm'][30]['_nahan_media_purpose']='public-avatar';$GLOBALS['pm'][20]['avatar']=$pointer;$GLOBALS['um'][2]['nahan_account_avatar']=$pointer;get_post(20)->post_status='publish';check(data(route('/account/me','GET'))['avatar']===null&&\Nahan\Core\PublicProfile::card(20)['avatar_url']===null,'Stored avatar IDs cannot be cast/adopted');}
+  reset_fixture();file_fixture($png);$r=route('/uploads','POST',['purpose'=>'public-portfolio']);check(status($r)===200,'Real-byte portfolio producer');$r=route('/profile/me/gallery','POST',['media_id'=>90,'expected_revision'=>0]);check(status($r)===200&&(data($r)['gallery'][0]['id']??0)===90,'Producer to registered gallery binding');check(\Nahan\Core\ProfileGallery::public_items(20)===[],'Draft portfolio never auto-public');get_post(20)->post_status='publish';check(count(\Nahan\Core\ProfileGallery::public_items(20))===1,'Only simulated authorized publication exposes validated portfolio');
+  reset_fixture();$GLOBALS['options']['nahan_public_gallery_lock_20']=1;$r=route('/profile/me/gallery','POST',['media_id'=>30]);check(status($r)===409&&!$GLOBALS['writes'],'Occupied gallery lock fails closed without stealing');
+  foreach([['version'=>2,'revision'=>0,'items'=>[]],['version'=>1,'revision'=>'1','items'=>[]],['version'=>1,'revision'=>0,'items'=>'1']] as $bad){reset_fixture();$GLOBALS['pm'][20]['_nahan_public_gallery']=$bad;$before=$GLOBALS['pm'];check(status(route('/profile/me/gallery','POST',['media_id'=>30]))===409&&$GLOBALS['pm']===$before,'Malformed canonical storage not rewritten');}
+  reset_fixture();get_post(20)->post_status='publish';$GLOBALS['pm'][30]['_nahan_media_purpose']='public-avatar';$GLOBALS['fail']='silent-avatar';$r=route('/profile/me','POST',['avatar_id'=>30]);check(status($r)===500&&get_post(20)->post_status==='pending','Profile avatar silent write failure safe/pending');
+  reset_fixture();$GLOBALS['uid']=1;$r=route('/uploads','GET');check((data($r)['purposes']??[])===['public-avatar'],'Client capability does not advertise forbidden portfolio');
+  reset_fixture();$r=route('/uploads','GET');check(in_array('public-portfolio',data($r)['purposes']??[],true),'Legitimate owner capability advertises portfolio');
+  reset_fixture();$GLOBALS['pm'][20]['user']=3;$r=route('/uploads','GET');check(!in_array('public-portfolio',data($r)['purposes']??[],true),'Corrupt linkage does not advertise owner portfolio capability');
+ }
+ if(in_array($mode,['all','role-boundary'],true)){
+  reset_fixture();$GLOBALS['uid']=1;$GLOBALS['caps'][1][]='nahan_edit_own_profile';$GLOBALS['um'][1]['nahan_specialist_post']=20;get_post(20)->post_author=1;$GLOBALS['pm'][20]['user']=1;get_post(30)->post_author=1;$GLOBALS['pm'][30]['_nahan_media_owner']=1;
+  file_fixture($png);check(status(route('/uploads','POST',['purpose'=>'public-portfolio']))===403,'Client role never gains portfolio upload via stray edit capability/link');check(status(route('/profile/me/gallery','POST',['media_id'=>30]))===403,'Client role never gains portfolio gallery via stray edit capability/link');check(!in_array('public-portfolio',data(route('/uploads','GET'))['purposes']??[],true),'Client role capability remains avatar-only with stray edit cap');
+ }
+ if(in_array($mode,['all','lock-exceptions'],true)){
+  foreach(['lock-throw','unlock-throw'] as $failure){reset_fixture();$GLOBALS['fail']=$failure;try{$r=route('/profile/me/gallery','POST',['media_id'=>30]);check(status($r)===500&&!str_contains(json_encode($r->data),'PRIVATE'),'Gallery option-hook exception safe '.$failure);}catch(\Throwable $e){check(false,'Gallery option-hook exception must not escape '.$failure);}}
+ }
+ if(in_array($mode,['all','integrity'],true)){
+  reset_fixture();$GLOBALS['uid']=1;$GLOBALS['posts'][30]->post_author=1;$GLOBALS['pm'][30]=['_nahan_media_owner'=>1,'_nahan_media_purpose'=>'public-avatar'];$GLOBALS['fail']='silent-nahan_account_avatar';$r=route('/account/me','POST',['avatar_id'=>30]);check(status($r)===500&&!isset(data($r)['avatar']['url']),'Account avatar silent persistence failure cannot claim success');
+  reset_fixture();file_fixture($png);$GLOBALS['fail']='storage-throw';try{$r=route('/uploads','POST',['purpose'=>'public-avatar']);check(status($r)===500&&!str_contains(json_encode($r->data),'PRIVATE'),'Upload exceptions become safe partial failure');}catch(\Throwable $e){check(false,'Upload exceptions must not escape with raw source error');}
+  reset_fixture();$GLOBALS['pm'][20]['_nahan_public_gallery']=['version'=>1,'revision'=>PHP_INT_MAX-1,'items'=>[]];$before=$GLOBALS['pm'];$r=route('/profile/me/gallery','POST',['media_id'=>30]);check(status($r)===409&&$GLOBALS['pm']===$before&&$GLOBALS['writes']===0,'Exhausted revision rejects before writes, cannot corrupt canonical record');
+ }
+ if($failures){fwrite(STDERR,implode("\n",array_map(fn($m)=>'FAIL '.$m,$failures))."\n");echo 'Task7C '.$mode.': '.($assertions-count($failures)).' passed; '.count($failures)." failed\n";exit(1);}
+ echo 'PASS task7C '.$mode.' '.$assertions." assertions (local bytes + stub WP persistence; no live upload)\n";
+}

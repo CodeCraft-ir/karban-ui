@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "status": "draft-not-imported",
+  "target": "localhost-only",
+  "county": "کاشان",
+  "coverage": "initial-historical-baseline-not-exhaustive",
+  "source": {
+    "title": "Kashan County administrative division table, 2016 census baseline",
+    "url": "https://en.wikipedia.org/wiki/Kashan_County",
+    "dataYear": 2016,
+    "currentOfficialStatusVerified": false,
+    "note": "Historical table previously retrieved; full primary workbook and present-day legal boundaries are not verified. Slugs are application identifiers, not government codes."
+  },
+  "locations": [
+    { "name": "کاشان", "slug": "kashan", "kind": "city", "countySlug": "kashan", "basis": "user-confirmed-and-2016-baseline" },
+    { "name": "مشکات", "slug": "meshkat", "kind": "city", "countySlug": "kashan", "basis": "2016-baseline" },
+    { "name": "برزک", "slug": "barzok", "kind": "city", "countySlug": "kashan", "basis": "2016-baseline" },
+    { "name": "نیاسر", "slug": "niasar", "kind": "city", "countySlug": "kashan", "basis": "2016-baseline" },
+    { "name": "قمصر", "slug": "qamsar", "kind": "city", "countySlug": "kashan", "basis": "2016-baseline" },
+    { "name": "جوشقان قالی", "slug": "jowshaqan-qali", "kind": "city", "countySlug": "kashan", "basis": "2016-baseline" },
+    { "name": "کامو و چوگان", "slug": "kamu-va-chugan", "kind": "city", "countySlug": "kashan", "basis": "2016-baseline" }
+  ],
+  "unverifiedCandidatesExcludedFromApply": [
+    { "name": "راوند", "proposedKind": "urban-area", "reason": "Current classification and administrative scope require confirmation; not included in applied seed." },
+    { "name": "فین", "proposedKind": "urban-area", "reason": "Urban/historical locality; no verified city status or boundary; not included in applied seed." }
+  ],
+  "excludedCounties": ["آران و بیدگل"],
+  "note": "No terms have been imported by this draft. Existing seed service remains Kashan-only until a separately tested manifest/scope update."
+}

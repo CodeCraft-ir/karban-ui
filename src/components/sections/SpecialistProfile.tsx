@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge, VerifiedBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Rating } from "@/components/ui/Rating";
+import { PortfolioGallery } from '@/components/blocks/PortfolioGallery';
 import { PublicDataEmpty } from "@/components/sections/PublicDataState";
 import type { PublicSpecialistDetail } from "@/lib/contracts/specialists";
 import { faNum } from "@/lib/utils";
@@ -33,6 +34,7 @@ export function SpecialistProfile({ specialist }: { specialist: PublicSpecialist
 
   useGSAP(
     () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       gsap.timeline({ defaults: { ease: "power3.out" } })
         .fromTo(".profile-cover", { scaleY: 0.6, transformOrigin: "top", autoAlpha: 0 }, { scaleY: 1, autoAlpha: 1, duration: 0.7 })
         .fromTo(".profile-avatar", { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.7, ease: "back.out(1.7)" }, "-=0.35")
@@ -60,6 +62,8 @@ export function SpecialistProfile({ specialist }: { specialist: PublicSpecialist
         <div className="py-7">
           {summary ? <p className="leading-8 text-fg-soft">{summary}</p> : <PublicDataEmpty title="توضیحی منتشر نشده است" description="این متخصص هنوز توضیح عمومی برای پروفایل خود ثبت نکرده است." />}
           {specialist.skills && <div className="mt-6"><h2 className="mb-3 font-bold text-fg">مهارت‌ها</h2><p className="leading-8 text-fg-soft">{specialist.skills}</p></div>}
+          <section className="mt-8"><h2 className="mb-4 text-lg font-bold">نمونه کارها</h2>{Array.isArray(specialist.gallery) ? <PortfolioGallery items={specialist.gallery} /> : <PublicDataEmpty title={specialist.gallery==='empty'?'نمونه کاری منتشر نشده است':'گالری در دسترس نیست'} description="فقط تصاویر عمومی منتشرشده در این بخش نمایش داده می‌شوند." />}</section>
+          <section className="mt-8"><h2 className="mb-3 font-bold">نظرها</h2><p className="text-sm text-muted">نظرهای واقعی فعلاً در دسترس نیست.</p></section>
         </div>
       </div>
       {specialist.phoneDisplay && <div className="fixed inset-x-3 bottom-[calc(var(--bottom-nav-h)+1.25rem)] z-40 mx-auto max-w-md md:static md:mx-8 md:mb-10 md:max-w-none">{phoneVisible ? <a href={`tel:${specialist.phoneDisplay}`} dir="ltr" className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-base font-medium text-primary-fg shadow-[0_10px_28px_-8px_var(--glow)] transition-colors duration-200 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"><Phone className="h-5 w-5" />{specialist.phoneDisplay}</a> : <Button size="lg" className="h-13 w-full gap-2 text-base" onClick={() => setPhoneVisible(true)}><Phone className="h-5 w-5" />نمایش شمارهٔ تماس</Button>}</div>}

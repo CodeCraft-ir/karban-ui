@@ -19,5 +19,13 @@
     { "name": "آزمایش خاک، جوش و بتن", "slug": "construction-testing" },
     { "name": "درب و پنجره", "slug": "doors-windows" }
   ],
-  "city": []
+  "city": [
+    { "name": "کاشان", "slug": "kashan" },
+    { "name": "مشکات", "slug": "meshkat" },
+    { "name": "برزک", "slug": "barzok" },
+    { "name": "نیاسر", "slug": "niasar" },
+    { "name": "قمصر", "slug": "qamsar" },
+    { "name": "جوشقان قالی", "slug": "jowshaqan-qali" },
+    { "name": "کامو و چوگان", "slug": "kamu-va-chugan" }
+  ]
 }

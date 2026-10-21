@@ -1,6 +1,11 @@
+export type OtpDeliveryMode = "sms" | "local_simulated";
+export type OtpCodeLength = 5 | 6;
+
 export interface UpstreamOtpChallenge {
   tracking_code: string;
   expires_in: number;
+  delivery_mode: OtpDeliveryMode;
+  code_length: OtpCodeLength;
 }
 
 export interface UpstreamTokenPair {
@@ -38,6 +43,11 @@ export interface UpstreamRefreshResult {
 
 export interface UpstreamLogoutResult {
   logged_out: true;
+}
+
+export interface UpstreamLocalStatus {
+  otpReady: boolean;
+  credentialProvenanceReady: boolean;
 }
 
 export class AuthResponseError extends Error {
@@ -102,9 +112,34 @@ function parseVerifiedUser(value: unknown): UpstreamVerifiedUser {
 
 export function parseUpstreamOtpChallenge(value: unknown): UpstreamOtpChallenge {
   const challenge = record(value);
+  const hasMode = Object.hasOwn(challenge, "delivery_mode");
+  const hasLength = Object.hasOwn(challenge, "code_length");
+  let delivery_mode: OtpDeliveryMode = "sms";
+  let code_length: OtpCodeLength = 5;
+
+  if (hasMode !== hasLength) {
+    throw new AuthResponseError();
+  }
+  if (hasMode) {
+    if (challenge.delivery_mode !== "sms" && challenge.delivery_mode !== "local_simulated") {
+      throw new AuthResponseError();
+    }
+    if (challenge.code_length !== 5 && challenge.code_length !== 6) {
+      throw new AuthResponseError();
+    }
+    delivery_mode = challenge.delivery_mode;
+    code_length = challenge.code_length;
+    if ((delivery_mode === "sms" && code_length !== 5) ||
+        (delivery_mode === "local_simulated" && code_length !== 6)) {
+      throw new AuthResponseError();
+    }
+  }
+
   return {
     tracking_code: nonemptyString(challenge.tracking_code),
     expires_in: safeInteger(challenge.expires_in, 1),
+    delivery_mode,
+    code_length,
   };
 }
 
@@ -156,4 +191,18 @@ export function parseUpstreamLogoutResult(value: unknown): UpstreamLogoutResult 
     throw new AuthResponseError();
   }
   return { logged_out: true };
+}
+
+export function parseUpstreamLocalStatus(value: unknown): UpstreamLocalStatus {
+  const result = record(value);
+  if (
+    typeof result.otpReady !== "boolean" ||
+    typeof result.credentialProvenanceReady !== "boolean"
+  ) {
+    throw new AuthResponseError();
+  }
+  return {
+    otpReady: result.otpReady,
+    credentialProvenanceReady: result.credentialProvenanceReady,
+  };
 }

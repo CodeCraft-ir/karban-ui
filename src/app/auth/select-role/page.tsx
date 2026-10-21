@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import { RoleSelect } from "@/components/sections/auth/RoleSelect";
-
-export const metadata: Metadata = {
-  title: "انتخاب نقش",
-  robots: { index: false },
-};
+import { redirect } from "next/navigation";
 
 export default function SelectRolePage() {
-  return <RoleSelect />;
+  // Role intent is selected before OTP issuance; this legacy route cannot alter it.
+  redirect("/auth/login");
 }

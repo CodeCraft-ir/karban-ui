@@ -1,0 +1,101 @@
+<?php
+namespace Nahan\Core\RestApi;
+
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class RestHelper {
+
+	public const NAMESPACE = 'nahan/v1';
+
+	public static function authed(): bool {
+		return is_user_logged_in();
+	}
+
+	public static function authed_callback(): callable {
+		return static function () {
+			return is_user_logged_in()
+				? true
+				: new WP_Error( 'unauthenticated', 'ابتدا وارد شوید.', [ 'status' => 401 ] );
+		};
+	}
+
+	public static function cap_callback( string $cap ): callable {
+		return static function () use ( $cap ) {
+			if ( ! is_user_logged_in() ) {
+				return new WP_Error( 'unauthenticated', 'ابتدا وارد شوید.', [ 'status' => 401 ] );
+			}
+			return current_user_can( $cap )
+				? true
+				: new WP_Error( 'forbidden', 'دسترسی ندارید.', [ 'status' => 403 ] );
+		};
+	}
+
+	public static function role_callback( string $role ): callable {
+		return static function () use ( $role ) {
+			$user = wp_get_current_user();
+			if ( ! $user || ! $user->ID ) {
+				return new WP_Error( 'unauthenticated', 'ابتدا وارد شوید.', [ 'status' => 401 ] );
+			}
+			if ( in_array( 'administrator', (array) $user->roles, true ) ) {
+				return true;
+			}
+			return in_array( $role, (array) $user->roles, true )
+				? true
+				: new WP_Error( 'forbidden', 'دسترسی ندارید.', [ 'status' => 403 ] );
+		};
+	}
+
+	public static function ok( $data, int $status = 200 ): WP_REST_Response {
+		return new WP_REST_Response( [
+			'success' => true,
+			'data'    => $data,
+		], $status );
+	}
+
+	public static function fail( string $code, string $message, int $status = 400, $extra = [] ): WP_REST_Response {
+		return new WP_REST_Response( [
+			'success' => false,
+			'error'   => array_merge( [
+				'code'    => $code,
+				'message' => $message,
+			], $extra ),
+		], $status );
+	}
+
+	public static function from_wp_error( WP_Error $err ): WP_REST_Response {
+		$status = (int) ( $err->get_error_data()['status'] ?? 400 );
+		return self::fail( $err->get_error_code(), $err->get_error_message(), $status );
+	}
+
+	/** Owner mutations never merge query/default/path parameters into business input. */
+	public static function mutation_data( $req, bool $multipart = false ) {
+		// rest_route is core's plain-URL routing metadata, not a mutable field.
+		if ( array_diff( array_keys( $req->get_query_params() ), [ 'rest_route' ] ) ) {
+			return new WP_Error( 'unknown_field', 'اطلاعات معتبر نیست.', [ 'status' => 422 ] );
+		}
+		$data = $multipart ? $req->get_body_params() : $req->get_json_params();
+		if ( ! is_array( $data ) || ( $data && array_is_list( $data ) ) ) {
+			return new WP_Error( 'unknown_field', 'اطلاعات معتبر نیست.', [ 'status' => 422 ] );
+		}
+		return $data;
+	}
+
+	public static function param( WP_REST_Request $req, string $key, $default = null ) {
+		$value = $req->get_param( $key );
+		return null === $value ? $default : $value;
+	}
+
+	public static function require_param( WP_REST_Request $req, string $key ) {
+		$value = $req->get_param( $key );
+		if ( null === $value || '' === $value ) {
+			return new WP_Error( 'missing_param', "پارامتر «$key» الزامی است.", [ 'status' => 422 ] );
+		}
+		return $value;
+	}
+}

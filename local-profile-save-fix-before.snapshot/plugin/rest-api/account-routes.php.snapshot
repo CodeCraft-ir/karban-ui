@@ -1,0 +1,16 @@
+<?php
+use Nahan\Core\OwnerProfile;
+use Nahan\Core\RestApi\RestHelper;
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
+
+foreach ( [ 'GET', 'POST' ] as $method ) {
+	register_rest_route( RestHelper::NAMESPACE, '/account/me', [
+		'methods' => $method,
+		'permission_callback' => [ OwnerProfile::class, 'account_access' ],
+		'callback' => static function ( $request ) use ( $method ) {
+			$data = 'POST' === $method ? OwnerProfile::update_account( $request->get_params() ) : OwnerProfile::account();
+			return is_wp_error( $data ) ? RestHelper::from_wp_error( $data ) : RestHelper::ok( $data );
+		},
+	] );
+}

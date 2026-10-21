@@ -18,7 +18,7 @@ define('WP_USE_THEMES', false);
 require $root . '/wp-load.php';
 require __DIR__ . '/local-taxonomy-seed.php';
 try {
-    $manifest = json_decode(file_get_contents(__DIR__ . '/local-taxonomies.json'), true, 512, JSON_THROW_ON_ERROR);
+    $manifest = karban_local_taxonomy_manifest();
     $rows = karban_seed_local_taxonomies(home_url(), $manifest, $args === ['--apply']);
     echo json_encode(['mode' => $args === ['--apply'] ? 'apply' : 'preview', 'terms' => $rows], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), PHP_EOL;
 } catch (Throwable $error) {

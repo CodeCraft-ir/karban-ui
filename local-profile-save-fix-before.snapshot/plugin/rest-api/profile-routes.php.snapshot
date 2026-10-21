@@ -1,0 +1,227 @@
+<?php
+use Nahan\Core\Helpers;
+use Nahan\Core\RestApi\RestHelper;
+use Nahan\Core\Roles;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$ns = RestHelper::NAMESPACE;
+
+// Identity and all validation are shared with the GraphQL owner mutation.
+foreach ( [ 'GET', 'POST' ] as $method ) {
+	register_rest_route( $ns, '/profile/me', [
+		'methods' => $method,
+		'permission_callback' => static function () {
+			$post = \Nahan\Core\OwnerProfile::resolve();
+			return is_wp_error( $post ) ? $post : true;
+		},
+		'callback' => static function ( $request ) use ( $method ) {
+			$data = 'POST' === $method ? \Nahan\Core\OwnerProfile::save( $request->get_params() ) : \Nahan\Core\OwnerProfile::owner();
+			return is_wp_error( $data ) ? RestHelper::from_wp_error( $data ) : RestHelper::ok( $data );
+		},
+	] );
+}
+register_rest_route( $ns, '/profile/me/submit', [
+	'methods' => 'POST',
+	'permission_callback' => static function () {
+		$post = \Nahan\Core\OwnerProfile::resolve();
+		return is_wp_error( $post ) ? $post : true;
+	},
+	'callback' => static function ( $request ) {
+		if ( $request->get_params() ) { return RestHelper::fail( 'unknown_field', 'اطلاعات معتبر نیست.', 422 ); }
+		$data = \Nahan\Core\OwnerProfile::save( [], true );
+		return is_wp_error( $data ) ? RestHelper::from_wp_error( $data ) : RestHelper::ok( $data );
+	},
+] );
+
+// ID-based deletion cannot remove a different item after a stale positional shift.
+foreach ( [ '/profile/me/gallery' => 'POST', '/profile/me/gallery/media/(?P<media_id>\d+)' => 'DELETE' ] as $path => $method ) {
+	register_rest_route( $ns, $path, [
+		'methods' => $method,
+		'permission_callback' => static function () {
+			$post = \Nahan\Core\OwnerProfile::resolve();
+			return is_wp_error( $post ) ? $post : true;
+		},
+		'callback' => static function ( $request ) use ( $method ) {
+			$data = $request->get_params();
+			if ( 'DELETE' === $method && \Nahan\Core\OwnerProfile::stored_id( $data['media_id'] ?? null ) ) { $data['media_id'] = (int) $data['media_id']; }
+			$result = \Nahan\Core\ProfileGallery::mutate( $data, 'DELETE' === $method );
+			return is_wp_error( $result ) ? RestHelper::from_wp_error( $result ) : RestHelper::ok( $result );
+		},
+	] );
+}
+register_rest_route( $ns, '/profile/me/gallery/(?P<index>\d+)', [
+	'methods' => 'DELETE',
+	'permission_callback' => static function () {
+		$post = \Nahan\Core\OwnerProfile::resolve();
+		return is_wp_error( $post ) ? $post : true;
+	},
+	'callback' => static fn() => RestHelper::fail( 'positional_delete_deprecated', 'حذف رسانه باید با شناسه انجام شود.', 410 ),
+] );
+
+register_rest_route( $ns, '/profile/me/verification', [
+	'methods'  => 'POST',
+	'permission_callback' => RestHelper::role_callback( Roles::SPECIALIST ),
+	'args' => [
+		'nationality'           => [ 'required' => true, 'enum' => [ 'iranian', 'foreign' ] ],
+		'national_id'           => [ 'required' => false, 'type' => 'string' ],
+		'passport'              => [ 'required' => false, 'type' => 'string' ],
+		'birth_date'            => [ 'required' => true, 'type' => 'string' ],
+		'full_name'             => [ 'required' => true, 'type' => 'string' ],
+		'id_card_image_id'      => [ 'required' => true, 'type' => 'integer' ],
+		'skill_certificate_id'  => [ 'required' => false, 'type' => 'integer' ],
+		'no_crime_certificate_id'=> [ 'required' => false, 'type' => 'integer' ],
+	],
+	'callback' => static function ( $req ) {
+		$uid     = get_current_user_id();
+		$spec_id = (int) get_user_meta( $uid, 'nahan_specialist_post', true );
+
+		$id = wp_insert_post( [
+			'post_type'   => 'nahan_verification',
+			'post_status' => 'publish',
+			'post_title'  => 'تایید هویت کاربر ' . $uid,
+			'post_author' => $uid,
+		], true );
+		if ( is_wp_error( $id ) ) {
+			return RestHelper::from_wp_error( $id );
+		}
+		update_post_meta( $id, 'user', $uid );
+		update_post_meta( $id, 'specialist', $spec_id );
+		update_post_meta( $id, 'nationality', $req->get_param( 'nationality' ) );
+		update_post_meta( $id, 'national_id', $req->get_param( 'national_id' ) ?: '' );
+		update_post_meta( $id, 'passport', $req->get_param( 'passport' ) ?: '' );
+		update_post_meta( $id, 'birth_date', $req->get_param( 'birth_date' ) );
+		update_post_meta( $id, 'full_name', $req->get_param( 'full_name' ) );
+		update_post_meta( $id, 'id_card_image', (int) $req->get_param( 'id_card_image_id' ) );
+		if ( $req->get_param( 'skill_certificate_id' ) ) {
+			update_post_meta( $id, 'skill_certificate', (int) $req->get_param( 'skill_certificate_id' ) );
+		}
+		if ( $req->get_param( 'no_crime_certificate_id' ) ) {
+			update_post_meta( $id, 'no_crime_certificate', (int) $req->get_param( 'no_crime_certificate_id' ) );
+		}
+		update_post_meta( $id, 'status', 'pending' );
+
+		do_action( 'nahan_verification_requested', $id, $uid );
+		return RestHelper::ok( [ 'request_id' => $id, 'status' => 'pending' ] );
+	},
+] );
+
+register_rest_route( $ns, '/profile/favorites', [
+	'methods'  => 'GET',
+	'permission_callback' => RestHelper::authed_callback(),
+	'callback' => static function () {
+		global $wpdb;
+		$rows = $wpdb->get_results( $wpdb->prepare(
+			"SELECT specialist_id, created_at FROM {$wpdb->prefix}nahan_favorites WHERE user_id = %d ORDER BY id DESC LIMIT 100",
+			get_current_user_id()
+		), ARRAY_A );
+		return RestHelper::ok( [ 'items' => $rows ?: [] ] );
+	},
+] );
+
+register_rest_route( $ns, '/profile/favorites/(?P<id>\d+)', [
+	'methods'  => 'POST',
+	'permission_callback' => RestHelper::authed_callback(),
+	'callback' => static function ( $req ) {
+		global $wpdb;
+		$sid = (int) $req['id'];
+		$wpdb->query( $wpdb->prepare(
+			"INSERT IGNORE INTO {$wpdb->prefix}nahan_favorites (user_id, specialist_id, created_at) VALUES (%d, %d, %s)",
+			get_current_user_id(), $sid, Helpers::now_mysql()
+		) );
+		return RestHelper::ok( [ 'favorited' => true ] );
+	},
+] );
+
+register_rest_route( $ns, '/profile/favorites/(?P<id>\d+)', [
+	'methods'  => 'DELETE',
+	'permission_callback' => RestHelper::authed_callback(),
+	'callback' => static function ( $req ) {
+		global $wpdb;
+		$wpdb->delete( "{$wpdb->prefix}nahan_favorites", [
+			'user_id'      => get_current_user_id(),
+			'specialist_id'=> (int) $req['id'],
+		], [ '%d', '%d' ] );
+		return RestHelper::ok( [ 'favorited' => false ] );
+	},
+] );
+
+// Public listing endpoint
+register_rest_route( $ns, '/specialists', [
+	'methods'  => 'GET',
+	'permission_callback' => '__return_true',
+	'callback' => static function ( $req ) {
+		$args = [
+			'post_type'      => 'nahan_specialist',
+			'post_status'    => 'publish',
+			'has_password'   => false,
+			'posts_per_page' => min( 30, max( 1, (int) ( $req->get_param( 'per_page' ) ?: 20 ) ) ),
+			'paged'          => max( 1, (int) ( $req->get_param( 'page' ) ?: 1 ) ),
+			's'              => (string) ( $req->get_param( 'q' ) ?: '' ),
+			'meta_query'     => [],
+			'tax_query'      => [],
+		];
+		if ( $req->get_param( 'verified' ) ) {
+			$args['meta_query'][] = [ 'key' => 'is_verified', 'value' => '1' ];
+		}
+		if ( $cat = $req->get_param( 'category' ) ) {
+			$args['tax_query'][] = [ 'taxonomy' => 'job_category', 'field' => 'slug', 'terms' => (string) $cat ];
+		}
+		if ( $city = $req->get_param( 'city' ) ) {
+			$args['tax_query'][] = [ 'taxonomy' => 'city', 'field' => 'slug', 'terms' => (string) $city ];
+		}
+		$args['meta_query'] = array_filter( $args['meta_query'] );
+		$args['tax_query']  = array_filter( $args['tax_query'] );
+		$query = new WP_Query( $args );
+		$items = [];
+		foreach ( $query->posts as $p ) {
+			$card = nahan_format_specialist_card( $p->ID );
+			if ( $card ) { $items[] = $card; }
+		}
+		return RestHelper::ok( [
+			'items' => $items,
+			'page'  => (int) $args['paged'],
+			'total' => (int) $query->found_posts,
+			'pages' => (int) $query->max_num_pages,
+		] );
+	},
+] );
+
+register_rest_route( $ns, '/specialists/(?P<slug>[^/]+)', [
+	'methods'  => 'GET',
+	'permission_callback' => '__return_true',
+	'callback' => static function ( $req ) {
+		$post = get_page_by_path( (string) $req['slug'], OBJECT, 'nahan_specialist' );
+		if (
+			! $post ||
+			'nahan_specialist' !== $post->post_type ||
+			'publish' !== $post->post_status ||
+			'' !== (string) $post->post_password
+		) {
+			return RestHelper::fail( 'not_found', 'متخصص یافت نشد.', 404 );
+		}
+		global $wpdb;
+		$wpdb->insert( "{$wpdb->prefix}nahan_profile_views", [
+			'specialist_id'  => (int) $post->ID,
+			'viewer_user_id' => is_user_logged_in() ? get_current_user_id() : null,
+			'ip_hash'        => hash( 'sha256', Helpers::client_ip() ),
+			'source'         => 'rest',
+			'created_at'     => Helpers::now_mysql(),
+		], [ '%d', '%d', '%s', '%s', '%s' ] );
+		return RestHelper::ok( nahan_format_specialist_full( (int) $post->ID ) );
+	},
+] );
+
+// Compatibility names are exclusively PUBLIC projections; owner routes use OwnerProfile.
+if ( ! function_exists( 'nahan_format_specialist_card' ) ) {
+	function nahan_format_specialist_card( int $id ): array {
+		return \Nahan\Core\PublicProfile::card( $id );
+	}
+}
+if ( ! function_exists( 'nahan_format_specialist_full' ) ) {
+	function nahan_format_specialist_full( int $id ): array {
+		return \Nahan\Core\PublicProfile::full( $id );
+	}
+}
