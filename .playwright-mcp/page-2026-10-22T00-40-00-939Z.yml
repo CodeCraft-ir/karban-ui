@@ -1,0 +1,421 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Main menu":
+      - link "Skip to main content" [ref=e3] [cursor=pointer]:
+        - /url: "#wpbody-content"
+      - link "Skip to toolbar" [ref=e4] [cursor=pointer]:
+        - /url: "#wp-toolbar"
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "Dashboard" [ref=e9] [cursor=pointer]:
+            - /url: index.php
+            - generic [aria-hidden] [ref=e10]: 
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - link "Home" [ref=e14] [cursor=pointer]:
+                - /url: index.php
+            - listitem [ref=e15]:
+              - link "Updates 5" [ref=e16] [cursor=pointer]:
+                - /url: update-core.php
+                - text: Updates
+                - generic [ref=e17]: "5"
+        - listitem [aria-hidden] [ref=e18]
+        - listitem [ref=e20]:
+          - link "Posts" [ref=e21] [cursor=pointer]:
+            - /url: edit.php
+            - generic [aria-hidden] [ref=e22]: 
+          - list [ref=e24]:
+            - listitem [ref=e25]:
+              - link "All Posts" [ref=e26] [cursor=pointer]:
+                - /url: edit.php
+            - listitem [ref=e27]:
+              - link "Add Post" [ref=e28] [cursor=pointer]:
+                - /url: post-new.php
+            - listitem [ref=e29]:
+              - link "Categories" [ref=e30] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=category
+            - listitem [ref=e31]:
+              - link "Tags" [ref=e32] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=post_tag
+        - listitem [ref=e33]:
+          - link "Media" [ref=e34] [cursor=pointer]:
+            - /url: upload.php
+            - generic [aria-hidden] [ref=e35]: 
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - link "Library" [ref=e39] [cursor=pointer]:
+                - /url: upload.php
+            - listitem [ref=e40]:
+              - link "Add Media File" [ref=e41] [cursor=pointer]:
+                - /url: media-new.php
+        - listitem [ref=e42]:
+          - link "Pages" [ref=e43] [cursor=pointer]:
+            - /url: edit.php?post_type=page
+            - generic [aria-hidden] [ref=e44]: 
+          - list [ref=e46]:
+            - listitem [ref=e47]:
+              - link "All Pages" [ref=e48] [cursor=pointer]:
+                - /url: edit.php?post_type=page
+            - listitem [ref=e49]:
+              - link "Add Page" [ref=e50] [cursor=pointer]:
+                - /url: post-new.php?post_type=page
+        - listitem [ref=e51]:
+          - link "نهان" [ref=e52] [cursor=pointer]:
+            - /url: admin.php?page=nahan-settings
+            - generic [aria-hidden] [ref=e53]: 
+          - list [ref=e55]:
+            - listitem [ref=e56]:
+              - link "تنظیمات" [ref=e57] [cursor=pointer]:
+                - /url: admin.php?page=nahan-settings
+            - listitem [ref=e58]:
+              - link "توسعهٔ محلی" [ref=e59] [cursor=pointer]:
+                - /url: admin.php?page=nahan-local-development
+        - listitem [ref=e60]:
+          - link "Comments" [ref=e61] [cursor=pointer]:
+            - /url: edit-comments.php
+            - generic [aria-hidden] [ref=e62]: 
+        - listitem [ref=e64]:
+          - link "متخصصین" [ref=e65] [cursor=pointer]:
+            - /url: edit.php?post_type=nahan_specialist
+            - generic [aria-hidden] [ref=e66]: 
+          - list [ref=e68]:
+            - listitem [ref=e69]:
+              - link "متخصصین" [ref=e70] [cursor=pointer]:
+                - /url: edit.php?post_type=nahan_specialist
+            - listitem [ref=e71]:
+              - link "افزودن متخصص" [ref=e72] [cursor=pointer]:
+                - /url: post-new.php?post_type=nahan_specialist
+            - listitem [ref=e73]:
+              - link "دسته شغلی" [ref=e74] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=job_category&post_type=nahan_specialist
+            - listitem [ref=e75]:
+              - link "شهر" [ref=e76] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=city&post_type=nahan_specialist
+            - listitem [ref=e77]:
+              - link "محله" [ref=e78] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=neighborhood&post_type=nahan_specialist
+        - listitem [ref=e79]:
+          - link "پروژه‌ها" [ref=e80] [cursor=pointer]:
+            - /url: edit.php?post_type=nahan_project
+            - generic [aria-hidden] [ref=e81]: 
+          - list [ref=e83]:
+            - listitem [ref=e84]:
+              - link "پروژه‌ها" [ref=e85] [cursor=pointer]:
+                - /url: edit.php?post_type=nahan_project
+            - listitem [ref=e86]:
+              - link "Add Post" [ref=e87] [cursor=pointer]:
+                - /url: post-new.php?post_type=nahan_project
+            - listitem [ref=e88]:
+              - link "دسته شغلی" [ref=e89] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=job_category&post_type=nahan_project
+            - listitem [ref=e90]:
+              - link "شهر" [ref=e91] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=city&post_type=nahan_project
+            - listitem [ref=e92]:
+              - link "محله" [ref=e93] [cursor=pointer]:
+                - /url: edit-tags.php?taxonomy=neighborhood&post_type=nahan_project
+            - listitem [ref=e94]:
+              - link "درخواست‌ها" [ref=e95] [cursor=pointer]:
+                - /url: edit.php?post_type=nahan_application
+        - listitem [ref=e96]:
+          - link "نظرات" [ref=e97] [cursor=pointer]:
+            - /url: edit.php?post_type=nahan_review
+            - generic [aria-hidden] [ref=e98]: 
+          - list [ref=e100]:
+            - listitem [ref=e101]:
+              - link "نظرات" [ref=e102] [cursor=pointer]:
+                - /url: edit.php?post_type=nahan_review
+            - listitem [ref=e103]:
+              - link "Add Post" [ref=e104] [cursor=pointer]:
+                - /url: post-new.php?post_type=nahan_review
+        - listitem [ref=e105]:
+          - link "گزارش تخلفات" [ref=e106] [cursor=pointer]:
+            - /url: edit.php?post_type=nahan_report
+            - generic [aria-hidden] [ref=e107]: 
+          - list [ref=e109]:
+            - listitem [ref=e110]:
+              - link "گزارش تخلفات" [ref=e111] [cursor=pointer]:
+                - /url: edit.php?post_type=nahan_report
+            - listitem [ref=e112]:
+              - link "Add Post" [ref=e113] [cursor=pointer]:
+                - /url: post-new.php?post_type=nahan_report
+        - listitem [aria-hidden] [ref=e114]
+        - listitem [ref=e116]:
+          - link "Appearance" [ref=e117] [cursor=pointer]:
+            - /url: themes.php
+            - generic [aria-hidden] [ref=e118]: 
+          - list [ref=e120]:
+            - listitem [ref=e121]:
+              - link "Themes 2" [ref=e122] [cursor=pointer]:
+                - /url: themes.php
+                - text: Themes
+                - generic [ref=e123]: "2"
+            - listitem [ref=e124]:
+              - link "Editor" [ref=e125] [cursor=pointer]:
+                - /url: site-editor.php
+            - listitem [ref=e126]:
+              - link "Fonts" [ref=e127] [cursor=pointer]:
+                - /url: font-library.php
+        - listitem [ref=e128]:
+          - link "Plugins 2" [ref=e129] [cursor=pointer]:
+            - /url: plugins.php
+            - generic [aria-hidden] [ref=e130]: 
+            - generic [ref=e131]:
+              - text: Plugins
+              - generic [ref=e132]: "2"
+          - list [ref=e133]:
+            - listitem [ref=e134]:
+              - link "Installed Plugins" [ref=e135] [cursor=pointer]:
+                - /url: plugins.php
+            - listitem [ref=e136]:
+              - link "Add Plugin" [ref=e137] [cursor=pointer]:
+                - /url: plugin-install.php
+        - listitem [ref=e138]:
+          - link "Users" [ref=e139] [cursor=pointer]:
+            - /url: users.php
+            - generic [aria-hidden] [ref=e140]: 
+          - list [ref=e142]:
+            - listitem [ref=e143]:
+              - link "All Users" [ref=e144] [cursor=pointer]:
+                - /url: users.php
+            - listitem [ref=e145]:
+              - link "Add User" [ref=e146] [cursor=pointer]:
+                - /url: user-new.php
+            - listitem [ref=e147]:
+              - link "Profile" [ref=e148] [cursor=pointer]:
+                - /url: profile.php
+        - listitem [ref=e149]:
+          - link "Tools" [ref=e150] [cursor=pointer]:
+            - /url: tools.php
+            - generic [aria-hidden] [ref=e151]: 
+          - list [ref=e153]:
+            - listitem [ref=e154]:
+              - link "Available Tools" [ref=e155] [cursor=pointer]:
+                - /url: tools.php
+            - listitem [ref=e156]:
+              - link "Import" [ref=e157] [cursor=pointer]:
+                - /url: import.php
+            - listitem [ref=e158]:
+              - link "Export" [ref=e159] [cursor=pointer]:
+                - /url: export.php
+            - listitem [ref=e160]:
+              - link "Site Health 1" [ref=e161] [cursor=pointer]:
+                - /url: site-health.php
+                - text: Site Health
+                - generic [ref=e162]: "1"
+            - listitem [ref=e163]:
+              - link "Export Personal Data" [ref=e164] [cursor=pointer]:
+                - /url: export-personal-data.php
+            - listitem [ref=e165]:
+              - link "Erase Personal Data" [ref=e166] [cursor=pointer]:
+                - /url: erase-personal-data.php
+            - listitem [ref=e167]:
+              - link "Theme File Editor" [ref=e168] [cursor=pointer]:
+                - /url: theme-editor.php
+            - listitem [ref=e169]:
+              - link "Plugin File Editor" [ref=e170] [cursor=pointer]:
+                - /url: plugin-editor.php
+        - listitem [ref=e171]:
+          - link "Settings" [ref=e172] [cursor=pointer]:
+            - /url: options-general.php
+            - generic [aria-hidden] [ref=e173]: 
+          - list [ref=e175]:
+            - listitem [ref=e176]:
+              - link "General" [ref=e177] [cursor=pointer]:
+                - /url: options-general.php
+            - listitem [ref=e178]:
+              - link "Connectors" [ref=e179] [cursor=pointer]:
+                - /url: options-connectors.php
+            - listitem [ref=e180]:
+              - link "Writing" [ref=e181] [cursor=pointer]:
+                - /url: options-writing.php
+            - listitem [ref=e182]:
+              - link "Reading" [ref=e183] [cursor=pointer]:
+                - /url: options-reading.php
+            - listitem [ref=e184]:
+              - link "Discussion" [ref=e185] [cursor=pointer]:
+                - /url: options-discussion.php
+            - listitem [ref=e186]:
+              - link "Media" [ref=e187] [cursor=pointer]:
+                - /url: options-media.php
+            - listitem [ref=e188]:
+              - link "Permalinks" [ref=e189] [cursor=pointer]:
+                - /url: options-permalink.php
+            - listitem [ref=e190]:
+              - link "Privacy" [ref=e191] [cursor=pointer]:
+                - /url: options-privacy.php
+        - listitem [ref=e192]:
+          - link "ACF" [ref=e193] [cursor=pointer]:
+            - /url: edit.php?post_type=acf-field-group
+            - generic [aria-hidden] [ref=e194]: 
+          - list [ref=e196]:
+            - listitem [ref=e197]:
+              - link "Field Groups" [ref=e198] [cursor=pointer]:
+                - /url: edit.php?post_type=acf-field-group
+            - listitem [ref=e199]:
+              - link "Post Types" [ref=e200] [cursor=pointer]:
+                - /url: edit.php?post_type=acf-post-type
+            - listitem [ref=e201]:
+              - link "Taxonomies" [ref=e202] [cursor=pointer]:
+                - /url: edit.php?post_type=acf-taxonomy
+            - listitem [ref=e203]:
+              - link "Options Pages" [ref=e204] [cursor=pointer]:
+                - /url: edit.php?post_type=acf-ui-options-page
+            - listitem [ref=e205]:
+              - link "Tools" [ref=e206] [cursor=pointer]:
+                - /url: edit.php?post_type=acf-field-group&page=acf-tools
+            - listitem [ref=e207]:
+              - link "Updates" [ref=e208] [cursor=pointer]:
+                - /url: edit.php?post_type=acf-field-group&page=acf-settings-updates
+        - listitem [aria-hidden] [ref=e209]
+        - listitem [ref=e211]:
+          - link "GraphQL 2" [ref=e212] [cursor=pointer]:
+            - /url: admin.php?page=graphiql-ide
+            - generic [ref=e214]:
+              - text: GraphQL
+              - generic [ref=e215]: "2"
+          - list [ref=e216]:
+            - listitem [ref=e217]:
+              - link "GraphiQL IDE" [ref=e218] [cursor=pointer]:
+                - /url: admin.php?page=graphiql-ide
+            - listitem [ref=e219]:
+              - link "Settings" [ref=e220] [cursor=pointer]:
+                - /url: admin.php?page=graphql-settings
+            - listitem [ref=e221]:
+              - link "Extensions" [ref=e222] [cursor=pointer]:
+                - /url: admin.php?page=wpgraphql-extensions
+            - listitem [ref=e223]:
+              - link "Review Settings" [ref=e224] [cursor=pointer]:
+                - /url: admin.php?page=graphql-settings-review
+        - listitem [ref=e225]:
+          - button "Collapse Main menu" [expanded] [ref=e226] [cursor=pointer]:
+            - generic [ref=e228]: Collapse Menu
+    - generic [ref=e229]:
+      - generic [ref=e230]:
+        - navigation "Toolbar":
+          - menu:
+            - group [ref=e231]:
+              - menuitem "About WordPress" [ref=e232] [cursor=pointer]
+            - group [ref=e235]:
+              - menuitem "کاربان" [ref=e236] [cursor=pointer]
+            - group [ref=e237]:
+              - menuitem "5 updates available" [ref=e238] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e240]: "5"
+            - group [ref=e242]:
+              - menuitem "⌘K Open command palette" [ref=e243] [cursor=pointer]:
+                - generic [ref=e245]:
+                  - text: ⌘K
+                  - generic [ref=e246]: Open command palette
+            - group [ref=e247]:
+              - menuitem "0 Comments in moderation" [ref=e248] [cursor=pointer]:
+                - generic [aria-hidden] [ref=e250]: "0"
+            - group [ref=e252]:
+              - menuitem "New" [ref=e253] [cursor=pointer]
+            - group [ref=e256]:
+              - menuitem "GraphiQL IDE" [ref=e257] [cursor=pointer]
+          - menu [ref=e259]:
+            - group [ref=e260]:
+              - menuitem "Howdy, adminka" [ref=e261] [cursor=pointer]
+      - main [ref=e262]:
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - button "Screen Options" [ref=e266] [cursor=pointer]
+            - button "Help" [ref=e268] [cursor=pointer]
+          - generic [ref=e269]:
+            - link "WordPress 7.1.3" [ref=e270] [cursor=pointer]:
+              - /url: https://wordpress.org/documentation/wordpress-version/version-7-1-3/
+            - text: is available!
+            - link "Please update WordPress now" [ref=e271] [cursor=pointer]:
+              - /url: http://localhost/karban/wp-admin/update-core.php
+              - text: Please update now
+            - text: .
+          - generic [ref=e272]:
+            - heading "Media Library" [level=1] [ref=e273]
+            - link "Add Media File" [ref=e274] [cursor=pointer]:
+              - /url: http://localhost/karban/wp-admin/media-new.php
+            - generic [ref=e275]:
+              - text: "Search results for:"
+              - strong [ref=e276]: karban-local-gallery-test
+            - generic [ref=e277]:
+              - heading "Filter media items list" [level=2] [ref=e278]
+              - generic [ref=e279]:
+                - generic [ref=e280]:
+                  - generic [ref=e281]:
+                    - link "List view" [ref=e282] [cursor=pointer]:
+                      - /url: /karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test
+                    - link "Grid view" [ref=e284] [cursor=pointer]:
+                      - /url: /karban/wp-admin/upload.php?mode=grid&s=karban-local-gallery-test
+                  - generic [ref=e286]: Filter by type
+                  - combobox "Filter by type" [ref=e287] [cursor=pointer]:
+                    - option "All media items" [selected]
+                    - option "Unattached"
+                    - option "Mine"
+                  - button "Filter" [ref=e289] [cursor=pointer]
+                - paragraph [ref=e291]:
+                  - generic [ref=e292]: Search Media
+                  - searchbox "Search Media" [ref=e293]: karban-local-gallery-test
+                  - button "Search Media" [ref=e294] [cursor=pointer]
+              - heading "Media items list" [level=2] [ref=e296]
+              - table [ref=e297]:
+                - caption [ref=e298]: Table ordered by Date. Descending.
+                - rowgroup [ref=e299]:
+                  - row [ref=e300]:
+                    - cell "Select All" [ref=e301]:
+                      - checkbox "Select All" [ref=e302] [cursor=pointer]
+                    - columnheader [ref=e305]:
+                      - link "File Sort ascending." [ref=e306] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=title&order=asc
+                        - generic [ref=e307]: File
+                        - generic [ref=e311]: Sort ascending.
+                    - columnheader [ref=e312]:
+                      - link "Author Sort ascending." [ref=e313] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=author&order=asc
+                        - generic [ref=e314]: Author
+                        - generic [ref=e318]: Sort ascending.
+                    - columnheader [ref=e319]:
+                      - link "Uploaded to Sort ascending." [ref=e320] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=parent&order=asc
+                        - generic [ref=e321]: Uploaded to
+                        - generic [ref=e325]: Sort ascending.
+                    - columnheader [ref=e326]:
+                      - link "Date" [ref=e327] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=date&order=asc
+                - rowgroup [ref=e332]:
+                  - row [ref=e333]:
+                    - cell "No media files found." [ref=e334]
+                - rowgroup [ref=e335]:
+                  - row [ref=e336]:
+                    - cell "Select All" [ref=e337]:
+                      - checkbox "Select All" [ref=e338] [cursor=pointer]
+                    - columnheader [ref=e341]:
+                      - link "File Sort ascending." [ref=e342] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=title&order=asc
+                        - generic [ref=e343]: File
+                        - generic [ref=e347]: Sort ascending.
+                    - columnheader [ref=e348]:
+                      - link "Author Sort ascending." [ref=e349] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=author&order=asc
+                        - generic [ref=e350]: Author
+                        - generic [ref=e354]: Sort ascending.
+                    - columnheader [ref=e355]:
+                      - link "Uploaded to Sort ascending." [ref=e356] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=parent&order=asc
+                        - generic [ref=e357]: Uploaded to
+                        - generic [ref=e361]: Sort ascending.
+                    - columnheader [ref=e362]:
+                      - link "Date" [ref=e363] [cursor=pointer]:
+                        - /url: http://localhost/karban/wp-admin/upload.php?mode=list&s=karban-local-gallery-test&orderby=date&order=asc
+    - contentinfo [ref=e368]:
+      - paragraph [ref=e369]:
+        - generic [ref=e370]:
+          - text: Thank you for creating with
+          - link "WordPress" [ref=e371] [cursor=pointer]:
+            - /url: https://wordpress.org/
+          - text: .
+      - paragraph [ref=e372]:
+        - strong [ref=e373]:
+          - link "Get Version 7.1.3" [ref=e374] [cursor=pointer]:
+            - /url: http://localhost/karban/wp-admin/update-core.php
+  - text:           
+  - status [ref=e377]
+  - text:  

@@ -66,7 +66,8 @@ namespace {
 			'nahan_otp_ttl' => 120,
 			'nahan_otp_throttle_window' => 60,
 			'nahan_otp_max_attempts' => 5,
-			'nahan_sms_kavenegar_pattern' => '',
+			'nahan_sms_kavenegar_pattern' => 'fixture-pattern',
+			'nahan_sms_kavenegar_apikey' => 'fixture-key',
 		];
 		$db_delta_calls = [];
 		$_SERVER = [];
@@ -161,9 +162,9 @@ namespace Nahan\Core\Auth {
 	$tests['production request persists random five digit SMS provenance and invokes transport once'] = static function (): void {
 		$wpdb = \reset_fixture();
 		global $test_options;
-		$test_options['nahan_sms_driver'] = 'unknown'; // Current production code must use the injected observer, not a real driver.
+		$test_options['nahan_sms_driver'] = 'kavenegar'; // Configured fixture; transport is still the injected observer, never HTTP.
 		$transport_calls = [];
-		$result = manager( gate( [ 'environment_type' => 'production' ] ), null, static function ( string $phone, string $code ) use ( &$transport_calls ): bool {
+		$result = manager( gate( [ 'environment_type' => 'production', 'site_url' => 'https://example.test' ] ), null, static function ( string $phone, string $code ) use ( &$transport_calls ): bool {
 			$transport_calls[] = [ $phone, $code ];
 			return true;
 		} )->request( '09121234567', '203.0.113.4' );
@@ -180,7 +181,7 @@ namespace Nahan\Core\Auth {
 	};
 	$tests['failed OTP insert returns a safe error before any local or production transport'] = static function (): void {
 		foreach ( [ false, 0 ] as $insert_result ) {
-			foreach ( [ 'local' => gate(), 'production' => gate( [ 'environment_type' => 'production' ] ) ] as $mode => $mode_gate ) {
+			foreach ( [ 'local' => gate(), 'production' => gate( [ 'environment_type' => 'production', 'site_url' => 'https://example.test' ] ) ] as $mode => $mode_gate ) {
 				$wpdb = \reset_fixture();
 				$wpdb->insert_result = $insert_result;
 				$transport_calls = [];

@@ -9,6 +9,8 @@ import { WordPressApiError } from "../wordpress/errors.ts";
 import type { WordPressRequestOptions } from "../wordpress/rest-client.ts";
 import {
   AuthResponseError,
+  parseUpstreamOtpReadiness,
+  type UpstreamOtpReadiness,
   parseUpstreamLocalStatus,
   parseUpstreamLogoutResult,
   parseUpstreamMeUser,
@@ -49,12 +51,16 @@ export interface WordPressAuthGateway {
   ): Promise<UpstreamVerifyResult>;
   refresh(refreshToken: string): Promise<UpstreamRefreshResult>;
   me(accessToken: string): Promise<UpstreamMeUser>;
+  otpReadiness(): Promise<UpstreamOtpReadiness>;
   localStatus(): Promise<UpstreamLocalStatus>;
   logoutRefresh(refreshToken: string): Promise<UpstreamLogoutResult>;
   logout(accessToken: string, refreshToken: string): Promise<UpstreamLogoutResult>;
 }
 
 const pluginErrors = {
+  sms_misconfigured: { status: 503, message: "تنظیمات ارسال پیامک آماده نیست؛ با پشتیبانی تماس بگیرید." },
+  sms_transport_error: { status: 503, message: "ارتباط با سرویس پیامک تأیید نشد؛ پیش از درخواست دوباره صبر کنید." },
+  sms_provider_error: { status: 503, message: "پاسخ سرویس پیامک تأیید نشد؛ با پشتیبانی تماس بگیرید." },
   invalid_phone: { status: 422, message: "شماره موبایل معتبر نیست." },
   otp_rate_limited: { status: 429, message: "تعداد درخواست‌های این شماره زیاد است. کمی صبر کنید." },
   otp_rate_limited_ip: { status: 429, message: "تعداد درخواست‌های این اتصال زیاد است. کمی صبر کنید." },
@@ -222,6 +228,10 @@ export function createWordPressAuthGateway(
         token: accessToken,
       }));
     }),
+
+    otpReadiness: () => run(async () => (
+      parseUpstreamOtpReadiness(await request("auth/otp/readiness", { method: "GET" }))
+    )),
 
     localStatus: () => run(async () => (
       parseUpstreamLocalStatus(await request("auth/local-status", { method: "GET" }))

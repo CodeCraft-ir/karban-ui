@@ -72,6 +72,9 @@ export function canResendCode(phone:string,pending:boolean,seconds:number):boole
 
 export function mapAuthError(status: number, code: unknown): string {
   if(status === 429) return 'تعداد تلاش‌ها زیاد است؛ کمی صبر کنید و دوباره درخواست کنید.';
+  if (status === 503 && code === "sms_misconfigured") return "تنظیمات ارسال پیامک آماده نیست؛ با پشتیبانی تماس بگیرید.";
+  if (status === 503 && code === "sms_transport_error") return "ارتباط با سرویس پیامک تأیید نشد؛ ارسال ممکن است نامطمئن باشد. پیش از درخواست دوباره صبر کنید.";
+  if (status === 503 && code === "sms_provider_error") return "پاسخ سرویس پیامک تأیید نشد؛ با پشتیبانی تماس بگیرید و از درخواست پیاپی خودداری کنید.";
   if(status === 422 && code !== 'invalid_code') return 'اطلاعات درخواست معتبر نیست؛ شماره و ورودی‌ها را بررسی کنید.';
   if(status === 401 && code !== 'challenge_missing') return 'نشست ورود معتبر نیست؛ دوباره وارد شوید.';
   if (code === "invalid_challenge") return "اطلاعات کد معتبر نیست؛ کد جدید درخواست کن.";

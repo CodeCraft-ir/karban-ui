@@ -1,0 +1,42 @@
+[    2147ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[    3152ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[  348844ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[  349457ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[  467867ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[  468521ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 1165541ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 1166778ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 3917385ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 3918973ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 3973228ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/karban/wp-admin/admin-post.php:0
+[ 3973338ms] Transition was aborted because of invalid state. ViewTransition opt-in disabled
+[ 3979110ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/karban/wp-admin/admin-post.php:0
+[ 3987048ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 3987669ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4001526ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/karban/wp-admin/admin-post.php:0
+[ 4001602ms] Transition was aborted because of invalid state. ViewTransition opt-in disabled
+[ 4014790ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4015158ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4086626ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4087684ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4100042ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/karban/wp-admin/admin-post.php:0
+[ 4100207ms] Transition was aborted because of invalid state. ViewTransition opt-in disabled
+[ 4288617ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4289141ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4388794ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4389875ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4399875ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/karban/wp-admin/admin-post.php:0
+[ 4400038ms] Transition was aborted because of invalid state. ViewTransition opt-in disabled
+[ 4404346ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4405242ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4690210ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost/karban/wp-admin/admin-post.php:0
+[ 4690381ms] Transition was aborted because of invalid state. ViewTransition opt-in disabled
+[ 4694138ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4695158ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4727308ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4728139ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4741477ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4741980ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[ 4752876ms] Transition was aborted because of invalid state. ViewTransition opt-in disabled
+[ 4761900ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[ 4762173ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0

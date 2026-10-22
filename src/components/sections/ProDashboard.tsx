@@ -1,9 +1,13 @@
 import Link from 'next/link';
+import {ArrowLeft,UserRound,FilePenLine} from 'lucide-react';
+import {WorkspaceHeader,WorkspacePanel,workspaceClass,workspaceLink,primaryWorkspaceLink} from './owner/AccountWorkspace';
 
 export function ProDashboard({displayName}:{displayName:string}) {
- return <section className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
-  <header><h1 className="text-2xl font-bold">داشبورد متخصص</h1><p className="mt-2 leading-7 text-muted">{displayName}، اطلاعات حرفه‌ای خود را تکمیل کنید و برای بررسی بفرستید.</p></header>
-  <nav aria-label="حساب متخصص" className="flex flex-wrap gap-3"><Link href="/pro/profile" className="owner-link">ویرایش پروفایل حرفه‌ای</Link><Link href="/account" className="owner-link">حساب شخصی</Link></nav>
-  <section className="rounded-3xl border border-line bg-card p-6"><h2 className="font-bold">فرصت‌های کاری و خدمات مالی</h2><p className="mt-3 leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. فرصت کاری، اعتبار خرید یا پرداختی برای نمایش در دسترس نیست.</p></section>
+ return <section className={workspaceClass} dir="rtl">
+  <WorkspaceHeader role="specialist" current="/pro" title="داشبورد متخصص" description={`${displayName}، معرفی حرفه‌ای، خدمات و نمونه‌کارهایتان را در پروفایل مدیریت کنید.`} />
+  <WorkspacePanel title="معرفی حرفه‌ای شما در کاربان" description="اطلاعات حرفه‌ای را تکمیل و ذخیره کنید. ارسال نسخه ذخیره‌شده برای بررسی، مرحله‌ای جدا از ذخیره است و به معنی انتشار نیست.">
+   <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center"><Link href="/pro/profile" className={primaryWorkspaceLink}><FilePenLine size={18} aria-hidden="true" />تکمیل پروفایل حرفه‌ای<ArrowLeft size={18} aria-hidden="true" /></Link><Link href="/account" className={workspaceLink}><UserRound size={18} aria-hidden="true" />حساب شخصی</Link></div>
+  </WorkspacePanel>
+  <section className="space-y-2 rounded-3xl bg-elev p-5 sm:p-7"><h2 className="font-bold text-fg-soft">فرصت‌های کاری و خدمات مالی</h2><p className="max-w-2xl text-sm leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. فرصت کاری، اعتبار خرید یا پرداختی برای نمایش در دسترس نیست.</p></section>
  </section>;
 }

@@ -15,7 +15,7 @@ function setup(session: AuthSessionPort = port(), shared = createRefreshCoordina
     me: async () => ({ id: 47, display_name: "نام", roles: ["nahan_specialist"], phone: null, specialist_post_id: 1 }),
     logoutRefresh: async () => ({ logged_out: true }),
   };
-  return createAuthCoordinator({ session, gateway, refreshCoordinator: shared, now: () => now, uuid: () => crypto.randomUUID(), ensureOtpReady: async () => {} });
+  return createAuthCoordinator({ session, gateway, refreshCoordinator: shared, now: () => now, uuid: () => crypto.randomUUID(), ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }) });
 }
 function deferred() { let resolve!: () => void; const promise = new Promise<void>(r => { resolve = r; }); return { promise, resolve }; }
 

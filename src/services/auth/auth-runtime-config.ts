@@ -36,7 +36,7 @@ export function isLoopbackWordPressOrigin(origin: string | undefined): boolean {
   }
   try {
     const url = new URL(origin);
-    return url.protocol === "http:" && (
+    return (url.protocol === "http:" || url.protocol === "https:") && !url.username && !url.password && !url.search && !url.hash && (
       url.hostname === "localhost" ||
       url.hostname === "127.0.0.1" ||
       url.hostname === "[::1]"
@@ -44,6 +44,13 @@ export function isLoopbackWordPressOrigin(origin: string | undefined): boolean {
   } catch {
     return false;
   }
+}
+
+export function isLocalSmsAllowed(
+  environment: NodeJS.ProcessEnv = process.env,
+  wordpressOrigin: string | undefined,
+): boolean {
+  return environment.KARBAN_ALLOW_LOCAL_SMS === "true" && isLoopbackOtpAllowed(environment, wordpressOrigin);
 }
 
 export function isLoopbackOtpAllowed(

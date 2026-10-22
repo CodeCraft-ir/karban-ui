@@ -1,0 +1,354 @@
+diff --git a/src/components/sections/ClientDashboard.tsx b/src/components/sections/ClientDashboard.tsx
+index 1365582..5f12e00 100644
+--- a/src/components/sections/ClientDashboard.tsx
++++ b/src/components/sections/ClientDashboard.tsx
+@@ -1,9 +1,13 @@
+ import Link from 'next/link';
++import {ArrowLeft,Search,UserRound} from 'lucide-react';
++import {WorkspaceHeader,WorkspacePanel,workspaceClass,workspaceLink,primaryWorkspaceLink} from './owner/AccountWorkspace';
+ 
+ export function ClientDashboard({displayName}:{displayName:string}) {
+- return <section className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+-  <header><h1 className="text-2xl font-bold">سلام، {displayName}</h1><p className="mt-2 leading-7 text-muted">اطلاعات حساب شخصی و متخصصان را از اینجا پیدا کنید.</p></header>
+-  <nav aria-label="حساب کارفرما" className="flex flex-wrap gap-3"><Link href="/account" className="owner-link">ویرایش حساب شخصی</Link><Link href="/search" className="owner-link">جستجوی متخصصان</Link></nav>
+-  <section className="rounded-3xl border border-line bg-card p-6"><h2 className="font-bold">پروژه‌ها و خدمات مالی</h2><p className="mt-3 leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. پروژه، پیشنهاد یا اطلاعات مالی برای نمایش در دسترس نیست.</p></section>
++ return <section className={workspaceClass} dir="rtl">
++  <WorkspaceHeader role="client" current="/dashboard" title={`سلام، ${displayName}`} description="متخصص مناسب کارتان را پیدا کنید یا اطلاعات حساب شخصی را به‌روز نگه دارید." />
++  <WorkspacePanel title="از انتخاب متخصص شروع کنید" description="تخصص و شهر مورد نیازتان را در جستجو انتخاب کنید و پروفایل متخصصان را ببینید.">
++   <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center"><Link href="/search" className={primaryWorkspaceLink}><Search size={18} aria-hidden="true" />جستجوی متخصصان<ArrowLeft size={18} aria-hidden="true" /></Link><Link href="/account" className={workspaceLink}><UserRound size={18} aria-hidden="true" />ویرایش حساب شخصی</Link></div>
++  </WorkspacePanel>
++  <section className="space-y-2 rounded-3xl bg-elev p-5 sm:p-7"><h2 className="font-bold text-fg-soft">پروژه‌ها و خدمات مالی</h2><p className="max-w-2xl text-sm leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. پروژه، پیشنهاد یا اطلاعات مالی برای نمایش در دسترس نیست.</p></section>
+  </section>;
+ }
+diff --git a/src/components/sections/ProDashboard.tsx b/src/components/sections/ProDashboard.tsx
+index cf4059a..b06c8be 100644
+--- a/src/components/sections/ProDashboard.tsx
++++ b/src/components/sections/ProDashboard.tsx
+@@ -1,9 +1,13 @@
+ import Link from 'next/link';
++import {ArrowLeft,UserRound,FilePenLine} from 'lucide-react';
++import {WorkspaceHeader,WorkspacePanel,workspaceClass,workspaceLink,primaryWorkspaceLink} from './owner/AccountWorkspace';
+ 
+ export function ProDashboard({displayName}:{displayName:string}) {
+- return <section className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+-  <header><h1 className="text-2xl font-bold">داشبورد متخصص</h1><p className="mt-2 leading-7 text-muted">{displayName}، اطلاعات حرفه‌ای خود را تکمیل کنید و برای بررسی بفرستید.</p></header>
+-  <nav aria-label="حساب متخصص" className="flex flex-wrap gap-3"><Link href="/pro/profile" className="owner-link">ویرایش پروفایل حرفه‌ای</Link><Link href="/account" className="owner-link">حساب شخصی</Link></nav>
+-  <section className="rounded-3xl border border-line bg-card p-6"><h2 className="font-bold">فرصت‌های کاری و خدمات مالی</h2><p className="mt-3 leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. فرصت کاری، اعتبار خرید یا پرداختی برای نمایش در دسترس نیست.</p></section>
++ return <section className={workspaceClass} dir="rtl">
++  <WorkspaceHeader role="specialist" current="/pro" title="داشبورد متخصص" description={`${displayName}، معرفی حرفه‌ای، خدمات و نمونه‌کارهایتان را در پروفایل مدیریت کنید.`} />
++  <WorkspacePanel title="معرفی حرفه‌ای شما در کاربان" description="اطلاعات حرفه‌ای را تکمیل و ذخیره کنید. ارسال نسخه ذخیره‌شده برای بررسی، مرحله‌ای جدا از ذخیره است و به معنی انتشار نیست.">
++   <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center"><Link href="/pro/profile" className={primaryWorkspaceLink}><FilePenLine size={18} aria-hidden="true" />تکمیل پروفایل حرفه‌ای<ArrowLeft size={18} aria-hidden="true" /></Link><Link href="/account" className={workspaceLink}><UserRound size={18} aria-hidden="true" />حساب شخصی</Link></div>
++  </WorkspacePanel>
++  <section className="space-y-2 rounded-3xl bg-elev p-5 sm:p-7"><h2 className="font-bold text-fg-soft">فرصت‌های کاری و خدمات مالی</h2><p className="max-w-2xl text-sm leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. فرصت کاری، اعتبار خرید یا پرداختی برای نمایش در دسترس نیست.</p></section>
+  </section>;
+ }
+diff --git a/src/components/sections/owner/MediaUpload.tsx b/src/components/sections/owner/MediaUpload.tsx
+index e63eb8c..d72d446 100644
+--- a/src/components/sections/owner/MediaUpload.tsx
++++ b/src/components/sections/owner/MediaUpload.tsx
+@@ -4,6 +4,7 @@ import {useEffect,useId,useRef,useState} from 'react';
+ import {Button} from '@/components/ui/Button';
+ import {createActionGate,OwnerClientError} from '@/lib/owner-client';
+ import {ownerErrorText,uploadOutcomeUncertain} from '@/lib/owner-ui';
++import {uploadPresentation,workspaceLink} from './AccountWorkspace';
+ import type {MediaCapabilitiesDto,PublicMediaPurpose,UploadDto} from '@/services/profile/profile-contracts';
+ 
+ export function MediaUpload({purpose,capabilities,disabled,upload,assign}:{purpose:PublicMediaPurpose;capabilities:MediaCapabilitiesDto|null;disabled:boolean;upload:(file:File,purpose:PublicMediaPurpose)=>Promise<UploadDto>;assign:(media:UploadDto,caption:string)=>Promise<boolean>}) {
+@@ -33,18 +34,20 @@ export function MediaUpload({purpose,capabilities,disabled,upload,assign}:{purpo
+   try{const success=await assign(asset,caption);if(action.current()&&success){setAsset(null);setCaption('');}}
+   finally{if(action.current())setPending(false);action.finish();}
+  };
+- return <section className="space-y-4 rounded-3xl border border-line bg-card p-4 sm:p-6" aria-busy={pending}>
++ return <section className="space-y-4 rounded-3xl border border-line bg-elev p-4 sm:p-6" aria-busy={pending}>
+   <h3 className="font-bold">{purpose==='public-avatar'?'بارگذاری تصویر آواتار':'بارگذاری تصویر نمونه کار'}</h3>
++  <ol aria-label="مراحل افزودن تصویر" className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted"><li>انتخاب تصویر</li><li>بارگذاری فایل</li><li>اتصال به پروفایل</li></ol>
++  <p role="status" className="rounded-2xl border border-line bg-card px-4 py-3 text-sm leading-7">{uploadPresentation({selected:Boolean(file),uploaded:Boolean(asset),pending,uncertain})}</p>
+   <p id={`${id}-disclosure`} className="text-sm leading-8 text-fg-soft">نشانی فایل بارگذاری‌شده عمومی است، حتی اگر پروفایل پیش‌نویس یا در انتظار بررسی باشد. تصویر مدارک هویتی یا فایل خصوصی نفرستید. بارگذاری به‌تنهایی تصویر را به حساب یا گالری وصل نمی‌کند و پروفایل را منتشر نمی‌کند.</p>
+   <p className="text-xs leading-7 text-muted">ویدیو پشتیبانی نمی‌شود. پذیرش WebP به کُدک واقعی سرور وابسته است و ممکن است با خطای پردازش رد شود.</p>
+   {!supported?<p role="status" className="text-sm text-muted">قابلیت بارگذاری در دسترس نیست.</p>:<>
+    <p className="text-xs leading-7 text-muted">حداکثر حجم: {capabilities.maxBytes.toLocaleString('fa-IR')} بایت؛ ضلع: {capabilities.maxDimension.toLocaleString('fa-IR')} پیکسل؛ مجموع: {capabilities.maxPixels.toLocaleString('fa-IR')} پیکسل. هر بار یک تصویر.</p>
+-   <label className="flex items-start gap-2 text-sm leading-7"><input type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)} disabled={pending||disabled} className="mt-1 h-5 w-5 shrink-0 accent-accent" />عمومی بودن فایل را می‌دانم و تصویر خصوصی بارگذاری نمی‌کنم.</label>
+-   <label htmlFor={`${id}-file`} className="block text-sm text-fg-soft">انتخاب تصویر</label><input id={`${id}-file`} type="file" accept={capabilities.imageMimes.join(',')} aria-describedby={`${id}-disclosure`} disabled={!consent||pending||disabled||Boolean(asset)||uncertain} onChange={event=>{const selected=event.target.files?.[0];setError('');if(!selected){setFile(null);setPreview('');return;}if(!capabilities.imageMimes.includes(selected.type as never)||selected.size<1||selected.size>capabilities.maxBytes){setError('نوع یا حجم فایل مطابق قابلیت اعلام‌شده نیست.');setFile(null);setPreview('');event.target.value='';return;}setFile(selected);}} className="w-full min-w-0 rounded-2xl border border-line bg-elev p-3 text-sm text-fg file:ml-3 file:rounded-xl file:border-0 file:bg-accent file:p-2 file:text-accent-fg" />
++   <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-line bg-card p-4 text-sm leading-7 focus-within:ring-2 focus-within:ring-accent hover:border-accent/50"><input type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)} disabled={pending||disabled} className="mt-1 h-5 w-5 shrink-0 accent-accent" />عمومی بودن فایل را می‌دانم و تصویر خصوصی بارگذاری نمی‌کنم.</label>
++   <label htmlFor={`${id}-file`} className="block text-sm text-fg-soft">انتخاب تصویر</label><input id={`${id}-file`} type="file" accept={capabilities.imageMimes.join(',')} aria-describedby={`${id}-disclosure`} disabled={!consent||pending||disabled||Boolean(asset)||uncertain} onChange={event=>{const selected=event.target.files?.[0];setError('');if(!selected){setFile(null);setPreview('');return;}if(!capabilities.imageMimes.includes(selected.type as never)||selected.size<1||selected.size>capabilities.maxBytes){setError('نوع یا حجم فایل مطابق قابلیت اعلام‌شده نیست.');setFile(null);setPreview('');event.target.value='';return;}setFile(selected);}} className="w-full min-w-0 rounded-2xl border border-line bg-card p-3 text-sm text-fg transition-opacity duration-200 hover:border-accent/50 focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50 file:me-3 file:rounded-xl file:border-0 file:bg-accent file:p-2 file:text-accent-fg" />
+    {preview&&file&&<img src={preview} alt="پیش‌نمایش تصویر انتخاب‌شده؛ هنوز بارگذاری نشده" className="h-36 w-36 rounded-2xl object-cover" />}
+    <Button type="button" onClick={()=>void send()} disabled={!file||!consent||pending||disabled||Boolean(asset)||uncertain}>{pending?'در حال انجام؛ لطفاً صبر کنید':'فقط بارگذاری تصویر'}</Button>
+   </>}
+-  {asset&&<div className="space-y-3 rounded-2xl border border-accent/40 p-4"><img src={asset.url} alt="تصویر بارگذاری‌شده برای اتصال" className="h-28 w-28 rounded-xl object-cover" /><p role="status" className="text-sm leading-7">فایل شماره {asset.id.toLocaleString('fa-IR')} بارگذاری شده است. بارگذاری به‌تنهایی اتصال نیست؛ نتیجه اتصال را در وضعیت تازه بررسی کنید. اگر اتصال خطا داد، فقط اتصال را دوباره انتخاب کنید؛ فایل را دوباره بارگذاری نکنید.</p><a href={asset.url} target="_blank" rel="noopener noreferrer" className="break-all text-sm text-accent underline">مشاهده فایل عمومی بارگذاری‌شده</a>{purpose==='public-portfolio'&&<label htmlFor={`${id}-caption`} className="block text-sm">توضیح تصویر؛ حداکثر ۳۰۰ نویسه<input id={`${id}-caption`} value={caption} maxLength={300} onChange={event=>setCaption(event.target.value)} className="mt-2 w-full rounded-xl border border-line bg-elev p-3" /></label>}<Button type="button" disabled={pending||disabled} onClick={()=>void attach()}>{purpose==='public-avatar'?'استفاده به عنوان آواتار':'افزودن به گالری'}</Button></div>}
++  {asset&&<div className="space-y-3 rounded-2xl border border-accent/40 p-4"><img src={asset.url} alt="تصویر بارگذاری‌شده برای اتصال" className="h-28 w-28 rounded-xl object-cover" /><p role="status" className="text-sm leading-7">فایل شماره {asset.id.toLocaleString('fa-IR')} بارگذاری شده است. بارگذاری به‌تنهایی اتصال نیست؛ نتیجه اتصال را در وضعیت تازه بررسی کنید. اگر اتصال خطا داد، فقط اتصال را دوباره انتخاب کنید؛ فایل را دوباره بارگذاری نکنید.</p><a href={asset.url} target="_blank" rel="noopener noreferrer" className={`${workspaceLink} break-all text-accent underline`}>مشاهده فایل عمومی بارگذاری‌شده</a>{purpose==='public-portfolio'&&<label htmlFor={`${id}-caption`} className="block text-sm">توضیح تصویر؛ حداکثر ۳۰۰ نویسه<input id={`${id}-caption`} value={caption} maxLength={300} onChange={event=>setCaption(event.target.value)} className="mt-2 min-h-12 w-full rounded-2xl border border-line bg-card p-3 hover:border-accent/50 focus-visible:outline-2 focus-visible:outline-accent" /></label>}<Button type="button" disabled={pending||disabled} onClick={()=>void attach()}>{purpose==='public-avatar'?'استفاده به عنوان آواتار':'افزودن به گالری'}</Button></div>}
+   {uncertain&&<p role="alert" className="text-sm leading-7 text-alert">نتیجه بارگذاری قطعی نیست. برای جلوگیری از فایل تکراری دوباره بارگذاری نکنید؛ وضعیت را بررسی و صفحه را صریحاً بارگذاری کنید.</p>}
+   {error&&<p role="alert" className="text-sm leading-7 text-alert">{error}</p>}
+  </section>;
+diff --git a/src/components/sections/owner/OwnerEditor.tsx b/src/components/sections/owner/OwnerEditor.tsx
+index 15a34a5..7520eaf 100644
+--- a/src/components/sections/owner/OwnerEditor.tsx
++++ b/src/components/sections/owner/OwnerEditor.tsx
+@@ -5,13 +5,13 @@ import Link from 'next/link';
+ import {Button} from '@/components/ui/Button';
+ import {useAuthSummary} from '@/components/layout/useAuthSummary';
+ import {createActionGate,createOwnerClient,settleOwnerAction,OwnerClientError} from '@/lib/owner-client';
+-import {accountLinks,ownerErrorText,type OwnerScreen} from '@/lib/owner-ui';
++import {ownerErrorText,type OwnerScreen} from '@/lib/owner-ui';
+ import type {AccountDto,ProfileDto,UploadDto} from '@/services/profile/profile-contracts';
+ import {AccountForm,ProfessionalForm} from './OwnerForms';
+ import {MediaUpload} from './MediaUpload';
++import {WorkspaceHeader,SavedProfileSummary,ProfileReviewPanel,workspaceClass,workspaceLink} from './AccountWorkspace';
+ 
+ type Ready=Extract<OwnerScreen,{kind:'ready'}>;
+-const statusLabel={draft:'پیش‌نویس',pending:'در انتظار بررسی',publish:'منتشرشده'};
+ export function OwnerEditor({initial}:{initial:Ready}) {
+  const summary=useAuthSummary();const client=useMemo(()=>createOwnerClient(fetch,summary.refresh),[summary.refresh]);
+  const [account,setAccount]=useState(initial.account);const [profile,setProfile]=useState(initial.profile);
+@@ -58,15 +58,16 @@ export function OwnerEditor({initial}:{initial:Ready}) {
+  if(summary.logoutPending||summary.logoutError||!summary.account||summary.account.id!==account.id||summary.account.role!==account.role) return <section className="mx-auto max-w-xl space-y-4 px-5 py-12"><h1 className="text-xl font-bold">{summary.logoutPending?'در حال خروج از حساب':'بررسی دسترسی حساب'}</h1><p className="leading-8 text-muted">{summary.error?'خلاصه حساب در دسترس نیست. اطلاعات خصوصی تا بررسی نشست نمایش داده نمی‌شود.':'برای مشاهده و ویرایش، نشست معتبر لازم است.'}</p><Link className="owner-link" href="/auth/login">ورود به حساب</Link></section>;
+  const avatar=professional?profile?.avatar:account.avatar;
+  const disabled=pending||blocked;
+- return <div className="mx-auto max-w-4xl space-y-7 px-4 py-8 sm:px-6" aria-busy={pending}>
+-  <header><h1 className="text-[clamp(1.4rem,3vw,2rem)] font-bold">{professional?'پروفایل حرفه‌ای':'حساب شخصی'}</h1><p className="mt-2 text-sm leading-8 text-muted">{professional?'پروفایل عمومی کسب‌وکار از اطلاعات حساب شخصی جداست.':'فقط اطلاعات شخصی قابل ویرایش است؛ نقش و شماره ورود ثابت می‌ماند.'}</p><nav aria-label="بخش‌های حساب" className="mt-4 flex flex-wrap gap-2">{accountLinks(account.role).map(link=><Link className="owner-link" key={link.href} href={link.href}>{link.label}</Link>)}</nav></header>
+-  <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={pending} onClick={()=>void reload()}>بارگذاری دوباره وضعیت</Button>{error?.code==='refresh_required'&&<Link className="owner-link" href={`/auth/recover?returnTo=${professional?'/pro/profile':'/account'}`}>بازیابی نشست؛ بدون تکرار تغییرات</Link>}{error?.status===401&&error.code!=='refresh_required'&&<Link className="owner-link" href="/auth/login">ورود دوباره</Link>}</div>
++ return <div className={workspaceClass} dir="rtl" aria-busy={pending}>
++  <WorkspaceHeader role={account.role} current={professional?'/pro/profile':'/account'} title={professional?'پروفایل حرفه‌ای':'حساب شخصی'} description={professional?'پروفایل عمومی کسب‌وکار از اطلاعات حساب شخصی جداست. اطلاعات را ذخیره کنید و وضعیت بررسی را جداگانه ببینید.':'نام نمایشی، شهر و آواتار شخصی را مدیریت کنید؛ نقش و شماره ورود ثابت می‌ماند.'} />
++  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-elev p-4"><p className="text-sm leading-7 text-muted">{pending?'عملیات در حال انجام است؛ لطفاً صبر کنید.':blocked?'برای ادامه، وضعیت سرور را دوباره بخوانید.':'برای دریافت آخرین وضعیت ذخیره‌شده از سرور'}</p><Button variant="ghost" disabled={pending} onClick={()=>void reload()}>بارگذاری دوباره وضعیت</Button>{error?.code==='refresh_required'&&<Link className={workspaceLink} href={`/auth/recover?returnTo=${professional?'/pro/profile':'/account'}`}>بازیابی نشست؛ بدون تکرار تغییرات</Link>}{error?.status===401&&error.code!=='refresh_required'&&<Link className={workspaceLink} href="/auth/login">ورود دوباره</Link>}</div>
+   {error&&<p role="alert" className="rounded-2xl border border-alert/30 p-4 text-sm leading-8 text-alert">{ownerErrorText(error)}{blocked?' خواندن وضعیت موفق نبود؛ تا بارگذاری دوباره، تغییرات غیرفعال است.':''}</p>}
+   {notice&&<p role="status" className="rounded-2xl border border-accent/30 p-4 text-sm leading-8 text-fg-soft">{notice}</p>}
+   {initial.optionsUnavailable&&<p role="status" className="text-sm leading-7 text-alert">فهرست شهرها یا دسته‌ها خوانده نشد؛ فرم تا بارگذاری دوباره صفحه غیرفعال است.</p>}
+-  {profile&&<section className="space-y-3 rounded-3xl border border-line bg-card p-5"><h2 className="font-bold">وضعیت: {statusLabel[profile.status]}</h2><p className="text-sm leading-8 text-muted">ذخیره، انتشار نیست. تغییر پروفایل منتشرشده ممکن است آن را به انتظار بررسی برگرداند. ارسال برای بررسی نیز به معنی انتشار یا تایید نیست.</p><p className="text-sm text-muted">تایید هویت: {profile.verified===undefined?'اطلاعات قابل نمایش نیست':profile.verified?'تاییدشده؛ فقط خواندنی':'تایید نشده؛ فقط خواندنی'}</p><Link href={`/specialists/${encodeURIComponent(profile.slug)}`} className="owner-link">نشانی عمومی ثابت پروفایل</Link><p className="text-xs text-muted">نشانی تا زمان انتشار ممکن است عمومی قابل مشاهده نباشد.</p><Button disabled={disabled||profile.status==='pending'} onClick={()=>void act(()=>client.submitProfile(),value=>apply(value),'پاسخ ارسال دریافت شد؛ وضعیت فعلی از سرور خوانده شده است.')}>ارسال برای بررسی</Button><p className="text-xs leading-6 text-muted">ابتدا تغییرات فرم را ذخیره کنید؛ این دکمه فقط نسخه ذخیره‌شده را می‌فرستد.</p></section>}
++  {profile&&<SavedProfileSummary profile={profile} />}
+   <section className="rounded-3xl border border-line bg-card p-5 sm:p-7">{profile?<ProfessionalForm key={revision} profile={profile} cities={initial.cities} categories={initial.categories} disabled={disabled||initial.optionsUnavailable} onSave={async input=>{await act(()=>client.saveProfile(input),value=>apply(value),'تغییرات ذخیره شد؛ وضعیت انتشار را بررسی کنید.');}} />:<AccountForm key={revision} account={account} cities={initial.cities} disabled={disabled||initial.optionsUnavailable} onSave={async input=>{await act(()=>client.saveAccount(input),value=>apply(value),'اطلاعات شخصی ذخیره شد و خلاصه حساب تازه شد.');}} />}</section>
+-  <section className="space-y-3"><h2 className="text-lg font-bold">{professional?'آواتار حرفه‌ای':'آواتار حساب شخصی'}</h2>{avatar?<><img src={avatar.url} alt="آواتار فعلی" className="h-24 w-24 rounded-2xl object-cover" /><Button variant="outline" disabled={disabled} onClick={()=>void (professional?act(()=>client.saveProfile({avatar_id:null}),value=>apply(value),'ارجاع آواتار پاک شد؛ فایل حذف نشده است.'):act(()=>client.saveAccount({avatar_id:null}),value=>apply(value),'ارجاع آواتار پاک شد؛ فایل حذف نشده است.'))}>پاک کردن آواتار</Button></>:<p className="text-sm text-muted">آواتاری ثبت نشده است.</p>}<MediaUpload purpose="public-avatar" capabilities={capabilities} disabled={disabled} upload={upload} assign={assignAvatar} /></section>
+-  {profile&&<section className="space-y-4"><h2 className="text-lg font-bold">گالری نمونه کار</h2><p className="text-sm leading-7 text-muted">حداکثر {Math.min(20,capabilities?.maxGalleryItems??20).toLocaleString('fa-IR')} تصویر. جدا کردن فقط ارجاع را حذف می‌کند؛ فایل عمومی حذف نمی‌شود.</p>{!profile.galleryAvailable&&<p role="status" className="text-sm leading-8 text-alert">ذخیره‌سازی استاندارد گالری در دسترس نیست؛ تصاویر عمومی معتبر فقط خواندنی هستند. انتقال خودکار داده‌های قدیمی انجام نمی‌شود.</p>}{profile.gallery.length===0&&<p className="text-sm text-muted">تصویری در گالری ثبت نشده است.</p>}<div className="grid gap-4 sm:grid-cols-2">{profile.gallery.map(item=><figure key={item.id} className="rounded-2xl border border-line p-3"><img src={item.url} alt={item.caption||'نمونه کار ثبت‌شده'} className="aspect-[4/3] w-full rounded-xl object-cover" /><figcaption className="my-3 break-words text-sm leading-7">{item.caption}</figcaption><Button variant="outline" disabled={disabled||!profile.galleryAvailable} onClick={()=>void act(()=>client.detachGallery(item.id,profile),gallery=>setProfile(value=>value?{...value,...gallery}:value),'ارجاع تصویر جدا شد؛ فایل عمومی حذف نشده است.')}>جدا کردن از گالری</Button></figure>)}</div><MediaUpload purpose="public-portfolio" capabilities={capabilities} disabled={disabled||!profile.galleryAvailable||profile.gallery.length>=Math.min(20,capabilities?.maxGalleryItems??20)} upload={upload} assign={(asset,caption)=>act(()=>client.addGallery(asset.id,caption,profile),gallery=>setProfile(value=>value?{...value,...gallery}:value),'تصویر به گالری متصل شد؛ وضعیت انتشار را بررسی کنید.')} /></section>}
++  <section className="space-y-4 rounded-[2rem] border border-line bg-card p-5 sm:p-7"><h2 className="text-lg font-bold">{professional?'آواتار حرفه‌ای':'آواتار حساب شخصی'}</h2>{avatar?<><img src={avatar.url} alt="آواتار فعلی" className="h-24 w-24 rounded-2xl object-cover" /><Button variant="outline" disabled={disabled} onClick={()=>void (professional?act(()=>client.saveProfile({avatar_id:null}),value=>apply(value),'ارجاع آواتار پاک شد؛ فایل حذف نشده است.'):act(()=>client.saveAccount({avatar_id:null}),value=>apply(value),'ارجاع آواتار پاک شد؛ فایل حذف نشده است.'))}>پاک کردن آواتار</Button></>:<p className="text-sm text-muted">آواتاری ثبت نشده است.</p>}<MediaUpload purpose="public-avatar" capabilities={capabilities} disabled={disabled} upload={upload} assign={assignAvatar} /></section>
++  {profile&&<section className="space-y-4 rounded-[2rem] border border-line bg-card p-5 sm:p-7"><h2 className="text-lg font-bold">گالری نمونه کار</h2><p className="text-sm leading-7 text-muted">حداکثر {Math.min(20,capabilities?.maxGalleryItems??20).toLocaleString('fa-IR')} تصویر. جدا کردن فقط ارجاع را حذف می‌کند؛ فایل عمومی حذف نمی‌شود.</p>{!profile.galleryAvailable&&<p role="status" className="text-sm leading-8 text-alert">ذخیره‌سازی استاندارد گالری در دسترس نیست؛ تصاویر عمومی معتبر فقط خواندنی هستند. انتقال خودکار داده‌های قدیمی انجام نمی‌شود.</p>}{profile.gallery.length===0&&<p className="text-sm text-muted">تصویری در گالری ثبت نشده است.</p>}<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{profile.gallery.map(item=><figure key={item.id} className="min-w-0 rounded-3xl border border-line bg-elev p-3"><img src={item.url} alt={item.caption||'نمونه کار ثبت‌شده'} className="aspect-[4/3] w-full rounded-xl object-cover" /><figcaption className="my-3 break-words text-sm leading-7">{item.caption||'نمونه کار متصل‌شده'}</figcaption><Button variant="outline" disabled={disabled||!profile.galleryAvailable} onClick={()=>void act(()=>client.detachGallery(item.id,profile),gallery=>setProfile(value=>value?{...value,...gallery}:value),'ارجاع تصویر جدا شد؛ فایل عمومی حذف نشده است.')}>جدا کردن از گالری</Button></figure>)}</div><MediaUpload purpose="public-portfolio" capabilities={capabilities} disabled={disabled||!profile.galleryAvailable||profile.gallery.length>=Math.min(20,capabilities?.maxGalleryItems??20)} upload={upload} assign={(asset,caption)=>act(()=>client.addGallery(asset.id,caption,profile),gallery=>setProfile(value=>value?{...value,...gallery}:value),'تصویر به گالری متصل شد؛ وضعیت انتشار را بررسی کنید.')} /></section>}
++  {profile&&<ProfileReviewPanel status={profile.status} disabled={disabled} onSubmit={()=>void act(()=>client.submitProfile(),value=>apply(value),'پاسخ ارسال دریافت شد؛ وضعیت فعلی از سرور خوانده شده است.')} />}
+  </div>;
+ }
+diff --git a/src/components/sections/owner/OwnerForms.tsx b/src/components/sections/owner/OwnerForms.tsx
+index 1fdcf6e..3c1706b 100644
+--- a/src/components/sections/owner/OwnerForms.tsx
++++ b/src/components/sections/owner/OwnerForms.tsx
+@@ -7,11 +7,14 @@ import { accountInput, profileInput } from '@/lib/owner-ui';
+ import type { AccountDto, ProfileDto } from '@/services/profile/profile-contracts';
+ import type { PublicTerm } from '@/lib/contracts/specialists';
+ 
+-const control='w-full rounded-2xl border border-line bg-elev px-4 py-3 text-fg transition-colors duration-200 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50';
++const control='w-full min-h-12 rounded-2xl border border-line bg-elev px-4 py-3 text-fg transition-[border-color,opacity] duration-200 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50';
+ function SelectField({id,label,children,defaultValue}:{id:string;label:string;children:ReactNode;defaultValue:string|number}) {
+   return <label htmlFor={id} className="block text-sm text-fg-soft">{label}<select id={id} name={id} defaultValue={defaultValue} className={`${control} mt-2`}>{children}</select></label>;
+ }
+ function Terms({terms}:{terms:PublicTerm[]}) { return terms.map(term=><option key={term.id} value={term.id}>{term.name}</option>); }
++function FormGroup({title,description,children}:{title:string;description?:string;children:ReactNode}) {
++ return <fieldset className="min-w-0 space-y-5 border-t border-line pt-5"><legend className="pe-3 text-base font-bold">{title}</legend>{description&&<p className="text-sm leading-7 text-muted">{description}</p>}{children}</fieldset>;
++}
+ function submit(event:FormEvent<HTMLFormElement>,parse:(form:FormData)=>Record<string,unknown>,save:(input:Record<string,unknown>)=>Promise<void>) {
+   event.preventDefault();
+   const form=event.currentTarget;
+@@ -20,28 +23,27 @@ function submit(event:FormEvent<HTMLFormElement>,parse:(form:FormData)=>Record<s
+ }
+ export function AccountForm({account,cities,disabled,onSave}:{account:AccountDto;cities:PublicTerm[];disabled:boolean;onSave:(input:Record<string,unknown>)=>Promise<void>}) {
+  return <form onSubmit={event=>submit(event,accountInput,onSave)} className="space-y-5">
+-  <fieldset disabled={disabled} className="space-y-5"><legend className="mb-4 text-lg font-bold">اطلاعات شخصی</legend>
+-   <Input id="display_name" name="display_name" label="نام نمایشی (حداکثر ۱۰۰ نویسه)" defaultValue={account.displayName} required maxLength={100} autoComplete="name" />
+-   <Input id="login-phone" label="شماره ورود؛ فقط خواندنی" value={account.loginPhoneMasked??'در دسترس نیست'} readOnly dir="ltr" />
+-   <Input id="account-role" label="نقش حساب؛ فقط خواندنی" value={account.role==='specialist'?'متخصص':'کارفرما'} readOnly />
+-   <SelectField id="account_city_id" label="شهر شخصی (اختیاری)" defaultValue={account.location?.id??''}><option value="">پاک کردن شهر</option><Terms terms={cities} />{account.location&&!cities.some(t=>t.id===account.location?.id)&&<option value={account.location.id}>{account.location.name}</option>}</SelectField>
+-   <p className="text-sm leading-7 text-muted">آواتار حساب شخصی از تصویر پروفایل حرفه‌ای مستقل است. تغییر نام و شهر، نقش یا شماره ورود را تغییر نمی‌دهد.</p>
+-   <Button type="submit">ذخیره اطلاعات شخصی</Button>
++  <fieldset disabled={disabled} className="min-w-0 space-y-7"><legend className="mb-5 text-lg font-bold">اطلاعات شخصی</legend>
++   <div className="grid gap-5 sm:grid-cols-2"><Input id="display_name" name="display_name" label="نام نمایشی (حداکثر ۱۰۰ نویسه)" defaultValue={account.displayName} required maxLength={100} autoComplete="name" /><SelectField id="account_city_id" label="شهر شخصی (اختیاری)" defaultValue={account.location?.id??''}><option value="">پاک کردن شهر</option><Terms terms={cities} />{account.location&&!cities.some(t=>t.id===account.location?.id)&&<option value={account.location.id}>{account.location.name}</option>}</SelectField></div>
++   <FormGroup title="شناسه‌های ورود" description="شماره ورود و نقش حساب از این فرم تغییر نمی‌کنند."><div className="grid gap-5 sm:grid-cols-2"><Input id="login-phone" label="شماره ورود؛ فقط خواندنی" value={account.loginPhoneMasked??'در دسترس نیست'} readOnly dir="ltr" /><Input id="account-role" label="نقش حساب؛ فقط خواندنی" value={account.role==='specialist'?'متخصص':'کارفرما'} readOnly /></div></FormGroup>
++   <div className="space-y-4 border-t border-line pt-5"><p className="text-sm leading-7 text-muted">آواتار حساب شخصی از تصویر پروفایل حرفه‌ای مستقل است. تغییر نام و شهر، نقش یا شماره ورود را تغییر نمی‌دهد.</p><Button type="submit">ذخیره اطلاعات شخصی</Button></div>
+   </fieldset><p data-validation role="alert" tabIndex={-1} className="text-sm text-alert" />
+  </form>;
+ }
+ export function ProfessionalForm({profile,cities,categories,disabled,onSave}:{profile:ProfileDto;cities:PublicTerm[];categories:PublicTerm[];disabled:boolean;onSave:(input:Record<string,unknown>)=>Promise<void>}) {
+  return <form onSubmit={event=>submit(event,profileInput,onSave)} className="space-y-5">
+-  <fieldset disabled={disabled} className="space-y-5"><legend className="mb-4 text-lg font-bold">اطلاعات حرفه‌ای</legend>
+-   <Input id="title" name="title" label="عنوان حرفه‌ای (حداکثر ۱۶۰ نویسه)" defaultValue={profile.title} required maxLength={160} />
+-   {([{name:'bio',label:'معرفی؛ حداکثر ۴۰۰۰ نویسه',max:4000,value:profile.bio},{name:'skills',label:'مهارت‌ها؛ حداکثر ۱۰۰۰ نویسه',max:1000,value:profile.skills},{name:'address',label:'نشانی خصوصی؛ حداکثر ۵۰۰ نویسه',max:500,value:profile.address}] as const).map(field=><label key={field.name} htmlFor={field.name} className="block text-sm text-fg-soft">{field.label}<textarea id={field.name} name={field.name} defaultValue={field.value} maxLength={field.max} rows={3} className={`${control} mt-2 resize-y`} /></label>)}
+-   <p className="text-xs leading-6 text-muted">نشانی خصوصی عمومی نمایش داده نمی‌شود. متن بدون HTML و بدون خط جدید وارد کنید؛ خالی گذاشتن موارد اختیاری آن‌ها را پاک می‌کند.</p>
+-   <fieldset className="rounded-2xl border border-line p-4"><legend className="px-2 text-sm">دسته‌های خدمت؛ حداکثر ۱۰ دسته</legend><div className="grid gap-3 sm:grid-cols-2">{[...categories,...profile.categories.filter(c=>!categories.some(t=>t.id===c.id))].map(category=><label key={category.id} className="flex items-center gap-2 text-sm"><input type="checkbox" name="category_ids" value={category.id} defaultChecked={profile.categories.some(c=>c.id===category.id)} className="h-5 w-5 accent-accent" />{category.name}</label>)}</div></fieldset>
+-   <SelectField id="city_id" label="شهر خدمت (اختیاری)" defaultValue={profile.cities[0]?.id??''}><option value="">پاک کردن شهر خدمت</option><Terms terms={cities} />{profile.cities.filter(c=>!cities.some(t=>t.id===c.id)).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</SelectField>
+-   <SelectField id="availability" label="وضعیت دسترسی (اختیاری)" defaultValue={profile.availability}><option value="">مشخص نشده</option><option value="available">آماده کار</option><option value="busy">مشغول</option><option value="away">در دسترس نیستم</option></SelectField>
+-   <Input id="experience_years" name="experience_years" label="سابقه کار؛ ۰ تا ۸۰ سال (اختیاری)" type="number" min={0} max={80} step={1} defaultValue={profile.experienceYears??''} />
+-   <Input id="price_hint" name="price_hint" label="توضیح قیمت؛ حداکثر ۲۰۰ نویسه (اختیاری)" maxLength={200} defaultValue={profile.priceHint} />
+-   <Button type="submit">ذخیره پیش‌نویس تغییرات</Button>
++  <fieldset disabled={disabled} className="min-w-0 space-y-8"><legend className="mb-5 text-lg font-bold">اطلاعات حرفه‌ای</legend>
++   <FormGroup title="معرفی و مهارت‌ها" description="متن بدون HTML و بدون خط جدید وارد کنید؛ خالی گذاشتن موارد اختیاری آن‌ها را پاک می‌کند.">
++    <Input id="title" name="title" label="عنوان حرفه‌ای (حداکثر ۱۶۰ نویسه)" defaultValue={profile.title} required maxLength={160} />
++    {([{name:'bio',label:'معرفی؛ حداکثر ۴۰۰۰ نویسه',max:4000,value:profile.bio},{name:'skills',label:'مهارت‌ها؛ حداکثر ۱۰۰۰ نویسه',max:1000,value:profile.skills}] as const).map(field=><label key={field.name} htmlFor={field.name} className="block text-sm text-fg-soft">{field.label}<textarea id={field.name} name={field.name} defaultValue={field.value} maxLength={field.max} rows={3} className={`${control} mt-2 resize-y`} /></label>)}
++   </FormGroup>
++   <FormGroup title="خدمات و محدوده فعالیت">
++    <fieldset className="min-w-0 rounded-2xl border border-line p-4"><legend className="px-2 text-sm">دسته‌های خدمت؛ حداکثر ۱۰ دسته</legend><div className="grid gap-2 sm:grid-cols-2">{[...categories,...profile.categories.filter(c=>!categories.some(t=>t.id===c.id))].map(category=><label key={category.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-2 text-sm hover:bg-wash focus-within:ring-2 focus-within:ring-accent"><input type="checkbox" name="category_ids" value={category.id} defaultChecked={profile.categories.some(c=>c.id===category.id)} className="h-5 w-5 shrink-0 accent-accent" />{category.name}</label>)}</div></fieldset>
++    <SelectField id="city_id" label="شهر خدمت (اختیاری)" defaultValue={profile.cities[0]?.id??''}><option value="">پاک کردن شهر خدمت</option><Terms terms={cities} />{profile.cities.filter(c=>!cities.some(t=>t.id===c.id)).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</SelectField>
++   </FormGroup>
++   <FormGroup title="شرایط همکاری"><div className="grid gap-5 sm:grid-cols-2"><SelectField id="availability" label="وضعیت دسترسی (اختیاری)" defaultValue={profile.availability}><option value="">مشخص نشده</option><option value="available">آماده کار</option><option value="busy">مشغول</option><option value="away">در دسترس نیستم</option></SelectField><Input id="experience_years" name="experience_years" label="سابقه کار؛ ۰ تا ۸۰ سال (اختیاری)" type="number" min={0} max={80} step={1} defaultValue={profile.experienceYears??''} /></div><Input id="price_hint" name="price_hint" label="توضیح قیمت؛ حداکثر ۲۰۰ نویسه (اختیاری)" maxLength={200} defaultValue={profile.priceHint} /></FormGroup>
++   <FormGroup title="نشانی خصوصی" description="این نشانی عمومی نمایش داده نمی‌شود و از شهر خدمت جداست."><label htmlFor="address" className="block text-sm text-fg-soft">نشانی خصوصی؛ حداکثر ۵۰۰ نویسه<textarea id="address" name="address" defaultValue={profile.address} maxLength={500} rows={3} className={`${control} mt-2 resize-y`} /></label></FormGroup>
++   <div className="space-y-4 border-t border-line pt-5"><p className="text-sm leading-7 text-muted">ذخیره، انتشار نیست. پس از ذخیره، وضعیت تازه پروفایل را بررسی کنید.</p><Button type="submit">ذخیره پیش‌نویس تغییرات</Button></div>
+   </fieldset><p data-validation role="alert" tabIndex={-1} className="text-sm text-alert" />
+  </form>;
+ }
+diff --git a/src/components/sections/owner/AccountWorkspace.tsx b/src/components/sections/owner/AccountWorkspace.tsx
+new file mode 100644
+index 0000000..dc03b9b
+--- /dev/null
++++ b/src/components/sections/owner/AccountWorkspace.tsx
+@@ -0,0 +1,58 @@
++import type {ReactNode} from 'react';
++import Link from 'next/link';
++import {accountLinks,type OwnerTarget} from '@/lib/owner-ui';
++import type {RegistrationRole} from '@/lib/contracts/auth';
++import type {ProfileDto,ProfileStatus} from '@/services/profile/profile-contracts';
++import {Button} from '@/components/ui/Button';
++import {Check,Minus,ImageIcon} from 'lucide-react';
++
++const statusLabel={draft:'پیش‌نویس',pending:'در انتظار بررسی',publish:'منتشرشده'};
++/** Facts from the last authoritative ProfileDto, never unsaved form values or a score. */
++export function savedProfileChecklist(profile:ProfileDto) {
++ return [{label:'عنوان حرفه‌ای',complete:profile.title.trim().length>0},{label:'دسته خدمت',complete:profile.categories.length>0},{label:'شهر خدمت',complete:profile.cities.length>0}];
++}
++export function reviewPresentation(status:ProfileStatus,disabled:boolean) {
++ return {disabled:disabled||status==='pending',label:status==='pending'?'در انتظار بررسی':'ارسال برای بررسی'};
++}
++export function uploadPresentation({selected,uploaded,pending,uncertain}:{selected:boolean;uploaded:boolean;pending:boolean;uncertain:boolean}) {
++ if(uncertain)return 'نتیجه بارگذاری قطعی نیست؛ پیش از اقدام دوباره وضعیت را بررسی کنید.';
++ if(pending)return 'عملیات در حال انجام است؛ لطفاً صبر کنید.';
++ if(uploaded)return 'فایل بارگذاری شده؛ هنوز متصل نشده است.';
++ if(selected)return 'تصویر انتخاب شده؛ هنوز بارگذاری نشده است.';
++ return 'هنوز تصویری انتخاب نشده است.';
++}
++
++// Account-scoped interaction treatment; shared primitives and recovery links stay unchanged.
++export const workspaceClass='mx-auto max-w-5xl space-y-7 px-4 py-8 text-start sm:px-6 sm:py-10 [&_button]:max-w-full [&_button]:whitespace-normal [&_button]:h-auto [&_button]:min-h-11 [&_button]:py-2 [&_button]:transition-[transform,opacity] [&_button]:duration-200 [&_button]:ease-[cubic-bezier(0.2,0,0,1)] [&_button:active]:scale-[0.98] motion-reduce:[&_button:active]:scale-100';
++export const workspaceLink='inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-line px-4 py-2 text-sm text-fg-soft hover:bg-wash hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent active:scale-[0.98] motion-reduce:active:scale-100';
++export const primaryWorkspaceLink=`${workspaceLink} border-transparent bg-primary font-bold text-primary-fg hover:bg-primary-hover hover:text-primary-fg`;
++
++export function WorkspaceHeader({role,current,title,description}:{role:RegistrationRole;current:OwnerTarget;title:string;description:string}) {
++ return <header className="space-y-5 border-b border-line pb-6">
++  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm"><span className="rounded-xl bg-elev px-3 py-2 font-medium text-fg-soft">فضای کار {role==='specialist'?'متخصص':'کارفرما'}</span><span className="text-muted">حساب کاربان</span></div>
++  <div><h1 className="break-words text-[clamp(1.5rem,3vw,2rem)] leading-relaxed font-bold">{title}</h1><p className="mt-2 max-w-2xl text-sm leading-8 text-muted">{description}</p></div>
++  <nav aria-label="بخش‌های حساب" className="flex flex-wrap gap-2">{accountLinks(role).map(link=><Link key={link.href} href={link.href} aria-current={current===link.href?'page':undefined} className={`${workspaceLink} ${current===link.href?'border-accent/40 bg-accent/10 font-bold text-accent':''}`}>{link.label}</Link>)}</nav>
++ </header>;
++}
++export function WorkspacePanel({title,description,children}:{title:string;description?:string;children?:ReactNode}) {
++ return <section className="space-y-4 rounded-3xl border border-line bg-card p-5 sm:p-7"><div><h2 className="text-lg font-bold">{title}</h2>{description&&<p className="mt-2 max-w-2xl text-sm leading-8 text-muted">{description}</p>}</div>{children}</section>;
++}
++
++export function SavedProfileSummary({profile}:{profile:ProfileDto}) {
++ return <WorkspacePanel title="اطلاعات ذخیره‌شده" description="این خلاصه از آخرین پاسخ سرور است؛ تغییرات ذخیره‌نشده فرم در آن محاسبه نمی‌شود.">
++  <div className="flex items-start gap-4">
++   {/* eslint-disable-next-line @next/next/no-img-element -- Normalized public WordPress avatar. */}
++   {profile.avatar?<img src={profile.avatar.url} alt="آواتار حرفه‌ای ذخیره‌شده" className="h-16 w-16 shrink-0 rounded-2xl object-cover sm:h-20 sm:w-20" />:<span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-elev text-muted sm:h-20 sm:w-20"><ImageIcon size={26} aria-hidden="true" /><span className="sr-only">آواتاری ثبت نشده است.</span></span>}
++   <div className="min-w-0 space-y-2"><h3 className="break-words text-lg font-bold">{profile.title||'عنوان حرفه‌ای ثبت نشده است'}</h3><p className="inline-flex rounded-xl border border-line bg-elev px-3 py-1 text-sm font-medium">وضعیت: {statusLabel[profile.status]}</p><p className="text-sm leading-7 text-muted">تایید هویت: {profile.verified===undefined?'اطلاعات قابل نمایش نیست':profile.verified?'تاییدشده؛ فقط خواندنی':'تایید نشده؛ فقط خواندنی'}</p></div>
++  </div>
++  <div className="space-y-4 border-t border-line pt-4"><h3 className="text-sm font-bold">موارد لازم برای درخواست بررسی</h3><ul className="grid gap-3 sm:grid-cols-3">{savedProfileChecklist(profile).map(item=><li key={item.label} className="flex items-center gap-2 text-sm">{item.complete?<Check size={18} className="shrink-0 text-accent" aria-hidden="true" />:<Minus size={18} className="shrink-0 text-muted" aria-hidden="true" />}<span>{item.label}<span className="mt-1 block text-xs text-muted">{item.complete?'ذخیره شده':'ثبت نشده'}</span></span></li>)}</ul><p className="text-sm leading-7 text-muted">تصاویر اختیاری: آواتار {profile.avatar?'ثبت شده':'ثبت نشده'}؛ نمونه کار {profile.gallery.length>0?'ثبت شده':'ثبت نشده'}. این موارد نشان تایید یا تضمین انتشار نیستند.</p></div>
++  <div className="space-y-2 border-t border-line pt-4"><Link href={`/specialists/${encodeURIComponent(profile.slug)}`} className={workspaceLink}>نشانی عمومی ثابت پروفایل</Link><p className="text-xs leading-7 text-muted">نشانی تا زمان انتشار ممکن است عمومی قابل مشاهده نباشد.</p></div>
++ </WorkspacePanel>;
++}
++export function ProfileReviewPanel({status,disabled,onSubmit}:{status:ProfileStatus;disabled:boolean;onSubmit:()=>void}) {
++ const action=reviewPresentation(status,disabled);
++ return <WorkspacePanel title="ارسال نسخه ذخیره‌شده برای بررسی" description="ابتدا تغییرات فرم را ذخیره کنید؛ این دکمه فقط نسخه ذخیره‌شده را می‌فرستد. ذخیره، انتشار نیست. تغییر پروفایل منتشرشده ممکن است آن را به انتظار بررسی برگرداند. ارسال برای بررسی نیز به معنی انتشار یا تایید نیست.">
++  {status==='pending'&&<p className="text-sm leading-7 text-muted">پروفایل در انتظار بررسی است؛ ارسال دوباره در این وضعیت غیرفعال است.</p>}
++  <Button type="button" variant="outline" disabled={action.disabled} onClick={onSubmit}>{action.label}</Button>
++ </WorkspacePanel>;
++}
+diff --git a/src/components/sections/owner/workspace-render.test.ts b/src/components/sections/owner/workspace-render.test.ts
+new file mode 100644
+index 0000000..54a33ad
+--- /dev/null
++++ b/src/components/sections/owner/workspace-render.test.ts
+@@ -0,0 +1,45 @@
++import assert from 'node:assert/strict';
++import {test} from 'node:test';
++import {createElement} from 'react';
++import {renderToStaticMarkup} from 'react-dom/server';
++import {ClientDashboard} from '../ClientDashboard.tsx';
++import {ProDashboard} from '../ProDashboard.tsx';
++import {AccountForm,ProfessionalForm} from './OwnerForms.tsx';
++import {MediaUpload} from './MediaUpload.tsx';
++import type {AccountDto,ProfileDto,MediaCapabilitiesDto} from '@/services/profile/profile-contracts';
++const account:AccountDto={id:1,displayName:'نام واقعی',role:'client',loginPhoneMasked:'09*****4567',avatar:null,location:null,specialist:null};
++const profile:ProfileDto={id:8,slug:'worker',title:'نقاش واقعی',status:'pending',categories:[{id:17,name:'نقاشی',slug:'paint'}],cities:[],avatar:null,bio:'معرفی ذخیره‌شده',skills:'مهارت',address:'نشانی خصوصی',availability:'',priceHint:'',experienceYears:0,gallery:[],galleryRevision:3,galleryAvailable:true};
++const capabilities:MediaCapabilitiesDto={purposes:['public-avatar'],imageMimes:['image/jpeg','image/webp'],maxBytes:1000,maxDimension:100,maxPixels:10000,maxFiles:1,maxGalleryItems:20,video:{enabled:false,reason:'video_unsupported'},imageDecoderRequired:true};
++const render=renderToStaticMarkup;
++test('client workspace marks current section and makes search the primary task without specialist links',()=>{
++ const html=render(createElement(ClientDashboard,{displayName:account.displayName}));
++ assert.match(html,/max-w-5xl/);assert.match(html,/<a[^>]*aria-current="page"[^>]*href="\/dashboard"|<a[^>]*href="\/dashboard"[^>]*aria-current="page"/);
++ assert.match(html,/<a[^>]*class="[^"]*bg-primary[^"]*"[^>]*href="\/search"|<a[^>]*href="\/search"[^>]*class="[^"]*bg-primary/);
++ assert.doesNotMatch(html,/href="\/pro|تومان|درصد|verified/);assert.match(html,/نام واقعی/);
++});
++test('specialist workspace prioritizes completing a profile and retains truthful disconnected services',()=>{
++ const html=render(createElement(ProDashboard,{displayName:account.displayName}));
++ assert.match(html,/تکمیل پروفایل حرفه‌ای/);assert.match(html,/aria-current="page"/);assert.match(html,/متصل نیست/);
++ assert.doesNotMatch(html,/تومان|درصد|تاییدشده|پروژه موفق/);
++});
++test('professional fields are semantically grouped, private address separate and save remains inside the form',()=>{
++ const html=render(createElement(ProfessionalForm,{profile,cities:[],categories:[],disabled:true,onSave:async()=>{}}));
++ for(const title of ['معرفی و مهارت‌ها','خدمات و محدوده فعالیت','شرایط همکاری','نشانی خصوصی']) assert.match(html,new RegExp(`<legend[^>]*>${title}`));
++ assert.match(html,/<fieldset disabled=""/);assert.match(html,/<form[\s\S]*<button[^>]*type="submit"[\s\S]*ذخیره[\s\S]*<\/form>/);
++ assert.match(html,/value="0"/);assert.doesNotMatch(html,/name="(?:status|verified|role)"/);
++});
++test('account identity is visibly grouped as readonly and excluded from save payload fields',()=>{
++ const html=render(createElement(AccountForm,{account,cities:[],disabled:false,onSave:async()=>{}}));
++ assert.match(html,/<legend[^>]*>شناسه‌های ورود/);assert.match(html,/09\*{5}4567/);
++ assert.equal((html.match(/readOnly=""/g)||[]).length,2);assert.doesNotMatch(html,/name="(?:phone|role|login-phone|account-role)"/);
++});
++test('upload workspace describes its actual empty stage and gates picker after visible public consent',()=>{
++ const html=render(createElement(MediaUpload,{purpose:'public-avatar',capabilities,disabled:false,upload:async()=>{throw Error();},assign:async()=>false}));
++ assert.match(html,/هنوز تصویری انتخاب نشده/);assert.match(html,/انتخاب تصویر[\s\S]*بارگذاری فایل[\s\S]*اتصال به پروفایل/);
++ assert.ok(html.indexOf('عمومی بودن فایل')<html.indexOf('type="file"'));
++ assert.match(html,/<input[^>]*type="file"[^>]*disabled=""/);assert.match(html,/حتی اگر پروفایل پیش‌نویس/);
++});
++test('unsupported media purpose never exposes a picker or hides public URL warning',()=>{
++ const html=render(createElement(MediaUpload,{purpose:'public-portfolio',capabilities,disabled:false,upload:async()=>{throw Error();},assign:async()=>false}));
++ assert.match(html,/قابلیت بارگذاری در دسترس نیست/);assert.match(html,/نشانی فایل بارگذاری‌شده عمومی است/);assert.doesNotMatch(html,/type="file"/);
++});
+diff --git a/src/components/sections/owner/workspace-presentation.test.ts b/src/components/sections/owner/workspace-presentation.test.ts
+new file mode 100644
+index 0000000..c38315a
+--- /dev/null
++++ b/src/components/sections/owner/workspace-presentation.test.ts
+@@ -0,0 +1,44 @@
++import assert from 'node:assert/strict';
++import {test} from 'node:test';
++import {createElement} from 'react';
++import {renderToStaticMarkup} from 'react-dom/server';
++import * as workspace from './AccountWorkspace.tsx';
++import type {ProfileDto} from '@/services/profile/profile-contracts';
++const profile:ProfileDto={id:8,slug:'worker',title:'نقاش واقعی',status:'pending',categories:[{id:17,name:'نقاشی',slug:'paint'}],cities:[],avatar:null,bio:'متن',skills:'مهارت',address:'نشانی خصوصی',availability:'',priceHint:'',experienceYears:0,gallery:[],galleryRevision:3,galleryAvailable:true};
++test('saved checklist projects only persisted title category city, with optional media separate',()=>{
++ assert.deepEqual(workspace.savedProfileChecklist(profile),[{label:'عنوان حرفه‌ای',complete:true},{label:'دسته خدمت',complete:true},{label:'شهر خدمت',complete:false}]);
++ assert.deepEqual(workspace.savedProfileChecklist({...profile,title:'  ',categories:[],cities:[{id:42,name:'کاشان',slug:'kashan'}]}).map(item=>item.complete),[false,false,true]);
++});
++test('review presentation never enables pending or recovery-locked submission',()=>{
++ for(const status of ['draft','pending','publish'] as const){
++  assert.equal(workspace.reviewPresentation(status,true).disabled,true);
++  assert.equal(workspace.reviewPresentation(status,false).disabled,status==='pending');
++ }
++ assert.match(workspace.reviewPresentation('pending',false).label,/در انتظار بررسی/);
++});
++test('media projection distinguishes selection upload and attachment, without claiming saved success',()=>{
++ assert.equal(workspace.uploadPresentation({selected:false,uploaded:false,pending:false,uncertain:false}),'هنوز تصویری انتخاب نشده است.');
++ assert.match(workspace.uploadPresentation({selected:true,uploaded:false,pending:false,uncertain:false}),/انتخاب شده.*هنوز بارگذاری نشده/);
++ assert.match(workspace.uploadPresentation({selected:false,uploaded:true,pending:false,uncertain:false}),/بارگذاری شده.*هنوز متصل نشده/);
++ assert.match(workspace.uploadPresentation({selected:false,uploaded:true,pending:true,uncertain:false}),/در حال انجام/);
++ assert.match(workspace.uploadPresentation({selected:true,uploaded:false,pending:false,uncertain:true}),/قطعی نیست/);
++});
++test('saved summary renders server title, pending status and unknown verification distinctly without private content',()=>{
++ const html=renderToStaticMarkup(createElement(workspace.SavedProfileSummary,{profile}));
++ assert.match(html,/نقاش واقعی/);assert.match(html,/در انتظار بررسی/);assert.match(html,/تایید هویت: اطلاعات قابل نمایش نیست/);
++ assert.match(html,/اطلاعات ذخیره‌شده/);assert.match(html,/شهر خدمت[\s\S]*ثبت نشده/);
++ assert.match(html,/اختیاری/);assert.match(html,/تا زمان انتشار/);
++ assert.doesNotMatch(html,/نشانی خصوصی|درصد|%|تاییدشده/);
++});
++test('all actual publication and verification values stay independent in the summary',()=>{
++ for(const status of ['draft','pending','publish'] as const)for(const verified of [false,true,undefined]){
++  const html=renderToStaticMarkup(createElement(workspace.SavedProfileSummary,{profile:{...profile,status,verified}}));
++  assert.match(html,new RegExp({draft:'پیش‌نویس',pending:'در انتظار بررسی',publish:'منتشرشده'}[status]));
++  assert.match(html,new RegExp(verified===undefined?'اطلاعات قابل نمایش نیست':verified?'تاییدشده؛ فقط خواندنی':'تایید نشده؛ فقط خواندنی'));
++ }
++});
++test('review panel exposes a single distinct action on saved data and pending text with disabled control',()=>{
++ const html=renderToStaticMarkup(createElement(workspace.ProfileReviewPanel,{status:'pending',disabled:false,onSubmit:()=>{}}));
++ assert.match(html,/نسخه ذخیره‌شده/);assert.match(html,/در انتظار بررسی/);assert.match(html,/<button[^>]*disabled=""/);
++ assert.equal((html.match(/<button/g)||[]).length,1);assert.doesNotMatch(html,/type="submit"/);
++});

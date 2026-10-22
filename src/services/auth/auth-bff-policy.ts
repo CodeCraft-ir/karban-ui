@@ -1,29 +1,30 @@
 import { AuthCoordinatorError } from "./auth-coordinator.ts";
-import type { UpstreamLocalStatus } from "./contracts.ts";
+import { parseUpstreamOtpReadiness, type OtpReadinessReceipt } from "./contracts.ts";
 
 export interface OtpReadinessDependencies {
   isLoopback: boolean;
   localDevelopmentEnabled: boolean;
-  getLocalStatus: () => Promise<UpstreamLocalStatus>;
+  localSmsEnabled: boolean;
+  getReadiness: () => Promise<unknown>;
 }
 
-export function createOtpReadinessCheck(dependencies: OtpReadinessDependencies): () => Promise<void> {
+/** Returns trusted expected context, never browser intent or the request response itself. */
+export function createOtpReadinessCheck(dependencies: OtpReadinessDependencies): () => Promise<OtpReadinessReceipt> {
   return async () => {
-    if (!dependencies.isLoopback) {
-      return;
-    }
-    if (!dependencies.localDevelopmentEnabled) {
-      throw new AuthCoordinatorError("auth_unavailable");
-    }
+    if (!dependencies.isLoopback) return { mode: "sms", codeLength: 5 };
+    if (!dependencies.localDevelopmentEnabled) throw new AuthCoordinatorError("auth_unavailable");
     try {
-      const status = await dependencies.getLocalStatus();
-      if (status.otpReady !== true || status.credentialProvenanceReady !== true) {
+      const status = parseUpstreamOtpReadiness(await dependencies.getReadiness());
+      const expected: OtpReadinessReceipt = dependencies.localSmsEnabled
+        ? { mode: "sms", codeLength: 5 }
+        : { mode: "local_simulated", codeLength: 6 };
+      if (!status.otpSchemaReady || !status.credentialSchemaReady ||
+          status.mode !== expected.mode || status.codeLength !== expected.codeLength ||
+          (expected.mode === "sms" ? !status.providerConfigured || !status.localRealSmsAllowed : status.localRealSmsAllowed)) {
         throw new AuthCoordinatorError("auth_unavailable");
       }
-    } catch (error) {
-      if (error instanceof AuthCoordinatorError) {
-        throw error;
-      }
+      return expected;
+    } catch {
       throw new AuthCoordinatorError("auth_unavailable");
     }
   };

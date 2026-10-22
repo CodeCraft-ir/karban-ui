@@ -14,7 +14,7 @@ function request(body:unknown={},headers:Record<string,string>={}){return new Re
 function fixture(options:{role?:"client"|"specialist";anonymous?:boolean;response?:(path:string,method:string,body:unknown)=>unknown;saveFail?:boolean}={}) {
   let current:AuthSessionData|undefined=options.anonymous?undefined:state(options.role); const saves:AuthSessionData[]=[]; const calls:Array<{path:string;method:string;token:string;body?:unknown}>=[];
   const authGateway:AuthGatewayPort={requestOtp:async()=>{throw Error();},verifyOtp:async()=>{throw Error();},refresh:async()=>{throw Error("must not refresh");},me:async()=>{throw Error();},logoutRefresh:async()=>({logged_out:true})};
-  const auth=createAuthCoordinator({session:{read:()=>current,save:async next=>{if(options.saveFail)throw Error("private cookie error");current=next;saves.push(next);},destroy:()=>{current=undefined;}},gateway:authGateway,now:()=>Date.now(),uuid:()=>crypto.randomUUID(),ensureOtpReady:async()=>{},refreshCoordinator:createRefreshCoordinator(()=>Date.now())});
+  const auth=createAuthCoordinator({session:{read:()=>current,save:async next=>{if(options.saveFail)throw Error("private cookie error");current=next;saves.push(next);},destroy:()=>{current=undefined;}},gateway:authGateway,now:()=>Date.now(),uuid:()=>crypto.randomUUID(),ensureOtpReady:async()=>({mode:"sms",codeLength:5}),refreshCoordinator:createRefreshCoordinator(()=>Date.now())});
   const gateway=createProfileGateway({json:async(path,init)=>{
     calls.push({path,...init}); const replacement=options.response?.(path,init.method,init.body); if(replacement!==undefined)return replacement;
     if(path==="account/me")return {...rawAccount,...(options.role==="client"?{role:"client",specialist:null}:{})};

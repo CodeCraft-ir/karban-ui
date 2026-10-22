@@ -64,7 +64,7 @@ function gateway(overrides: Partial<AuthGatewayPort> = {}): AuthGatewayPort & { 
 function coordinator(
   authGateway = gateway(),
   authSession = session(),
-  readiness: () => Promise<void> = async () => {},
+  readiness: () => Promise<{mode:"sms";codeLength:5}> = async () => ({mode:"sms",codeLength:5}),
 ) {
   return {
     gateway: authGateway,
@@ -214,7 +214,7 @@ test("coalesces refresh by generation and prevents a logout race from restoring 
     auth: { accessToken: "access-a", accessExpiresAt: now + 1, refreshToken: "refresh-a", refreshExpiresAt: now + 2, account, generation: "generation-a" },
   });
   const refreshCoordinator = createRefreshCoordinator(() => now);
-  const active = createAuthCoordinator({ gateway: rotatingGateway, session: authSession, now: () => now, uuid: () => "unused", ensureOtpReady: async () => {}, refreshCoordinator });
+  const active = createAuthCoordinator({ gateway: rotatingGateway, session: authSession, now: () => now, uuid: () => "unused", ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }), refreshCoordinator });
   const first = active.refresh();
   const second = active.refresh();
   assert.equal(rotatingGateway.calls.refresh, 1);
@@ -294,9 +294,9 @@ test("serializes refresh finalization across distinct route session ports and re
   const stalePort = routePort("stale", false);
   const refreshCoordinator = createRefreshCoordinator(() => now);
   const rotatingGateway = gateway();
-  const refreshing = createAuthCoordinator({ gateway: rotatingGateway, session: refreshPort, now: () => now, uuid: () => "unused", ensureOtpReady: async () => {}, refreshCoordinator });
-  const loggingOut = createAuthCoordinator({ gateway: rotatingGateway, session: logoutPort, now: () => now, uuid: () => "unused", ensureOtpReady: async () => {}, refreshCoordinator });
-  const stale = createAuthCoordinator({ gateway: rotatingGateway, session: stalePort, now: () => now, uuid: () => "unused", ensureOtpReady: async () => {}, refreshCoordinator });
+  const refreshing = createAuthCoordinator({ gateway: rotatingGateway, session: refreshPort, now: () => now, uuid: () => "unused", ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }), refreshCoordinator });
+  const loggingOut = createAuthCoordinator({ gateway: rotatingGateway, session: logoutPort, now: () => now, uuid: () => "unused", ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }), refreshCoordinator });
+  const stale = createAuthCoordinator({ gateway: rotatingGateway, session: stalePort, now: () => now, uuid: () => "unused", ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }), refreshCoordinator });
 
   const refresh = refreshing.refresh();
   await saveStarted;

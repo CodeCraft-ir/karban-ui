@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   getAuthRuntimeConfig,
   isLoopbackWordPressOrigin,
+  isLocalSmsAllowed,
   isLoopbackOtpAllowed,
 } from "./auth-runtime-config.ts";
 
@@ -37,4 +38,14 @@ test("permits loopback OTP only with exact development opt-in and a non-producti
     assert.equal(isLoopbackOtpAllowed(env(envValues), "http://localhost/kar"), false);
   }
   assert.equal(isLoopbackOtpAllowed(env({ KARBAN_LOCAL_DEVELOPMENT: "true", NODE_ENV: "development" }), "https://codecraft.ir/kar"), false);
+});
+
+test("separate local SMS flag never bypasses local nonproduction canonical loopback policy", () => {
+  const allowed = env({ KARBAN_LOCAL_DEVELOPMENT: "true", KARBAN_ALLOW_LOCAL_SMS: "true", NODE_ENV: "development" });
+  assert.equal(isLocalSmsAllowed(allowed, "http://localhost/kar"), true);
+  assert.equal(isLocalSmsAllowed(allowed, "https://[::1]/kar"), true);
+  for (const overrides of [{ KARBAN_ALLOW_LOCAL_SMS: undefined }, { KARBAN_ALLOW_LOCAL_SMS: "TRUE" }, { KARBAN_LOCAL_DEVELOPMENT: undefined }, { NODE_ENV: "production" }]) {
+    assert.equal(isLocalSmsAllowed(env({ ...allowed, ...overrides }), "http://localhost/kar"), false);
+  }
+  for (const origin of ["https://example.test", "http://localhost.evil.test", "http://user:pass@localhost", "http://localhost/?mode=sms"]) assert.equal(isLocalSmsAllowed(allowed, origin), false);
 });

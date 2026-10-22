@@ -8,7 +8,7 @@ import {
   type AuthSessionData,
 } from "./auth-coordinator.ts";
 import { createOtpReadinessCheck } from "./auth-bff-policy.ts";
-import { getAuthRuntimeConfig, isLoopbackOtpAllowed, isLoopbackWordPressOrigin } from "./auth-runtime-config.ts";
+import { getAuthRuntimeConfig, isLocalSmsAllowed, isLoopbackOtpAllowed, isLoopbackWordPressOrigin } from "./auth-runtime-config.ts";
 import type { AuthRouteAdapterDependencies } from "./auth-route-adapters.ts";
 import { getAuthSession } from "./session.server.ts";
 import { createIronSessionPort } from "./auth-session-storage.ts";
@@ -48,7 +48,8 @@ export async function createRequestAuthCoordinator(readOnly = false): Promise<Se
     ensureOtpReady: createOtpReadinessCheck({
       isLoopback: isLoopbackWordPressOrigin(wordpressOrigin),
       localDevelopmentEnabled: isLoopbackOtpAllowed(process.env, wordpressOrigin),
-      getLocalStatus: () => gateway.localStatus(),
+      localSmsEnabled: isLocalSmsAllowed(process.env, wordpressOrigin),
+      getReadiness: () => gateway.otpReadiness(),
     }),
     refreshCoordinator,
   });

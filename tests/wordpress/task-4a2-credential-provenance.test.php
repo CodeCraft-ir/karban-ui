@@ -189,6 +189,17 @@ namespace Nahan\Core\Auth {
 		assert_error( jwt( local_gate( [ 'environment_type' => 'production' ] ) )->refresh( $pair['refresh_token'] ), 'invalid_refresh', 401, 'Copied/deactivated local refresh must fail.' );
 		assert_true( jwt( local_gate( [ 'environment_type' => 'production' ] ) )->logout_refresh( $pair['refresh_token'] ), 'Raw refresh secret must still revoke its matching old row after access becomes unusable.' );
 	};
+	$tests['Task9B explicit mode switch rejects existing local credentials but preserves ordinary SMS credentials'] = static function (): void {
+		$wpdb = \reset_fixture(); global $test_options;
+		$local = jwt( local_gate() )->issue_pair( 41, 'device', [ 'delivery_mode' => 'local_simulated', 'code_length' => 6 ] );
+		$normal = jwt( local_gate() )->issue_pair( 41, 'device', [ 'delivery_mode' => 'sms', 'code_length' => 5 ] );
+		$test_options['nahan_local_otp_policy'] = [ 'mode' => 'sms', 'sms_armed' => true ];
+		assert_error( jwt( local_gate() )->decode( $local['access_token'] ), 'jwt_local_unavailable', 401, 'Mode change invalidates local access.' );
+		$wpdb->refresh_row = [ 'id' => 9, 'user_id' => 41, 'device_id' => 'device', 'expires_at' => '2099-01-01 00:00:00', 'revoked_at' => null, 'credential_mode' => 'local_simulated', 'installation_origin' => 'http://localhost:8080/karban', 'otp_code_length' => 6 ];
+		assert_error( jwt( local_gate() )->refresh( $local['refresh_token'] ), 'invalid_refresh', 401, 'Mode change cannot reclassify local refresh as SMS.' );
+		assert_true( is_array( jwt( local_gate() )->decode( $normal['access_token'] ) ), 'Existing ordinary SMS access stays compatible.' );
+		assert_error( jwt( local_gate() )->local_status(), 'local_status_unavailable', 404, 'Old simulation status does not advertise SMS mode.' );
+	};
 	$tests['missing or weak signing secret causes no credential write'] = static function (): void {
 		foreach ( [ '', 'too-short' ] as $secret ) {
 			$wpdb = \reset_fixture(); global $test_options; $test_options['nahan_jwt_secret'] = $secret;

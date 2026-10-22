@@ -8,6 +8,7 @@ import {
 } from "../../lib/auth-policy.ts";
 import type { AccountSummary, RegistrationRole } from "../../lib/contracts/auth.ts";
 import type {
+  OtpReadinessReceipt,
   OtpCodeLength,
   OtpDeliveryMode,
   UpstreamMeUser,
@@ -54,9 +55,12 @@ export interface AuthGatewayPort {
   logoutRefresh(refreshToken: string): Promise<{ logged_out: true }>;
 }
 
-export type AuthCoordinatorCode = "rate_limited" | "invalid_request" | "auth_unavailable" | "challenge_missing" | "challenge_expired" | "invalid_code" | "unsupported_role" | "unauthenticated" | "refresh_required" | "refresh_cancelled";
+export type AuthCoordinatorCode = "sms_misconfigured" | "sms_transport_error" | "sms_provider_error" | "rate_limited" | "invalid_request" | "auth_unavailable" | "challenge_missing" | "challenge_expired" | "invalid_code" | "unsupported_role" | "unauthenticated" | "refresh_required" | "refresh_cancelled";
 
 const statusByCode: Record<AuthCoordinatorCode, number> = {
+  sms_misconfigured: 503,
+  sms_transport_error: 503,
+  sms_provider_error: 503,
   rate_limited: 429,
   invalid_request: 422,
   auth_unavailable: 503,
@@ -225,7 +229,7 @@ export interface AuthCoordinatorDependencies {
   session: AuthSessionPort;
   now: () => number;
   uuid: () => string;
-  ensureOtpReady: () => Promise<void>;
+  ensureOtpReady: () => Promise<OtpReadinessReceipt>;
   refreshCoordinator: RefreshCoordinator;
 }
 
@@ -239,6 +243,8 @@ function upstreamCode(error: unknown): string | undefined {
 }
 function safeError(error: unknown): AuthCoordinatorError {
   if (error instanceof AuthCoordinatorError) return error;
+  const code = upstreamCode(error);
+  if (code === "sms_misconfigured" || code === "sms_transport_error" || code === "sms_provider_error") return new AuthCoordinatorError(code);
   if (error instanceof AuthValidationError || upstreamCode(error) === "otp_invalid") return new AuthCoordinatorError("invalid_code");
   if (["invalid_refresh", "revoked_refresh", "expired_refresh"].includes(upstreamCode(error) ?? "")) return new AuthCoordinatorError("unauthenticated");
   if (["otp_expired", "otp_consumed", "otp_not_found"].includes(upstreamCode(error) ?? "")) return new AuthCoordinatorError("challenge_expired");
@@ -338,8 +344,10 @@ export function createAuthCoordinator(dependencies: AuthCoordinatorDependencies)
       try {
         const previous = readSession();
         if (session.read() && !previous) throw new AuthCoordinatorError("unauthenticated");
-        await ensureOtpReady();
+        const expected = await ensureOtpReady();
+        if (!expected || !((expected.mode === "sms" && expected.codeLength === 5) || (expected.mode === "local_simulated" && expected.codeLength === 6))) throw new AuthCoordinatorError("auth_unavailable");
         const issued = await gateway.requestOtp(phone);
+        if (issued.delivery_mode !== expected.mode || issued.code_length !== expected.codeLength) throw new AuthCoordinatorError("auth_unavailable");
         const challenge: AuthChallengeContext = { trackingCode: issued.tracking_code, role, codeLength: issued.code_length, deliveryMode: issued.delivery_mode, expiresAt: deadlineFromTtl(now(), issued.expires_in) };
         const next: AuthSessionData = { sessionId: previous?.sessionId ?? uuid(), version: 1, challenge };
         await session.save(next);

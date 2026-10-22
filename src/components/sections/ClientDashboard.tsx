@@ -1,9 +1,13 @@
 import Link from 'next/link';
+import {ArrowLeft,Search,UserRound} from 'lucide-react';
+import {WorkspaceHeader,WorkspacePanel,workspaceClass,workspaceLink,primaryWorkspaceLink} from './owner/AccountWorkspace';
 
 export function ClientDashboard({displayName}:{displayName:string}) {
- return <section className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
-  <header><h1 className="text-2xl font-bold">سلام، {displayName}</h1><p className="mt-2 leading-7 text-muted">اطلاعات حساب شخصی و متخصصان را از اینجا پیدا کنید.</p></header>
-  <nav aria-label="حساب کارفرما" className="flex flex-wrap gap-3"><Link href="/account" className="owner-link">ویرایش حساب شخصی</Link><Link href="/search" className="owner-link">جستجوی متخصصان</Link></nav>
-  <section className="rounded-3xl border border-line bg-card p-6"><h2 className="font-bold">پروژه‌ها و خدمات مالی</h2><p className="mt-3 leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. پروژه، پیشنهاد یا اطلاعات مالی برای نمایش در دسترس نیست.</p></section>
+ return <section className={workspaceClass} dir="rtl">
+  <WorkspaceHeader role="client" current="/dashboard" title={`سلام، ${displayName}`} description="متخصص مناسب کارتان را پیدا کنید یا اطلاعات حساب شخصی را به‌روز نگه دارید." />
+  <WorkspacePanel title="از انتخاب متخصص شروع کنید" description="تخصص و شهر مورد نیازتان را در جستجو انتخاب کنید و پروفایل متخصصان را ببینید.">
+   <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center"><Link href="/search" className={primaryWorkspaceLink}><Search size={18} aria-hidden="true" />جستجوی متخصصان<ArrowLeft size={18} aria-hidden="true" /></Link><Link href="/account" className={workspaceLink}><UserRound size={18} aria-hidden="true" />ویرایش حساب شخصی</Link></div>
+  </WorkspacePanel>
+  <section className="space-y-2 rounded-3xl bg-elev p-5 sm:p-7"><h2 className="font-bold text-fg-soft">پروژه‌ها و خدمات مالی</h2><p className="max-w-2xl text-sm leading-8 text-muted">این بخش هنوز به سرویس واقعی متصل نیست. پروژه، پیشنهاد یا اطلاعات مالی برای نمایش در دسترس نیست.</p></section>
  </section>;
 }
