@@ -1,0 +1,22 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - link "کاربان — صفحه اصلی" [ref=f2e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e5]: کاربان
+      - generic [ref=f2e16]:
+        - link "جستجو بر اساس شهر" [ref=f2e17] [cursor=pointer]:
+          - /url: /search
+        - button "نصب اپلیکیشن کاربان" [ref=f2e22]
+        - button "حالت روشن" [ref=f2e30]
+        - link "ورود یا ثبت‌نام" [ref=f2e35] [cursor=pointer]:
+          - /url: /auth/login
+        - button "باز کردن منو" [ref=f2e40]
+  - main [ref=f2e44]:
+    - generic [ref=f2e45]:
+      - heading "بررسی دسترسی حساب" [level=1] [ref=f2e46]
+      - paragraph [ref=f2e47]: برای مشاهده و ویرایش، نشست معتبر لازم است.
+      - link "ورود به حساب" [ref=f2e48] [cursor=pointer]:
+        - /url: /auth/login
+  - button "Open Next.js Dev Tools" [ref=f2e54] [cursor=pointer]
+  - alert [ref=f2e58]

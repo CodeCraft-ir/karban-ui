@@ -1,0 +1,36 @@
+- generic [ref=e1]:
+  - paragraph [ref=e13]: شبکه متخصصان ساختمان ایران
+  - banner [ref=e14]:
+    - generic [ref=e15]:
+      - link "کاربان — صفحه اصلی" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e17]: کاربان
+      - generic [ref=e28]:
+        - link "جستجو بر اساس شهر" [ref=e29] [cursor=pointer]:
+          - /url: /search
+        - button "حالت تاریک" [ref=e35]
+        - link "ورود یا ثبت‌نام" [ref=e40] [cursor=pointer]:
+          - /url: /auth/login
+        - button "باز کردن منو" [ref=e45]
+  - main [ref=e49]:
+    - generic [ref=e50]:
+      - heading "ورود به کاربان" [level=1] [ref=e54]
+      - paragraph [ref=e55]: شماره موبایلت را وارد کن؛ کد تایید برایت ارسال می‌شود
+      - radiogroup "نقش حساب" [ref=e56]:
+        - radio "کارفرما هستم پروژه دارم و دنبال متخصص مطمئن می‌گردم" [checked] [ref=e57]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: کارفرما هستم
+            - generic [ref=e64]: پروژه دارم و دنبال متخصص مطمئن می‌گردم
+        - radio "متخصص ساختمانی هستم مهارت دارم و دنبال پروژه و مشتری جدیدم" [ref=e65]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: متخصص ساختمانی هستم
+            - generic [ref=e74]: مهارت دارم و دنبال پروژه و مشتری جدیدم
+      - generic [ref=e75]:
+        - textbox "شماره موبایل" [active] [ref=e77]:
+          - /placeholder: 09xx xxx xxxx
+        - button "دریافت کد تایید" [disabled]
+      - paragraph [ref=e78]:
+        - text: با ورود،
+        - button "قوانین کاربان" [ref=e79]
+        - text: را می‌پذیری.
+  - button "Open Next.js Dev Tools" [ref=e85] [cursor=pointer]

@@ -1,0 +1,6 @@
+[     676ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[    1070ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[16492627ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[16492916ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0
+[18367202ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://localhost/karban/wp-admin/load-scripts.php?c=1&load%5Bchunk_0%5D=jquery-core,jquery-migrate,utils&ver=7.0:4
+[18367460ms] [VERBOSE] [DOM] Multiple forms should be contained in their own form elements; break up complex forms into ones that represent a single action: (More info: https://goo.gl/9p2vKq) %o @ http://localhost/karban/wp-admin/admin.php?page=nahan-settings:0

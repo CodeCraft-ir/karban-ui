@@ -85,11 +85,18 @@ export class AuthCoordinatorError extends Error {
   }
 }
 
+// Temporary server-composed diagnostic categories; never attach to public errors/results.
+export type AuthRefreshRequiredReason = "access_expired" | "fence_busy" | "fence_seal_mismatch" | "fence_changed_during_read";
+export type AuthRefreshRequiredObserver = (reason: AuthRefreshRequiredReason) => void;
+function notifyRefreshRequired(observer: AuthRefreshRequiredObserver | undefined, reason: AuthRefreshRequiredReason): void {
+  try { observer?.(reason); } catch { /* Diagnostics must never change authorization decisions. */ }
+}
+
 export interface RefreshCoordinator {
   run<T>(key: string, operation: (isCancelled: () => boolean) => Promise<T>): Promise<T>;
   cancelAndWait(key: string, credentialExpiresAt?: number): Promise<void>;
   isCancelled(key: string): boolean;
-  claim(key: string, auth: AuthCredentialContext, write: boolean): {
+  claim(key: string, auth: AuthCredentialContext, write: boolean, observer?: AuthRefreshRequiredObserver): {
     check(): void;
     commit(next: AuthCredentialContext): void;
     release(): void;
@@ -197,7 +204,7 @@ export function createRefreshCoordinator(now: () => number): RefreshCoordinator 
       prune();
       return cancellations.has(key) || entries.get(key)?.cancelled === true || fences.get(key)?.cancelled === true;
     },
-    claim(key, auth, write) {
+    claim(key, auth, write, observer) {
       prune();
       if (this.isCancelled(key)) throw new AuthCoordinatorError("refresh_cancelled");
       if (fenceAdmissionBlockedUntil > now()) throw new AuthCoordinatorError("auth_unavailable");
@@ -208,14 +215,20 @@ export function createRefreshCoordinator(now: () => number): RefreshCoordinator 
         fence = { seal, busy: false, cancelled: false, expiresAt: auth.refreshExpiresAt };
         fences.set(key, fence);
       }
-      if (fence.busy || fence.seal !== seal) throw new AuthCoordinatorError("refresh_required");
+      if (fence.busy || fence.seal !== seal) {
+        notifyRefreshRequired(observer, fence.busy ? "fence_busy" : "fence_seal_mismatch");
+        throw new AuthCoordinatorError("refresh_required");
+      }
       if (write) fence.busy = true;
       const held = fence;
       let expected = seal;
       return {
         check: () => {
           if (this.isCancelled(key) || held.cancelled) throw new AuthCoordinatorError("refresh_cancelled");
-          if (held.seal !== expected) throw new AuthCoordinatorError("refresh_required");
+          if (held.seal !== expected) {
+            notifyRefreshRequired(observer, "fence_changed_during_read");
+            throw new AuthCoordinatorError("refresh_required");
+          }
         },
         commit: (next) => { expected = JSON.stringify(next); held.seal = expected; held.expiresAt = next.refreshExpiresAt; },
         release: () => { if (write) held.busy = false; },
@@ -231,6 +244,7 @@ export interface AuthCoordinatorDependencies {
   uuid: () => string;
   ensureOtpReady: () => Promise<OtpReadinessReceipt>;
   refreshCoordinator: RefreshCoordinator;
+  observeRefreshRequired?: AuthRefreshRequiredObserver;
 }
 
 export interface PublicChallenge { expiresAt: number; codeLength: OtpCodeLength; isSimulated: boolean; }
@@ -315,9 +329,12 @@ export function createAuthCoordinator(dependencies: AuthCoordinatorDependencies)
     async authenticatedOperation(operation, summary, mutation = false) {
       if (!parseSealedAuthSession(session.read(), now())?.auth) throw new AuthCoordinatorError("unauthenticated");
       const { base, auth, key } = requireAuth();
-      if (auth.accessExpiresAt <= now()) throw new AuthCoordinatorError("refresh_required");
+      if (auth.accessExpiresAt <= now()) {
+        notifyRefreshRequired(dependencies.observeRefreshRequired, "access_expired");
+        throw new AuthCoordinatorError("refresh_required");
+      }
       if (auth.refreshExpiresAt <= now()) throw new AuthCoordinatorError("unauthenticated");
-      const lease = refreshCoordinator.claim(key, auth, mutation || !!summary);
+      const lease = refreshCoordinator.claim(key, auth, mutation || !!summary, dependencies.observeRefreshRequired);
       try {
         lease.check();
         let result;

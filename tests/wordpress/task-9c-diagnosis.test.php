@@ -40,7 +40,7 @@ function esc_attr($v) { return esc_html($v); }
 function esc_textarea($v) { return esc_html($v); }
 function checked($a,$b,$echo=false) { return $a===$b?'checked="checked"':''; }
 function wp_json_encode($v) { return json_encode($v,JSON_THROW_ON_ERROR); }
-function wp_remote_post($url,$args) { $GLOBALS['http'][]=[$url,$args]; return $GLOBALS['response']; }
+function wp_remote_post($url,$args) { $GLOBALS['http'][]=[$url,$args]; if($GLOBALS['throw_http']??false) throw new RuntimeException('exception-canary fixture-key 09121234567 54321'); return $GLOBALS['response']; }
 function wp_remote_retrieve_response_code($r) { return $r['response']['code']??0; }
 function wp_remote_retrieve_body($r) { return $r['body']??''; }
 function wp_generate_uuid4() { static $i=0; return 'fixture-tracking-'.++$i; }
@@ -105,7 +105,7 @@ function error_safe($r,$code=null) {
 function reset_fixture() {
  $GLOBALS['options']=['nahan_sms_driver'=>'faraz_ippanel','nahan_sms_faraz_apikey'=>'fixture-key','nahan_sms_faraz_pattern_code'=>'fixture-pattern','nahan_sms_faraz_originator'=>'+983000505','nahan_sms_faraz_variable'=>'login_code'];
  $GLOBALS['http']=[]; $GLOBALS['registered']=[]; $GLOBALS['writes']=[]; $GLOBALS['autoload']=[]; $GLOBALS['settings_errors']=[];
- $GLOBALS['throw_write']=false; $GLOBALS['fail_write']=false; $GLOBALS['fail_autoload']=false; $GLOBALS['admin']=true; $GLOBALS['wpdb']=new FixtureDb();
+ $GLOBALS['throw_http']=false; $GLOBALS['throw_write']=false; $GLOBALS['fail_write']=false; $GLOBALS['fail_autoload']=false; $GLOBALS['admin']=true; $GLOBALS['wpdb']=new FixtureDb();
  $GLOBALS['response']=['response'=>['code'=>200],'body'=>'{"data":{"message_outbox_ids":[12345]},"meta":{"status":true}}'];
  $_POST=['_wpnonce'=>'fixture-nonce','option_page'=>'nahan-settings']; $_SERVER=['REMOTE_ADDR'=>'127.0.0.1','REQUEST_METHOD'=>'POST'];
  $GLOBALS['env']='local'; $GLOBALS['columns']=['id','delivery_mode','code_length','credential_mode','installation_origin','otp_code_length']; $GLOBALS['actions']=[];
@@ -187,5 +187,23 @@ $tests['registered OTP route preserves safe failure invalidation and cooldown; n
  $req=new class { function get_param($k) { return '09121234567'; } };
  $route=$GLOBALS['routes']['/auth/otp/request']; $r=($route['callback'])($req); same('sms_transport_error',$r->data['error']['code'],'Safe route category'); private_absent($r->data); same([],$GLOBALS['wpdb']->rows,'Failed challenge invalidated');
  $r=($route['callback'])($req); same('otp_throttled',$r->data['error']['code'],'Cooldown retained'); same(1,count($GLOBALS['http']),'Never resend on failure');
+};
+$tests['misconfiguration and unexpected transport exception remain safe bounded actual attempts']=function() {
+ $s=reset_fixture(); unset($GLOBALS['options']['nahan_sms_faraz_apikey']); error_safe($s->send_otp('09121234567','54321'),'sms_misconfigured'); same('misconfigured',last_attempt()['outcome'],'Configuration-only failed attempt'); same([],$GLOBALS['http'],'No transport');
+ $s=reset_fixture(); $GLOBALS['throw_http']=true; error_safe($s->send_otp('09121234567','54321'),'sms_transport_error'); same('unexpected_error',last_attempt()['outcome'],'No guessed transport class'); same(1,count($GLOBALS['http']),'No exception retry'); private_absent(admin_html());
+};
+$tests['only send_otp records, last attempt replaces prior; safe admin projection rejects optional garbage']=function() {
+ $s=reset_fixture(); $s->send_text('09121234567','private-provider'); same(false,get_option(DIAGNOSTIC),'Free-text not OTP');
+ $s->send_otp('invalid','54321'); $s->send_otp('09121234567','invalid'); same(false,get_option(DIAGNOSTIC),'Invalid input not attempt');
+ $s->send_otp('09121234567','54321'); $accepted=last_attempt(); same('accepted_not_delivery',$accepted['outcome'],'Accepted marker');
+ $GLOBALS['response']=new WP_Error('timeout','private-transport'); $s->send_otp('09121234567','54321'); same('transport_error',last_attempt()['outcome'],'Single replaced record');
+ $GLOBALS['options'][DIAGNOSTIC]=array_merge($accepted,['http_status'=>600,'vendor_code'=>'<script>private-provider</script>','transport_class'=>'fixture-key','extra'=>'09121234567']);
+ same(['timestamp'=>$accepted['timestamp'],'provider'=>'faraz_ippanel','outcome'=>'accepted_not_delivery'],SmsService::last_otp_diagnostic(),'Allowlisted projection only'); private_absent(admin_html());
+ $GLOBALS['admin']=false; same(null,SmsService::last_otp_diagnostic(),'Non-admin no record access');
+};
+$tests['legacy OTP provider also records accepted versus rejected without changing contract']=function() {
+ $s=reset_fixture(); $GLOBALS['options']['nahan_sms_driver']='kavenegar'; $GLOBALS['options']['nahan_sms_kavenegar_apikey']='fixture-key'; $GLOBALS['options']['nahan_sms_kavenegar_pattern']='fixture-pattern';
+ $GLOBALS['response']=['response'=>['code'=>200],'body'=>'{"return":{"status":200}}']; same(true,$s->send_otp('09121234567','54321'),'Legacy compatibility'); same('kavenegar',last_attempt()['provider'],'Safe alias'); same('accepted_not_delivery',last_attempt()['outcome'],'Accepted not delivered');
+ $GLOBALS['response']['body']='{"return":{"status":401,"message":"private-provider"}}'; error_safe($s->send_otp('09121234567','54321'),'sms_provider_error'); same('provider_rejected',last_attempt()['outcome'],'Controlled rejection');
 };
 $failed=0; foreach($tests as $name=>$test) { try { $test(); echo "PASS $name\n"; } catch(Throwable $e) { $failed++; echo "FAIL $name: ".$e->getMessage()."\n"; } } echo count($tests).' tests; '.$failed." failures\n"; exit($failed?1:0);

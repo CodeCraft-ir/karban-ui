@@ -1,0 +1,22 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e14]:
+    - generic [ref=e15]:
+      - link "کاربان — صفحه اصلی" [ref=e16] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e17]: کاربان
+      - generic [ref=e28]:
+        - link "جستجو بر اساس شهر" [ref=e29] [cursor=pointer]:
+          - /url: /search
+        - button "حالت روشن" [ref=e64]
+        - button "حساب بینام متخ" [ref=e66]:
+          - generic [ref=e70]: بینام متخ
+        - button "باز کردن منو" [ref=e45]
+  - main [ref=e49]:
+    - generic [ref=e50]:
+      - heading "بازیابی نشست" [level=1] [ref=e51]
+      - paragraph [ref=e52]: اعتبار دسترسی تمام شده است. با انتخاب بازیابی، نشست بررسی و اطلاعات تازه خوانده می‌شود. ذخیره، ارسال پروفایل یا بارگذاری فایل خودکار تکرار نمی‌شود.
+      - button "در حال بررسی نشست..." [disabled]
+      - link "ورود دوباره" [ref=e54] [cursor=pointer]:
+        - /url: /auth/login
+  - button "Open Next.js Dev Tools" [ref=e60] [cursor=pointer]
+  - alert [ref=e71]

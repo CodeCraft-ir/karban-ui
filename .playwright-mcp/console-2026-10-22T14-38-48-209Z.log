@@ -1,0 +1,83 @@
+[    1065ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[    1100ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[    1362ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[    1478ms] [LOG] [Fast Refresh] done in 217ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[   45996ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/src_app_155a_7o._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/account:0
+[  481816ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  481827ms] [LOG] [Fast Refresh] done in 75ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  482320ms] [LOG] [Fast Refresh] done in 75ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  482520ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  483308ms] [LOG] [Fast Refresh] done in 888ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  483642ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/account?_rsc=0OWpPxNMEYhz8Sdc:0
+[  483867ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/account:0
+[  483985ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[  484036ms] ReferenceError: createRefreshCoordinator is not defined
+    at Module.eval (file:///Users/binam/project/%D9%BE%D8%B1%D9%87%DB%8C%D8%B2%DA%A9%D8%A7%D8%B1%DB%8C/karban-uiux/web/.next/dev/server/chunks/ssr/%5Broot-of-the-server%5D__19i6kqs._.js?id=%5Bproject%5D/src/services/auth/auth-bff.server.ts+%5Bapp-rsc%5D+(ecmascript):40:28)
+    at <unknown> (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.esmImport [as i] (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:352:20)
+    at Module.eval (file:///Users/binam/project/%D9%BE%D8%B1%D9%87%DB%8C%D8%B2%DA%A9%D8%A7%D8%B1%DB%8C/karban-uiux/web/.next/dev/server/chunks/ssr/%5Broot-of-the-server%5D__15en40p._.js?id=%5Bproject%5D/src/services/profile/profile-bff.server.ts+%5Bapp-rsc%5D+(ecmascript):14:174)
+    at <unknown> (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.esmImport [as i] (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:352:20)
+    at module evaluation (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[root-of-the-server]__01jgrcv._.js:109:180)
+    at <unknown> (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.esmImport [as i] (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:352:20)
+    at module evaluation (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[root-of-the-server]__0gx09-5._.js:20:188)
+    at <unknown> (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.esmImport [as i] (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:352:20)
+    at module evaluation (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[root-of-the-server]__0gx09-5._.js:43:47)
+    at <unknown> (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.commonJsRequire [as r] (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:373:12)
+    at Array.<anonymous> (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/.next/dev/server/chunks/ssr/node_modules_1lbjs63._.js:3311:300)
+    at createFlightRouterStateFromLoaderTreeImpl (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:166:9837)
+    at createFlightRouterStateFromLoaderTreeImpl (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:166:11345)
+    at createFlightRouterStateFromLoaderTreeImpl (file:///Users/binam/project/پرهیزکاری/karban-uiux/web/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:166:11345)
+[  484036ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:756
+[  497186ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:756
+[  497247ms] [LOG] [Fast Refresh] done in 147ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:756
+[  497299ms] [LOG] [Fast Refresh] done in 147ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:756
+[  497442ms] [LOG] [Fast Refresh] done in 147ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:756
+[  497650ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  497683ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  497871ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/auth/me:0
+[  497872ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://localhost:3000/api/auth/me:0
+[  505398ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  505429ms] [LOG] [Fast Refresh] done in 119ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  505482ms] [LOG] [Fast Refresh] done in 119ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  505683ms] [LOG] [Fast Refresh] done in 119ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  505738ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://localhost:3000/account:0
+[  514813ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://localhost:3000/account:0
+[  770774ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  770829ms] [LOG] [Fast Refresh] done in 162ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  803296ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[  803326ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1003821ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1004096ms] [LOG] [Fast Refresh] done in 310ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1004147ms] [LOG] [Fast Refresh] done in 310ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1004197ms] [LOG] [Fast Refresh] done in 310ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1004369ms] [LOG] [Fast Refresh] done in 310ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1004404ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://localhost:3000/account:0
+[ 1005368ms] [LOG] [Fast Refresh] done in 310ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1033875ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1033886ms] [LOG] [Fast Refresh] done in 40ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1033947ms] [LOG] [Fast Refresh] done in 40ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[ 1034020ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ http://localhost:3000/account:0

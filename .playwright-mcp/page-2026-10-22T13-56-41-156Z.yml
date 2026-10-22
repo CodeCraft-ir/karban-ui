@@ -1,0 +1,209 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - link "کاربان — صفحه اصلی" [ref=f2e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e5]: کاربان
+      - generic [ref=f2e16]:
+        - link "جستجو بر اساس شهر" [ref=f2e17] [cursor=pointer]:
+          - /url: /search
+        - button "نصب اپلیکیشن کاربان" [ref=f2e22]
+        - button "حالت روشن" [ref=f2e30]
+        - button "حساب بینام متخ" [ref=f2e59]:
+          - generic [ref=f2e63]: بینام متخ
+        - button "باز کردن منو" [ref=f2e40]
+  - main [ref=f2e44]:
+    - generic [ref=f2e64]:
+      - generic [ref=f2e65]:
+        - generic [ref=f2e66]:
+          - generic [ref=f2e67]: فضای کار متخصص
+          - generic [ref=f2e68]: حساب کاربان
+        - generic [ref=f2e69]:
+          - heading "پروفایل حرفه‌ای" [level=1] [ref=f2e70]
+          - paragraph [ref=f2e71]: پروفایل عمومی کسب‌وکار از اطلاعات حساب شخصی جداست. اطلاعات را ذخیره کنید و وضعیت بررسی را جداگانه ببینید.
+        - navigation "بخش‌های حساب" [ref=f2e72]:
+          - link "حساب شخصی" [ref=f2e73] [cursor=pointer]:
+            - /url: /account
+          - link "ویرایش پروفایل حرفه‌ای" [ref=f2e74] [cursor=pointer]:
+            - /url: /pro/profile
+          - link "داشبورد" [ref=f2e75] [cursor=pointer]:
+            - /url: /pro
+      - generic [ref=f2e76]:
+        - paragraph [ref=f2e77]: برای دریافت آخرین وضعیت ذخیره‌شده از سرور
+        - button "بارگذاری دوباره وضعیت" [ref=f2e78]
+      - status [ref=f2e236]: تغییرات ذخیره شد؛ وضعیت انتشار را بررسی کنید.
+      - generic [ref=f2e80]:
+        - generic [ref=f2e81]:
+          - heading "اطلاعات ذخیره‌شده" [level=2] [ref=f2e82]
+          - paragraph [ref=f2e83]: این خلاصه از آخرین پاسخ سرور است؛ تغییرات ذخیره‌نشده فرم در آن محاسبه نمی‌شود.
+        - generic [ref=f2e84]:
+          - generic [ref=f2e85]: آواتاری ثبت نشده است.
+          - generic [ref=f2e91]:
+            - heading "بینام متخصص" [level=3] [ref=f2e92]
+            - paragraph [ref=f2e93]: "وضعیت: پیش‌نویس"
+            - paragraph [ref=f2e94]: "تایید هویت: اطلاعات قابل نمایش نیست"
+        - generic [ref=f2e95]:
+          - heading "موارد لازم برای درخواست بررسی" [level=3] [ref=f2e96]
+          - list [ref=f2e97]:
+            - listitem [ref=f2e98]:
+              - generic [ref=f2e101]:
+                - text: عنوان حرفه‌ای
+                - generic [ref=f2e102]: ذخیره شده
+            - listitem [ref=f2e103]:
+              - generic [ref=f2e106]:
+                - text: دسته خدمت
+                - generic [ref=f2e107]: ذخیره شده
+            - listitem [ref=f2e108]:
+              - generic [ref=f2e111]:
+                - text: شهر خدمت
+                - generic [ref=f2e112]: ذخیره شده
+          - paragraph [ref=f2e113]: "تصاویر اختیاری: آواتار ثبت نشده؛ نمونه کار ثبت نشده. این موارد نشان تایید یا تضمین انتشار نیستند."
+        - generic [ref=f2e114]:
+          - link "نشانی عمومی ثابت پروفایل" [ref=f2e115] [cursor=pointer]:
+            - /url: /specialists/specialist-3
+          - paragraph [ref=f2e116]: نشانی تا زمان انتشار ممکن است عمومی قابل مشاهده نباشد.
+      - generic [ref=f2e237]:
+        - group "اطلاعات حرفه‌ای" [ref=f2e238]:
+          - group "معرفی و مهارت‌ها" [ref=f2e240]:
+            - paragraph [ref=f2e242]: متن بدون HTML و بدون خط جدید وارد کنید؛ خالی گذاشتن موارد اختیاری آن‌ها را پاک می‌کند.
+            - generic [ref=f2e243]:
+              - generic [ref=f2e244]: عنوان حرفه‌ای (حداکثر ۱۶۰ نویسه)
+              - textbox "عنوان حرفه‌ای (حداکثر ۱۶۰ نویسه)" [ref=f2e246]: بینام متخصص
+            - generic [ref=f2e247]:
+              - text: معرفی؛ حداکثر ۴۰۰۰ نویسه
+              - textbox "معرفی؛ حداکثر ۴۰۰۰ نویسه" [ref=f2e248]: من ایرانی ام
+            - generic [ref=f2e249]:
+              - text: مهارت‌ها؛ حداکثر ۱۰۰۰ نویسه
+              - textbox "مهارت‌ها؛ حداکثر ۱۰۰۰ نویسه" [ref=f2e250]: برنامه نویس
+          - group "خدمات و محدوده فعالیت" [ref=f2e251]:
+            - group "دسته‌های خدمت؛ حداکثر ۱۰ دسته" [ref=f2e253]:
+              - generic [ref=f2e255]:
+                - generic [ref=f2e256] [cursor=pointer]:
+                  - checkbox "آب و فاضلاب" [ref=f2e257]
+                  - text: آب و فاضلاب
+                - generic [ref=f2e258] [cursor=pointer]:
+                  - checkbox "آزمایش خاک، جوش و بتن" [ref=f2e259]
+                  - text: آزمایش خاک، جوش و بتن
+                - generic [ref=f2e260] [cursor=pointer]:
+                  - checkbox "اخذ پروانه ساخت" [checked] [ref=f2e261]
+                  - text: اخذ پروانه ساخت
+                - generic [ref=f2e262] [cursor=pointer]:
+                  - checkbox "اسکلت سازه و سقف" [checked] [ref=f2e263]
+                  - text: اسکلت سازه و سقف
+                - generic [ref=f2e264] [cursor=pointer]:
+                  - checkbox "ایزوگام و عایق‌کاری" [ref=f2e265]
+                  - text: ایزوگام و عایق‌کاری
+                - generic [ref=f2e266] [cursor=pointer]:
+                  - checkbox "بازسازی و مقاوم‌سازی ساختمان" [ref=f2e267]
+                  - text: بازسازی و مقاوم‌سازی ساختمان
+                - generic [ref=f2e268] [cursor=pointer]:
+                  - checkbox "تأسیسات برقی" [ref=f2e269]
+                  - text: تأسیسات برقی
+                - generic [ref=f2e270] [cursor=pointer]:
+                  - checkbox "تأسیسات مکانیکی" [ref=f2e271]
+                  - text: تأسیسات مکانیکی
+                - generic [ref=f2e272] [cursor=pointer]:
+                  - checkbox "تجهیزات ساختمان" [ref=f2e273]
+                  - text: تجهیزات ساختمان
+                - generic [ref=f2e274] [cursor=pointer]:
+                  - checkbox "درب و پنجره" [ref=f2e275]
+                  - text: درب و پنجره
+                - generic [ref=f2e276] [cursor=pointer]:
+                  - checkbox "سازه" [ref=f2e277]
+                  - text: سازه
+                - generic [ref=f2e278] [cursor=pointer]:
+                  - checkbox "طراحی و نظارت" [ref=f2e279]
+                  - text: طراحی و نظارت
+                - generic [ref=f2e280] [cursor=pointer]:
+                  - checkbox "گازکشی" [ref=f2e281]
+                  - text: گازکشی
+                - generic [ref=f2e282] [cursor=pointer]:
+                  - checkbox "مشاوره" [ref=f2e283]
+                  - text: مشاوره
+                - generic [ref=f2e284] [cursor=pointer]:
+                  - checkbox "مصالح ساختمانی" [ref=f2e285]
+                  - text: مصالح ساختمانی
+                - generic [ref=f2e286] [cursor=pointer]:
+                  - checkbox "معماری" [ref=f2e287]
+                  - text: معماری
+                - generic [ref=f2e288] [cursor=pointer]:
+                  - checkbox "نازک‌کاری" [ref=f2e289]
+                  - text: نازک‌کاری
+                - generic [ref=f2e290] [cursor=pointer]:
+                  - checkbox "نقشه‌برداری" [ref=f2e291]
+                  - text: نقشه‌برداری
+            - generic [ref=f2e292]:
+              - text: شهر خدمت (اختیاری)
+              - combobox "شهر خدمت (اختیاری)" [ref=f2e293]:
+                - option "پاک کردن شهر خدمت"
+                - option "کاشان" [selected]
+          - group "شرایط همکاری" [ref=f2e294]:
+            - generic [ref=f2e296]:
+              - generic [ref=f2e297]:
+                - text: وضعیت دسترسی (اختیاری)
+                - combobox "وضعیت دسترسی (اختیاری)" [ref=f2e298]:
+                  - option "مشخص نشده"
+                  - option "آماده کار" [selected]
+                  - option "مشغول"
+                  - option "در دسترس نیستم"
+              - generic [ref=f2e299]:
+                - generic [ref=f2e300]: سابقه کار؛ ۰ تا ۸۰ سال (اختیاری)
+                - spinbutton "سابقه کار؛ ۰ تا ۸۰ سال (اختیاری)" [ref=f2e302]: "4"
+            - generic [ref=f2e303]:
+              - generic [ref=f2e304]: توضیح قیمت؛ حداکثر ۲۰۰ نویسه (اختیاری)
+              - textbox "توضیح قیمت؛ حداکثر ۲۰۰ نویسه (اختیاری)" [ref=f2e306]: "400"
+          - group "نشانی خصوصی" [ref=f2e307]:
+            - paragraph [ref=f2e309]: این نشانی عمومی نمایش داده نمی‌شود و از شهر خدمت جداست.
+            - generic [ref=f2e310]:
+              - text: نشانی خصوصی؛ حداکثر ۵۰۰ نویسه
+              - textbox "نشانی خصوصی؛ حداکثر ۵۰۰ نویسه" [ref=f2e311]: مشهد اردهال
+          - generic [ref=f2e312]:
+            - paragraph [ref=f2e313]: ذخیره، انتشار نیست. پس از ذخیره، وضعیت تازه پروفایل را بررسی کنید.
+            - button "ذخیره پیش‌نویس تغییرات" [ref=f2e314]
+        - alert
+      - generic [ref=f2e196]:
+        - heading "آواتار حرفه‌ای" [level=2] [ref=f2e197]
+        - paragraph [ref=f2e198]: آواتاری ثبت نشده است.
+        - generic [ref=f2e199]:
+          - heading "بارگذاری تصویر آواتار" [level=3] [ref=f2e200]
+          - list "مراحل افزودن تصویر" [ref=f2e201]:
+            - listitem [ref=f2e202]: انتخاب تصویر
+            - listitem [ref=f2e203]: بارگذاری فایل
+            - listitem [ref=f2e204]: اتصال به پروفایل
+          - status [ref=f2e205]: هنوز تصویری انتخاب نشده است.
+          - paragraph [ref=f2e206]: نشانی فایل بارگذاری‌شده عمومی است، حتی اگر پروفایل پیش‌نویس یا در انتظار بررسی باشد. تصویر مدارک هویتی یا فایل خصوصی نفرستید. بارگذاری به‌تنهایی تصویر را به حساب یا گالری وصل نمی‌کند و پروفایل را منتشر نمی‌کند.
+          - paragraph [ref=f2e207]: ویدیو پشتیبانی نمی‌شود. پذیرش WebP به کُدک واقعی سرور وابسته است و ممکن است با خطای پردازش رد شود.
+          - paragraph [ref=f2e208]: "حداکثر حجم: ۲۰٬۹۷۱٬۵۲۰ بایت؛ ضلع: ۸٬۱۹۲ پیکسل؛ مجموع: ۲۴٬۰۰۰٬۰۰۰ پیکسل. هر بار یک تصویر."
+          - generic [ref=f2e209] [cursor=pointer]:
+            - checkbox "عمومی بودن فایل را می‌دانم و تصویر خصوصی بارگذاری نمی‌کنم." [ref=f2e210]
+            - text: عمومی بودن فایل را می‌دانم و تصویر خصوصی بارگذاری نمی‌کنم.
+          - generic [ref=f2e211]: انتخاب تصویر
+          - button "انتخاب تصویر" [disabled] [ref=f2e212]
+          - button "فقط بارگذاری تصویر" [disabled]
+      - generic [ref=f2e213]:
+        - heading "گالری نمونه کار" [level=2] [ref=f2e214]
+        - paragraph [ref=f2e215]: حداکثر ۲۰ تصویر. جدا کردن فقط ارجاع را حذف می‌کند؛ فایل عمومی حذف نمی‌شود.
+        - paragraph [ref=f2e216]: تصویری در گالری ثبت نشده است.
+        - generic [ref=f2e217]:
+          - heading "بارگذاری تصویر نمونه کار" [level=3] [ref=f2e218]
+          - list "مراحل افزودن تصویر" [ref=f2e219]:
+            - listitem [ref=f2e220]: انتخاب تصویر
+            - listitem [ref=f2e221]: بارگذاری فایل
+            - listitem [ref=f2e222]: اتصال به پروفایل
+          - status [ref=f2e223]: هنوز تصویری انتخاب نشده است.
+          - paragraph [ref=f2e224]: نشانی فایل بارگذاری‌شده عمومی است، حتی اگر پروفایل پیش‌نویس یا در انتظار بررسی باشد. تصویر مدارک هویتی یا فایل خصوصی نفرستید. بارگذاری به‌تنهایی تصویر را به حساب یا گالری وصل نمی‌کند و پروفایل را منتشر نمی‌کند.
+          - paragraph [ref=f2e225]: ویدیو پشتیبانی نمی‌شود. پذیرش WebP به کُدک واقعی سرور وابسته است و ممکن است با خطای پردازش رد شود.
+          - paragraph [ref=f2e226]: "حداکثر حجم: ۲۰٬۹۷۱٬۵۲۰ بایت؛ ضلع: ۸٬۱۹۲ پیکسل؛ مجموع: ۲۴٬۰۰۰٬۰۰۰ پیکسل. هر بار یک تصویر."
+          - generic [ref=f2e227] [cursor=pointer]:
+            - checkbox "عمومی بودن فایل را می‌دانم و تصویر خصوصی بارگذاری نمی‌کنم." [ref=f2e228]
+            - text: عمومی بودن فایل را می‌دانم و تصویر خصوصی بارگذاری نمی‌کنم.
+          - generic [ref=f2e229]: انتخاب تصویر
+          - button "انتخاب تصویر" [disabled] [ref=f2e230]
+          - button "فقط بارگذاری تصویر" [disabled]
+      - generic [ref=f2e231]:
+        - generic [ref=f2e232]:
+          - heading "ارسال نسخه ذخیره‌شده برای بررسی" [level=2] [ref=f2e233]
+          - paragraph [ref=f2e234]: ابتدا تغییرات فرم را ذخیره کنید؛ این دکمه فقط نسخه ذخیره‌شده را می‌فرستد. ذخیره، انتشار نیست. تغییر پروفایل منتشرشده ممکن است آن را به انتظار بررسی برگرداند. ارسال برای بررسی نیز به معنی انتشار یا تایید نیست.
+        - button "ارسال برای بررسی" [ref=f2e235]
+  - button "Open Next.js Dev Tools" [ref=f2e54] [cursor=pointer]
+  - alert [ref=f2e58]

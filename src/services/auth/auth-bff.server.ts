@@ -1,9 +1,10 @@
 import "server-only";
 
+import { Console } from "node:console";
+
 import type { IronSession } from "iron-session";
 import {
   createAuthCoordinator,
-  createRefreshCoordinator,
   type SealedAuthCoordinator,
   type AuthSessionData,
 } from "./auth-coordinator.ts";
@@ -15,15 +16,20 @@ import { createIronSessionPort } from "./auth-session-storage.ts";
 import { parseSealedAuthSession } from "./auth-session-schema.ts";
 import { createWordPressAuthGateway } from "./wordpress-auth.ts";
 import { getWordPressOrigin } from "../wordpress/config.ts";
+import { createLocalAuthDiagnostic, type AuthDiagnosticSurface } from "./auth-local-diagnostic.ts";
+import { appendLocalAuthDiagnostic } from "./auth-local-diagnostic-sink.ts";
 
-const refreshCoordinator = createRefreshCoordinator(() => Date.now());
+import { processAuthAuthority } from "./auth-authority.server.ts";
+
+// Do not use global console: React replays its RSC calls into browser Flight data.
+const diagnosticConsole = new Console({ stdout: process.stdout, stderr: process.stderr });
 
 function hasSealedAuthData(session: IronSession<AuthSessionData>): boolean {
   return ["sessionId", "version", "challenge", "auth"].some((key) => Object.hasOwn(session, key));
 }
 
 /** Server-only request composition. Read-only mode never writes or destroys cookies. */
-export async function createRequestAuthCoordinator(readOnly = false): Promise<SealedAuthCoordinator> {
+export async function createRequestAuthCoordinator(readOnly = false, executionSurface: AuthDiagnosticSurface = "handler"): Promise<SealedAuthCoordinator> {
   const config = getAuthRuntimeConfig();
   if (!config) {
     throw new Error("auth configuration unavailable");
@@ -51,7 +57,14 @@ export async function createRequestAuthCoordinator(readOnly = false): Promise<Se
       localSmsEnabled: isLocalSmsAllowed(process.env, wordpressOrigin),
       getReadiness: () => gateway.otpReadiness(),
     }),
-    refreshCoordinator,
+    refreshCoordinator: processAuthAuthority.coordinator,
+    observeRefreshRequired: createLocalAuthDiagnostic({
+      nodeEnv: process.env.NODE_ENV,
+      localDevelopmentEnabled: process.env.KARBAN_LOCAL_DEVELOPMENT,
+      executionSurface,
+      coordinatorInstance: processAuthAuthority.instance,
+      write: (line) => { appendLocalAuthDiagnostic(line); diagnosticConsole.info(line); },
+    }),
   });
 }
 

@@ -1,0 +1,22 @@
+- generic [active] [ref=f2e1]:
+  - paragraph [ref=f2e13]: شبکه متخصصان ساختمان ایران
+  - banner [ref=f2e14]:
+    - generic [ref=f2e15]:
+      - link "کاربان — صفحه اصلی" [ref=f2e16] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e17]: کاربان
+      - generic [ref=f2e28]:
+        - link "جستجو بر اساس شهر" [ref=f2e29] [cursor=pointer]:
+          - /url: /search
+        - button "حالت تاریک" [ref=f2e35]
+        - link "ورود یا ثبت‌نام" [ref=f2e40] [cursor=pointer]:
+          - /url: /auth/login
+        - button "باز کردن منو" [ref=f2e45]
+  - main [ref=f2e49]:
+    - generic [ref=f2e50]:
+      - heading "بازیابی نشست" [level=1] [ref=f2e51]
+      - paragraph [ref=f2e52]: اعتبار دسترسی تمام شده است. با انتخاب بازیابی، نشست بررسی و اطلاعات تازه خوانده می‌شود. ذخیره، ارسال پروفایل یا بارگذاری فایل خودکار تکرار نمی‌شود.
+      - button "بازیابی نشست و خواندن اطلاعات" [ref=f2e53]
+      - link "ورود دوباره" [ref=f2e54] [cursor=pointer]:
+        - /url: /auth/login
+  - button "Open Next.js Dev Tools" [ref=f2e60] [cursor=pointer]

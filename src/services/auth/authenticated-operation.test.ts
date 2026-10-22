@@ -8,14 +8,14 @@ function port(initial: AuthSessionData | undefined = base()) {
   let state: AuthSessionData | undefined = initial; const saved: AuthSessionData[] = [];
   return { read: () => state, save: async (next: AuthSessionData) => { state = structuredClone(next); saved.push(next); }, destroy: () => { state = undefined; }, saved };
 }
-function setup(session: AuthSessionPort = port(), shared = createRefreshCoordinator(() => now)) {
+function setup(session: AuthSessionPort = port(), shared = createRefreshCoordinator(() => now), observeRefreshRequired?: (reason: import("./auth-coordinator.ts").AuthRefreshRequiredReason) => void) {
   const gateway: AuthGatewayPort = {
     requestOtp: async () => { throw Error("unused"); }, verifyOtp: async () => { throw Error("unused"); },
     refresh: async () => ({ tokens: { access_token: "new-access", refresh_token: "new-refresh", access_expires_in: 900, refresh_expires_in: 9000, token_type: "Bearer" } }),
     me: async () => ({ id: 47, display_name: "نام", roles: ["nahan_specialist"], phone: null, specialist_post_id: 1 }),
     logoutRefresh: async () => ({ logged_out: true }),
   };
-  return createAuthCoordinator({ session, gateway, refreshCoordinator: shared, now: () => now, uuid: () => crypto.randomUUID(), ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }) });
+  return createAuthCoordinator({ session, gateway, refreshCoordinator: shared, observeRefreshRequired, now: () => now, uuid: () => crypto.randomUUID(), ensureOtpReady: async () => ({ mode: "sms", codeLength: 5 }) });
 }
 function deferred() { let resolve!: () => void; const promise = new Promise<void>(r => { resolve = r; }); return { promise, resolve }; }
 
@@ -87,4 +87,49 @@ test("ambiguous operation and failed save are not retried; overlapping writes fa
   await started.promise;
   await assert.rejects(setup(port(), shared).authenticatedOperation(async () => 2, undefined, true), { code: "refresh_required" });
   finish.resolve(); await pending;
+});
+
+test("read diagnostics distinguish expiry, busy, stale seal and in-flight fence change without changing errors", async () => {
+  const observed: string[] = [];
+  const observe = (reason: import("./auth-coordinator.ts").AuthRefreshRequiredReason) => { observed.push(reason); };
+  const expired = base(); expired.auth!.accessExpiresAt = now;
+  await assert.rejects(setup(port(expired), undefined, observe).authenticatedOperation(async () => 1), { code: "refresh_required", status: 401 });
+
+  const shared = createRefreshCoordinator(() => now);
+  const auth = base().auth!; const key = `${base().sessionId}:${auth.generation}`;
+  const writer = shared.claim(key, auth, true);
+  await assert.rejects(setup(port(), shared, observe).authenticatedOperation(async () => 1), { code: "refresh_required", status: 401 });
+  writer.commit({ ...auth, accessToken: "private-new-token" }); writer.release();
+  await assert.rejects(setup(port(), shared, observe).authenticatedOperation(async () => 1), { code: "refresh_required", status: 401 });
+
+  const fresh = createRefreshCoordinator(() => now);
+  await assert.rejects(setup(port(), fresh, observe).authenticatedOperation(async () => {
+    const concurrent = fresh.claim(key, auth, true);
+    concurrent.commit({ ...auth, accessToken: "private-new-token" }); concurrent.release();
+    return 1;
+  }), { code: "refresh_required", status: 401 });
+  assert.deepEqual(observed, ["access_expired", "fence_busy", "fence_seal_mismatch", "fence_changed_during_read"]);
+});
+
+test("throwing observers never alter auth rejection, success or lease cleanup", async () => {
+  const observe = () => { throw Error("observer must not affect auth"); };
+  const expired = base(); expired.auth!.accessExpiresAt = now;
+  await assert.rejects(setup(port(expired), undefined, observe).authenticatedOperation(async () => 1), { code: "refresh_required", status: 401 });
+  const shared = createRefreshCoordinator(() => now); const auth = base().auth!;
+  const writer = shared.claim(`${base().sessionId}:${auth.generation}`, auth, true);
+  await assert.rejects(setup(port(), shared, observe).authenticatedOperation(async () => 1), { code: "refresh_required", status: 401 });
+  writer.release();
+  assert.equal(await setup(port(), shared, observe).authenticatedOperation(async () => 2), 2);
+});
+
+test("success, unauthenticated and arbitrary upstream failures produce no diagnostic", async () => {
+  const reasons: string[] = [];
+  const observe = (reason: import("./auth-coordinator.ts").AuthRefreshRequiredReason) => { reasons.push(reason); };
+  const p = port(); const c = setup(p, undefined, observe);
+  assert.equal(await c.authenticatedOperation(async () => 1), 1);
+  const upstream = new Error("private upstream");
+  await assert.rejects(c.authenticatedOperation(async () => { throw upstream; }), error => error === upstream);
+  await assert.rejects(setup({ read: () => undefined, save: async () => {}, destroy: () => {} }, undefined, observe).authenticatedOperation(async () => 1), { code: "unauthenticated" });
+  assert.deepEqual(reasons, []);
+  assert.equal(p.saved.length, 0);
 });
