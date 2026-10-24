@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" source("..");
 
 /* Account actions reuse brand semantic tokens in both themes. */
 .owner-link {

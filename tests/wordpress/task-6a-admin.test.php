@@ -89,6 +89,8 @@ function wp_parse_url( $url ) { return parse_url( $url ); }
 function esc_html( $value ) { return htmlspecialchars( (string) $value, ENT_QUOTES, 'UTF-8' ); } function esc_attr( $value ) { return esc_html( $value ); } function esc_url( $value ) { return (string) $value; } function sanitize_key( $value ) { return preg_replace( '/[^a-z0-9_]/', '', strtolower( $value ) ); }
 class WP_Error { public function __construct( public string $code = '', public string $message = '' ) {} }
 
+require_once NAHAN_CORE_DIR . 'includes/class-autoloader.php';
+Nahan\Core\Autoloader::register();
 require_once NAHAN_CORE_DIR . 'includes/class-helpers.php';
 require_once NAHAN_CORE_DIR . 'includes/class-roles.php';
 require_once NAHAN_CORE_DIR . 'includes/class-local-development-gate.php';

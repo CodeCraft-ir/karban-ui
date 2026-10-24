@@ -11,6 +11,8 @@ namespace {
 	define( 'ABSPATH', __DIR__ . '/' );
 	define( 'ARRAY_A', 'ARRAY_A' );
 	define( 'NAHAN_CORE_DIR', '/Applications/XAMPP/xamppfiles/htdocs/karban/wp-content/plugins/karban-core/' );
+	require_once NAHAN_CORE_DIR . 'includes/class-autoloader.php';
+	\Nahan\Core\Autoloader::register();
 
 	final class WP_Error {
 		public function __construct( public string $code = '', public string $message = '', public array $data = [] ) {}
@@ -32,7 +34,10 @@ namespace {
 	function do_action( string $hook, mixed ...$args ): void { global $actions; $actions[] = [ $hook, $args ]; }
 	function get_post( int $post_id ): ?object { global $test_posts; return $test_posts[ $post_id ] ?? null; }
 
-	final class TestWpdb {
+	final class TestWpdb implements \Nahan\Core\Payments\FinancialConnectionPort {
+		public function prefix_value(): string { return $this->prefix; }
+		public function users_table(): string { return $this->users; }
+		public function failure(): ?WP_Error { return null; }
 		public string $prefix = 'wp_';
 		public string $users = 'wp_users';
 		/** @var list<string> */ public array $queries = [];
@@ -66,32 +71,42 @@ namespace {
 		];
 		public bool $migration_has_conflict = false;
 
-		public function prepare( string $query, mixed ...$args ): string {
+		public function suppress_errors( $suppress = true ): bool { return false; }
+		public function prepare( $query, ...$args ): string {
 			$this->prepare_calls[] = [ 'query' => $query, 'args' => $args ];
 			return $query;
 		}
-		public function get_row( string $query, mixed $output = null ): ?array {
+		public function get_row( $query = null, $output = 'OBJECT', $y = 0 ): ?array {
+			$this->last_error = '';
 			$this->queries[] = $query;
-			if ( str_contains( $query, 'SHOW TABLE STATUS' ) ) return [ 'Engine' => $this->engine ];
+			if ( str_contains( $query, 'SHOW TABLE STATUS' ) ) {
+				$prepared = end( $this->prepare_calls );
+				if ( in_array( $prepared['args'][0] ?? null, [ 'wp_nahan_local_payment_provenance', 'wp_nahan_local_payment_intents' ], true ) ) return null;
+				return [ 'Engine' => $this->engine ];
+			}
 			if ( str_contains( $query, 'FROM wp_nahan_wallet_transactions' ) ) return [ 'balance_after' => $this->balance ];
 			if ( str_contains( $query, 'FROM wp_nahan_leads_unlocked' ) ) return $this->lead_row;
 			if ( str_contains( $query, 'FROM wp_nahan_subscriptions' ) ) return $this->subscription_row;
 			if ( str_contains( $query, 'HAVING COUNT(*) > 1' ) ) return $this->migration_has_conflict ? [ 'effect_key' => 'duplicate' ] : null;
 			return null;
 		}
-		public function get_var( string $query ): mixed {
+		public function get_var( $query = null, $x = 0, $y = 0 ): mixed {
+			$this->last_error = '';
 			$this->queries[] = $query;
+			if ( 'SELECT @@SESSION.in_transaction' === $query ) return '0';
 			if ( str_contains( $query, 'FROM wp_users' ) ) return $this->user_exists ? 7 : null;
 			if ( str_contains( $query, 'COUNT(*)' ) ) return $this->allowance_used;
 			return null;
 		}
-		public function get_col( string $query, mixed $column = 0 ): array {
+		public function get_col( $query = null, $column = 0 ): array {
+			$this->last_error = '';
 			$this->queries[] = $query;
 			if ( str_contains( $query, 'SHOW COLUMNS' ) ) return $this->columns;
 			if ( str_contains( $query, 'SHOW INDEX' ) ) foreach ( $this->index_rows as $table => $rows ) if ( str_contains( $query, $table ) ) return array_map( static fn( array $row ): string => $row['Key_name'], $rows );
 			return [];
 		}
-		public function get_results( string $query, mixed $output = null ): array|false|null {
+		public function get_results( $query = null, $output = 'OBJECT' ): array|false|null {
+			$this->last_error = '';
 			$this->queries[] = $query;
 			if ( str_contains( $query, 'SHOW INDEX' ) ) foreach ( $this->index_rows as $table => $rows ) if ( str_contains( $query, $table ) ) return $rows;
 			if ( str_contains( $query, 'FROM wp_nahan_leads_unlocked' ) && str_contains( $query, 'FOR UPDATE' ) ) {
@@ -99,23 +114,29 @@ namespace {
 			}
 			return [];
 		}
-		public function insert( string $table, array $data, ?array $format = null ): int|false {
+		public function insert( $table, $data, $format = null ): int|false {
 			$this->inserts[] = compact( 'table', 'data' );
 			$result = $this->insert_outcomes[ $table ] ?? 1;
 			if ( 1 === $result ) $this->insert_id++;
 			return $result;
 		}
-		public function update( string $table, array $data, array $where, ?array $format = null, ?array $where_format = null ): int|false {
+		public function update( $table, $data, $where, $format = null, $where_format = null ): int|false {
 			$this->queries[] = "UPDATE {$table}";
 			return $this->update_result;
 		}
-		public function query( string $query ): int|false {
+		public function query( $query ): int|false {
+			$this->last_error = '';
 			$this->queries[] = $query;
-			if ( 'COMMIT' === $query ) return $this->commit_result;
+			if ( 'COMMIT' === $query ) {
+				if ( false === $this->commit_result ) $this->last_error = 'synthetic database detail';
+				return $this->commit_result;
+			}
 			return 1;
 		}
 		public function get_charset_collate(): string { return ''; }
 	}
+
+	function fixture_uow(): \Nahan\Core\Payments\TransactionalUnitOfWork { return new \Nahan\Core\Payments\TransactionalUnitOfWork( null, $GLOBALS['wpdb'] ); }
 
 	function reset_fixture(): TestWpdb {
 		global $wpdb, $test_options, $test_posts, $actions;
@@ -147,6 +168,8 @@ namespace {
 }
 
 namespace Nahan\Core\Payments {
+	require_once NAHAN_CORE_DIR . 'includes/class-autoloader.php';
+	\Nahan\Core\Autoloader::register();
 	require_once NAHAN_CORE_DIR . 'includes/class-helpers.php';
 	require_once NAHAN_CORE_DIR . 'includes/payments/class-transactional-unit-of-work.php';
 	require_once NAHAN_CORE_DIR . 'includes/payments/class-wallet-manager.php';
@@ -157,7 +180,7 @@ namespace Nahan\Core\Payments {
 	$tests = [];
 	$tests['no-history wallet debit locks the existing account before a balance read and ledger insert'] = static function (): void {
 		$wpdb = \reset_fixture();
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
 		$result = $wallet->debit( 7, 100, WalletManager::TX_LEAD );
 		assert_error( $result, 'insufficient_funds', 402, 'Empty wallet debit' );
@@ -170,7 +193,7 @@ namespace Nahan\Core\Payments {
 	$tests['stale concurrent wallet loser rechecks the locked balance and makes no write'] = static function (): void {
 		$wpdb = \reset_fixture();
 		$wpdb->balance = 50;
-		$result = ( new WalletManager( new TransactionalUnitOfWork() ) )->debit( 7, 100, WalletManager::TX_LEAD );
+		$result = ( new WalletManager( \fixture_uow() ) )->debit( 7, 100, WalletManager::TX_LEAD );
 		assert_error( $result, 'insufficient_funds', 402, 'Loser after account serialization' );
 		assert_same( [], $wpdb->inserts, 'A loser must not create a negative ledger row.' );
 		assert_true( str_contains( implode( "\n", $wpdb->queries ), 'FOR UPDATE' ), 'The loser must read after acquiring a lock boundary.' );
@@ -179,7 +202,7 @@ namespace Nahan\Core\Payments {
 		$wpdb = \reset_fixture();
 		$wpdb->balance = 90000;
 		$wpdb->lead_row = [ 'id' => 44, 'expires_at' => null ];
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$lead = new LeadManager( new WalletManager( $uow ), new SubscriptionManager( new WalletManager( $uow ), $uow ), $uow );
 		$result = $lead->unlock( 7, LeadManager::TARGET_PROJECT, 100 );
 		assert_true( ! \is_wp_error( $result ), 'Existing entitlement must be a safe successful idempotent result.' );
@@ -191,7 +214,7 @@ namespace Nahan\Core\Payments {
 		$wpdb = \reset_fixture();
 		$wpdb->balance = 90000;
 		$wpdb->insert_outcomes['wp_nahan_leads_unlocked'] = false;
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
 		$lead = new LeadManager( $wallet, new SubscriptionManager( $wallet, $uow ), $uow );
 		$result = $lead->unlock( 7, LeadManager::TARGET_PROJECT, 100 );
@@ -200,20 +223,20 @@ namespace Nahan\Core\Payments {
 		assert_same( 0, count( array_filter( $wpdb->queries, static fn( string $query ): bool => 'COMMIT' === $query ) ), 'Failed entitlement must not commit its debit.' );
 		assert_true( in_array( 'ROLLBACK', $wpdb->queries, true ), 'Failed entitlement must roll back the debit.' );
 	};
-	$tests['commit failure returns a safe error and rolls back'] = static function (): void {
+	$tests['commit failure is uncertain and never proves rollback on another connection'] = static function (): void {
 		$wpdb = \reset_fixture();
 		$wpdb->balance = 100;
 		$wpdb->commit_result = false;
-		$result = ( new WalletManager( new TransactionalUnitOfWork() ) )->credit( 7, 10, WalletManager::TX_DEPOSIT );
-		assert_error( $result, 'financial_commit_failed', 503, 'Commit failure' );
-		assert_true( in_array( 'ROLLBACK', $wpdb->queries, true ), 'Commit failure needs explicit rollback.' );
-		assert_true( ! str_contains( $result->message, $wpdb->last_error ), 'Database details must not escape a safe error.' );
+		$result = ( new WalletManager( \fixture_uow() ) )->credit( 7, 10, WalletManager::TX_DEPOSIT );
+		assert_error( $result, 'financial_commit_uncertain', 503, 'Commit failure' );
+		assert_true( ! in_array( 'ROLLBACK', $wpdb->queries, true ), 'Commit failure cannot claim a rollback after an uncertain commit.' );
+		assert_true( ! str_contains( $result->message, 'synthetic database detail' ), 'Database details must not escape a safe error, even after rollback clears last_error.' );
 	};
 	$tests['subscription allowance locks active subscription before reserving a zero-price lead'] = static function (): void {
 		$wpdb = \reset_fixture();
 		$wpdb->subscription_row = [ 'id' => 22, 'plan_slug' => 'pro', 'starts_at' => '2026-10-01 00:00:00', 'ends_at' => '2026-11-01 00:00:00' ];
 		$wpdb->allowance_rows = [ [ 'id' => 1 ] ];
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
 		$lead = new LeadManager( $wallet, new SubscriptionManager( $wallet, $uow ), $uow );
 		$result = $lead->unlock( 7, LeadManager::TARGET_CONTACT, 101 );
@@ -226,14 +249,14 @@ namespace Nahan\Core\Payments {
 	};
 	$tests['invalid target is rejected before any financial write'] = static function (): void {
 		$wpdb = \reset_fixture();
-		$result = ( new LeadManager( new WalletManager( new TransactionalUnitOfWork() ), new SubscriptionManager( new WalletManager( new TransactionalUnitOfWork() ) ) ) )->unlock( 7, LeadManager::TARGET_PROJECT, 999 );
+		$result = ( static function () { $wallet = new WalletManager( \fixture_uow() ); return new LeadManager( $wallet, new SubscriptionManager( $wallet ) ); } )()->unlock( 7, LeadManager::TARGET_PROJECT, 999 );
 		assert_error( $result, 'invalid_target', 422, 'Missing unpublished target' );
 		assert_same( [], $wpdb->inserts, 'Invalid target cannot debit.' );
 	};
 	$tests['non-transactional table engine is explicitly rejected before mutations'] = static function (): void {
 		$wpdb = \reset_fixture();
 		$wpdb->engine = 'MyISAM';
-		$result = ( new WalletManager( new TransactionalUnitOfWork() ) )->credit( 7, 10, WalletManager::TX_DEPOSIT );
+		$result = ( new WalletManager( \fixture_uow() ) )->credit( 7, 10, WalletManager::TX_DEPOSIT );
 		assert_error( $result, 'financial_transaction_unsupported', 503, 'Non-InnoDB engine' );
 		assert_true( ! in_array( 'START TRANSACTION', $wpdb->queries, true ), 'Engine check must happen before BEGIN.' );
 		assert_same( [], $wpdb->inserts, 'Unsupported engine cannot mutate money.' );
@@ -266,7 +289,7 @@ namespace Nahan\Core\Payments {
 		$wpdb = \reset_fixture();
 		$wpdb->subscription_row = [ 'id' => 22, 'plan_slug' => 'pro', 'starts_at' => '2026-10-01 00:00:00', 'ends_at' => '2026-11-01 00:00:00' ];
 		$wpdb->allowance_read_failed = true;
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
 		$result = ( new LeadManager( $wallet, new SubscriptionManager( $wallet, $uow ), $uow ) )->unlock( 7, LeadManager::TARGET_CONTACT, 101 );
 		assert_error( $result, 'financial_storage_unavailable', 503, 'Allowance read failure' );
@@ -278,7 +301,7 @@ namespace Nahan\Core\Payments {
 		$wpdb->balance = 90000;
 		$wpdb->subscription_row = [ 'id' => 22, 'plan_slug' => 'pro', 'starts_at' => '2026-10-01 00:00:00', 'ends_at' => '2026-11-01 00:00:00' ];
 		$wpdb->allowance_rows = [ [ 'id' => 1 ], [ 'id' => 2 ] ];
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
 		$result = ( new LeadManager( $wallet, new SubscriptionManager( $wallet, $uow ), $uow ) )->unlock( 7, LeadManager::TARGET_CONTACT, 101 );
 		assert_true( ! \is_wp_error( $result ), 'Capped allowance must continue through the paid path.' );
@@ -297,7 +320,7 @@ namespace Nahan\Core\Payments {
 	$tests['cancellation serializes on the account lock and rolls back a failed update'] = static function (): void {
 		$wpdb = \reset_fixture();
 		$wpdb->subscription_row = [ 'id' => 22, 'user_id' => 7, 'plan_slug' => 'pro', 'status' => 'active' ];
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
 		$subscriptions = new SubscriptionManager( $wallet, $uow );
 		assert_same( true, $subscriptions->cancel( 22, 7 ), 'Cancellation must succeed when its transition is stored.' );
@@ -308,15 +331,15 @@ namespace Nahan\Core\Payments {
 		$wpdb = \reset_fixture();
 		$wpdb->subscription_row = [ 'id' => 22, 'user_id' => 7, 'plan_slug' => 'pro', 'status' => 'active' ];
 		$wpdb->update_result = false;
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$wallet = new WalletManager( $uow );
-		assert_same( false, ( new SubscriptionManager( $wallet, $uow ) )->cancel( 22, 7 ), 'Failed cancellation storage must not be reported as cancelled.' );
+		assert_error( ( new SubscriptionManager( $wallet, $uow ) )->cancel( 22, 7 ), 'financial_storage_unavailable', 503, 'Failed cancellation storage must remain a controlled failure, never cancelled success.' );
 		assert_true( in_array( 'ROLLBACK', $wpdb->queries, true ), 'Failed cancellation update must roll back.' );
 		assert_same( [], $GLOBALS['actions'], 'Failed cancellation must not fire its hook.' );
 	};
 	$tests['ignored nested financial error poisons the outer transaction and prevents commit'] = static function (): void {
 		$wpdb = \reset_fixture();
-		$uow = new TransactionalUnitOfWork();
+		$uow = \fixture_uow();
 		$result = $uow->run_for_user( 7, [ 'wp_nahan_wallet_transactions' ], static function () use ( $uow ) {
 			$uow->run_for_user( 7, [ 'wp_nahan_wallet_transactions' ], static fn() => new \WP_Error( 'inner_failure', 'inner failure', [ 'status' => 503 ] ) );
 			return [ 'outer' => 'ignored inner failure' ];

@@ -9,9 +9,9 @@
     },
     {
       "name": "karban-local-wordpress-test",
-      "runtimeExecutable": "env",
-      "runtimeArgs": ["WORDPRESS_URL=http://localhost/karban/", "WORDPRESS_PERMALINK_MODE=plain", "npm", "run", "dev", "--", "--webpack", "--hostname", "127.0.0.1", "--port", "3002"],
-      "port": 3002
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--webpack", "--hostname", "127.0.0.1", "--port", "3000"],
+      "port": 3000
     },
     {
       "name": "karban-wordpress-smoke",
